@@ -2,7 +2,7 @@ from openai import OpenAI
 from config.config_parser import Config
 
 config = Config()
-api_data = config.load_config(config.config_path)
+api_data = config.load_config()
 
 api_key = api_data["API_CONFIG"]["API_KEY"]
 base_url = api_data["API_CONFIG"]["BASE_URL"]

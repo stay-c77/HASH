@@ -1,20 +1,22 @@
-Syllabus_prompt = '''<user>
-Extract the syllabus from the given pdf in the following formatted JSON Structure
-<JSON>
-    {
-        Subject : *hint: Extract Subject name from the pdf*
-        Syllabus: [
-        {
-        module: *hint: Extract module heading*,
-        subject: *hint: Make a headline for the module based on the topics and subtopics*
-        topic: *hint: Extract the topic names from the syllabus and store it as a list*
-        }
-        ]
-    }
-</JSON>
-</user>'''
+class Prompt:
+    def __init__(self):
+        self.syllabus_prompt = '''<user>
+            Extract the syllabus from the given pdf in the following formatted JSON Structure
+            <JSON>
+                {
+                Subject : *hint: Extract Subject name from the pdf*
+                Syllabus: [
+                {
+                module: *hint: Extract module heading*,
+                subject: *hint: Make a headline for the module based on the topics and subtopics*
+                topic: *hint: Extract the topic names from the syllabus and store it as a list*
+                }
+                ]
+             }
+        </JSON>
+        </user>'''
 
-Quiz_prompt = '''<user>
+        self.quiz_prompt = '''<user>
         Generate a quiz with {number_of_questions} questions, each with {number_of_options} answer options,
         with the following topics: {topics}, and difficulty levels: {levels}. Generate this in json format
         <JSON>
@@ -36,3 +38,21 @@ Quiz_prompt = '''<user>
             </instructions>
         </JSON>
     </user>'''
+
+def parse_syllabus(self):
+    return self.syllabus_prompt
+
+def generate_quiz(self,number_of_questions,number_of_options,topics,levels,beginner,intermediate,hard):
+    return self.quiz_prompt.format(
+        number_of_questions=number_of_questions,
+        number_of_options=number_of_options,
+        topics=topics,
+        levels=levels,
+        beginner=beginner,
+        intermediate=intermediate,
+        hard=hard
+    )
+
+prompt = Prompt()
+
+
