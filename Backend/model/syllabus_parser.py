@@ -4,7 +4,7 @@ import json
 prompt = Prompt()
 
 
-class process_syllabus:
+class ProcessSyllabus:
     def syllabus_parser(self):
         try:
             syllabus = '''Course Contents and Lecture Schedule

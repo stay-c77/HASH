@@ -11,5 +11,4 @@ class Config:
         config.read(self.config_path)
         return config
 
-
 config = Config()
