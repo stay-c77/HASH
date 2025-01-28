@@ -4,9 +4,9 @@ from config.config_parser import Config
 config = Config()
 api_data = config.load_config(config.config_path)
 
-api_key = api_data['API_CONFIG']['API_KEY']
-base_url = api_data['API_CONFIG']['BASE_URL']
-model = api_data['API_CONFIG']['MODEL']
+api_key = api_data["API_CONFIG"]["API_KEY"]
+base_url = api_data["API_CONFIG"]["BASE_URL"]
+model = api_data["API_CONFIG"]["MODEL"]
 
 class GenAI:
     def gen_ai_model(self,prompt):
@@ -14,7 +14,7 @@ class GenAI:
 
         response = self.client.chat.completions.create(
             model=model,
-            message=[
+            messages=[
                 {"role": "system", "content": "You are a helpful assistant for creating quiz and parsing syllabus based on the selected topics"},
                 {"role": "user", "content": prompt}
             ],
