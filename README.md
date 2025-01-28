@@ -27,17 +27,19 @@ Online Learning Platform - Project
         <JSON>
             {{
                 "quiz_title": "Quiz for {topics} topics",
-                "level":"The levels must be beginner intermediate or hard or extreme"
+                "level":"The levels must be beginner, intermediate or hard"
                 "questions": [
                     {{
-                        "question": "hint: Extract question from the syllabus",
-                        "options": ["hint: Extract answer options from the syllabus"],
-                        "answer": "hint: Extract correct answer from the syllabus"
+                        "question": "hint: Generate question from the selected topic",
+                        "options": ["hint: Generate answer options from the questions generated"],
+                        "answer": "hint: Extract correct answer from the options generated"
                     }},...
                 ]
             }}
             <instructions>
-                The user want {beginner} beginner, {intermediate} intermediate, {hard} hard and {extreme} extreme
+                The user want {beginner} beginner, {intermediate} intermediate and {hard} hard
+                The user wants 30% Beginner level questions, 40% intermediate questions and 30% Hard level questions
+                By default generate 10 questions, if user did not specify the {number_of_questions}
             </instructions>
         </JSON>
     </user>
