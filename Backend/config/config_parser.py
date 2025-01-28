@@ -7,6 +7,6 @@ class Config:
     def load_config(self, file_path):
         config = configparser.ConfigParser()
         config.read(file_path)
-        print(config)
+        return config
 
 config = Config()
