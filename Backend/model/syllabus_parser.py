@@ -1,15 +1,14 @@
 from prompts.prompt import Prompt
+from gen_ai.deepseek import GenAI
 import json
 
 prompt = Prompt()
-
 
 class ProcessSyllabus:
     def syllabus_parser(self):
         try:
             syllabus = '''Course Contents and Lecture Schedule
-
-No Topic No. of
+                        No Topic No. of
 Lectures
 1 Introduction To Python: 9 hours
 1.1
@@ -73,6 +72,7 @@ Downloaded from Ktunotes.in
 5.4 Constructor 2
 5.5 Class attributes and destructors 2
 5.6 Inheritance'''
+            return syllabus
 
         except Exception as e:
             print(f"An Error occurred while parsing syllabus: {str(e)}")
