@@ -1,6 +1,5 @@
 from prompts.prompt import Prompt
-from gen_ai.deepseek import GenAI
-import json
+
 
 prompt = Prompt()
 

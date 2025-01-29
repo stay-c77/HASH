@@ -1,7 +1,7 @@
 class Prompt:
     def __init__(self):
         self.syllabus_prompt = '''<user>
-            Extract the syllabus from the given pdf in the following formatted JSON Structure
+            Extract the syllabus from the given PDF in the following formatted JSON Structure
             <JSON>
                 {
                 Subject : *hint: Extract Subject name from the pdf*
@@ -39,8 +39,9 @@ class Prompt:
         </JSON>
     </user>'''
 
-def parse_syllabus(self):
-    return self.syllabus_prompt
+
+    def parse_syllabus(self):
+        return self.syllabus_prompt
 
 def generate_quiz(self,number_of_questions,number_of_options,topics,levels,beginner,intermediate,hard):
     return self.quiz_prompt.format(
