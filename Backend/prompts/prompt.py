@@ -26,7 +26,7 @@ class Prompt:
         <JSON>
             {{
                 "quiz_title": "Quiz for {topics} topics",
-                "level":"The levels must be beginner, intermediate or hard"
+                "level":"The levels must be beginner, intermediate or hard",
                 "questions": [
                     {{
                         "question": "hint: Generate question from the selected topic",

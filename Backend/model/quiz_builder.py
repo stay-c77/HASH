@@ -25,13 +25,19 @@ if syllabus_text:
             if "Syllabus" in syllabus_json:
                 for module in syllabus_json["Syllabus"]:
                     topics = module.get("topic") or module.get("topics")
+                    module_topics = module.get("topics") or module.get("topic")
+                    if module_topics:
+                        if isinstance(module_topics, list):
+                            topics.extend(module_topics)
+                        else:
+                            topics.append(module_topics)
                     if topics:
                         print("Topics found: ", topics)
                     else:
                         print("No Topics found in syllabus.")
 
             if topics:
-                topics_str = json.dumps(topics, indent=4)
+                topics_str = str(topics) if topics else '["Class definition, attributes, instances, sameness"]'
                 print(topics_str)
 
                 quiz_prompt = prompt_generator.generate_quiz(
@@ -47,8 +53,14 @@ if syllabus_text:
                 print("\n Generated Quiz Prompt:\n", quiz_prompt)
 
                 quiz_response =  gen_ai.gen_ai_model(quiz_prompt)
+                if not quiz_response:
+                    print("No response received. Retrying...")
+                    quiz_response = gen_ai.gen_ai_model(quiz_prompt)
+                if not quiz_response:
+                    print("Failed to generate Quiz.")
 
                 if quiz_response:
+                    print("Raw AI Response for Quiz:\n", quiz_response)
                     try:
                         cleaned_quiz_response = re.sub(r'```json|```', '', quiz_response).strip()
                         quiz_json = json.loads(cleaned_quiz_response)
