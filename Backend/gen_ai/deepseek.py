@@ -10,16 +10,16 @@ api_key = api_data["API_CONFIG"]["API_KEY"]
 base_url = api_data["API_CONFIG"]["BASE_URL"]
 model = api_data["API_CONFIG"]["MODEL"]
 
-print("Starting the script...")  # Debugging
+print("Starting the script...") #Checking whether the program is actually running
 
 
 class GenAI:
     def gen_ai_model(self, prompt):
-        print("Inside gen_ai_model function")  # Debugging
+        print("Inside gen_ai_model function")  # Checking if we are in gen_ai_model
         self.client = OpenAI(api_key=api_key, base_url=base_url)
 
         try:
-            print("Making API request...")  # Debugging
+            print("Making API request...")  #Verifying about API Request
             response = self.client.chat.completions.create(
                 model=model,
                 messages=[
@@ -29,8 +29,8 @@ class GenAI:
                 ],
                 stream=False
             )
-            print("API request successful!")  # Debugging
-            print("Raw API Response:", response)  # Debugging
+            print("API request successful!")  #API Request Verification - 2
+            print("Raw API Response:", response)  #Check logs, Tokens ettc
 
             return response.choices[0].message.content
         except Exception as e:
@@ -38,30 +38,29 @@ class GenAI:
             return None
 
 
-print("Creating GenAI instance...")  # Debugging
+print("Creating GenAI instance...")  #Instance of GenAI
 gen_ai = GenAI()
 
 prompt_generator = Prompt()
 syllabus_prompt = prompt_generator.parse_syllabus()
 
-print("Fetching syllabus from ProcessSyllabus...")  # Debugging
+print("Fetching syllabus from ProcessSyllabus...")  # Verifying whether the syllabus is going through
 process_syllabus = ProcessSyllabus()
 syllabus_text = process_syllabus.syllabus_parser()
 
 if syllabus_text:
     prompt_text = syllabus_prompt.format(syllabus_text=syllabus_text)
 
-    print("Calling gen_ai_model function with syllabus...")  # Debugging
+    print("Calling gen_ai_model function with syllabus...")  #GEN AI Model called using prompt
     response = gen_ai.gen_ai_model(prompt_text)
 
     if response:
         try:
             import json
-
-            syllabus_json = json.loads(response)  # ✅ Convert response to JSON
-            print("\n📜 Formatted Syllabus (JSON):\n", json.dumps(syllabus_json, indent=4))
+            syllabus_json = json.loads(response)  #Convert response to JSON
+            print("Formatted Syllabus (JSON):\n", json.dumps(syllabus_json, indent=4))
         except json.JSONDecodeError:
-            print("❌ AI Response is NOT valid JSON:\n", response)
+            print("AI Response is NOT valid JSON:\n", response)
     else:
-        print("❌ No response received.")
+        print("No response received.")
 
