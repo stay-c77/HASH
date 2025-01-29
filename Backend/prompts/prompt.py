@@ -47,16 +47,16 @@ class Prompt:
     def parse_syllabus(self):
         return self.syllabus_prompt
 
-def generate_quiz(self,number_of_questions,number_of_options,topics,levels,beginner,intermediate,hard):
-    return self.quiz_prompt.format(
-        number_of_questions=number_of_questions,
-        number_of_options=number_of_options,
-        topics=topics,
-        levels=levels,
-        beginner=beginner,
-        intermediate=intermediate,
-        hard=hard
-    )
+    def generate_quiz(self,number_of_questions,number_of_options,topics,levels,beginner,intermediate,hard):
+        return self.quiz_prompt.format(
+            number_of_questions=number_of_questions,
+            number_of_options=number_of_options,
+            topics=topics,
+            levels=levels,
+            beginner=beginner,
+            intermediate=intermediate,
+            hard=hard
+        )
 
 prompt = Prompt()
 
