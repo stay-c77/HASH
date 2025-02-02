@@ -1,0 +1,25 @@
+All Planned pages -->
+
+1. Login Page
+2. Dashboard Page - Student
+3. Dashboard Page - Teacher
+4. Dashboard Page - HOD/Admin
+5. Student Side - Notes/Materials/Syllabus Page
+6. Student Side - Quiz Page
+7. Student Side - Results Page/Synopsis Page
+8. Student Side - Ranks Page
+9. Teacher Side - All Classes Page
+10. Teacher Side - All Subjects Page
+11. Teacher Side - All Students Page
+12. Teacher Side - Generate Quiz Page
+13. Teacher Side - Customize Quiz Page
+14. Teacher Side - View/Add/Delete Students *From a certain class* page
+15. Teacher Side - View/Add/Edit/Delete Syllabus, Notes, Materials Page
+15. HOD/Admin Side -  All Classes Page
+16. HOD/Admin Side - All Subjects Page
+17. HOD/Admin Side -  All Students Page
+18. HOD/Admin Side - All Teachers Page
+19. HOD/Admin Side - Generate Quiz Page
+20. HOD/Admin Side - Customize Quiz Page
+21. HOD/Admin side - View/Add/Delete Students | Teachers Page
+22. HOD/Admin Side - View/Add/Edit/Delete Syllabus, Notes, Materials Page

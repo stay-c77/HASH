@@ -1,0 +1,67 @@
+# Core Utilities
+numpy
+pandas
+matplotlib
+seaborn
+scipy
+scikit-learn
+statsmodels
+requests
+beautifulsoup4
+lxml
+
+# Web Development
+Flask
+Django
+fastapi
+uvicorn
+gunicorn
+Jinja2
+
+# Database & ORM
+SQLAlchemy
+pymysql
+psycopg2
+pymongo
+
+# Machine Learning & AI
+tensorflow
+torch
+transformers
+xgboost
+opencv-python
+nltk
+spacy
+
+# Automation & Scraping
+selenium
+scrapy
+pyautogui
+
+# Security & Cryptography
+bcrypt
+cryptography
+
+# Testing & Debugging
+pytest
+unittest
+black
+flake8
+mypy
+
+# APIs & Networking
+httpx
+socketio
+pyjwt
+
+# System & Utilities
+rich
+loguru
+tqdm
+click
+
+# Virtual Environments & Package Management
+pip
+setuptools
+wheel
+virtualenv
