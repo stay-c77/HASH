@@ -1,19 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
 function App() {
     const [showPassword, setShowPassword] = useState(false);
+    const [currentSlide, setCurrentSlide] = useState(0);
+
+    const slides = [
+        'Images/LoginPage-Background.jpg',
+        'Images/LoginPage-Background2.jpg',
+        'Images/LoginPage-Background3.jpg'
+    ];
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentSlide((prev) => (prev + 1) % slides.length);
+        }, 7000); // Change slide every 3 seconds
+
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <div className="min-h-screen bg-[#2D2B3D] flex items-center justify-center p-4">
             <div className="w-full max-w-[1100px] bg-[#1E1C2E] rounded-3xl overflow-hidden flex shadow-2xl">
 
-                {/* Left Side - Image Section */}
+                {/* Left Side - Image Section (Slideshow) */}
                 <div className="hidden lg:flex lg:w-1/2 relative">
-                    <div
-                        className="absolute inset-0 bg-cover bg-center"
-                        style={{ backgroundImage: "url('Images/LoginPage-Background.jpg')" }}
-                    />
+                    {slides.map((image, index) => (
+                        <div
+                            key={index}
+                            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+                            style={{ backgroundImage: `url('${image}')` }}
+                        />
+                    ))}
                     <div className="absolute inset-0 bg-gradient-to-t from-[#1E1C2E]/80 to-transparent" />
                     <div className="relative z-10 p-12 flex flex-col h-full">
                         <div
@@ -23,9 +41,9 @@ function App() {
                         <div className="text-white mt-auto">
                             <h2 className="text-4xl font-bold mb-6">Quiz Smart,<br />Learn Fast</h2>
                             <div className="flex gap-2">
-                                <div className="w-8 h-1 bg-gray-500 rounded-full"></div>
-                                <div className="w-8 h-1 bg-gray-500 rounded-full"></div>
-                                <div className="w-8 h-1 bg-white rounded-full"></div>
+                                {slides.map((_, index) => (
+                                    <div key={index} className={`w-8 h-1 rounded-full ${index === currentSlide ? 'bg-white' : 'bg-gray-500'}`}></div>
+                                ))}
                             </div>
                         </div>
                     </div>
