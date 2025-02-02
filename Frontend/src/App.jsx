@@ -1,34 +1,27 @@
-import React from 'react';
-import {Eye} from 'lucide-react';
+import React, { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 function App() {
+    const [showPassword, setShowPassword] = useState(false);
+
     return (
         <div className="min-h-screen bg-[#2D2B3D] flex items-center justify-center p-4">
             <div className="w-full max-w-[1100px] bg-[#1E1C2E] rounded-3xl overflow-hidden flex shadow-2xl">
+
                 {/* Left Side - Image Section */}
                 <div className="hidden lg:flex lg:w-1/2 relative">
-                    {/* Replace this URL with your desired background image */}
                     <div
                         className="absolute inset-0 bg-cover bg-center"
-                        style={{
-                            backgroundImage: "url('Images/LoginPage-Background.jpg')"
-                        }}
+                        style={{ backgroundImage: "url('Images/LoginPage-Background.jpg')" }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#1E1C2E]/80 to-transparent"/>
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#1E1C2E]/80 to-transparent" />
                     <div className="relative z-10 p-12 flex flex-col h-full">
-                        {/* Logo */}
                         <div
                             className="absolute -top-4 left-1 bg-no-repeat bg-center bg-contain"
-                            style={{
-                                backgroundImage: "url('Images/HashLogo.png')",
-                                width: "150px",
-                                height: "150px"
-                            }}
-                        ></div>
-                        {/* Tagline */}
+                            style={{ backgroundImage: "url('Images/HashLogo.png')", width: "150px", height: "150px" }}
+                        />
                         <div className="text-white mt-auto">
-                            <h2 className="text-4xl font-bold mb-6">Quiz Smart,<br/>Learn Fast</h2>
-                            {/* Dots navigation */}
+                            <h2 className="text-4xl font-bold mb-6">Quiz Smart,<br />Learn Fast</h2>
                             <div className="flex gap-2">
                                 <div className="w-8 h-1 bg-gray-500 rounded-full"></div>
                                 <div className="w-8 h-1 bg-gray-500 rounded-full"></div>
@@ -64,14 +57,19 @@ function App() {
                             className="w-full bg-[#2D2B3D] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
 
+                        {/* Password Input with Show/Hide Toggle */}
                         <div className="relative">
                             <input
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 placeholder="Enter your password"
                                 className="w-full bg-[#2D2B3D] text-white rounded-lg p-3 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-500"
                             />
-                            <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8F8F8F]">
-                                <Eye size={20}/>
+                            <button
+                                type="button"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8F8F8F]"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                             </button>
                         </div>
 
@@ -96,14 +94,14 @@ function App() {
                                 type="button"
                                 className="flex-1 flex items-center justify-center gap-2 bg-[#2D2B3D] text-white rounded-lg p-3 hover:bg-[#363447] transition-colors"
                             >
-                                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5"/>
+                                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
                                 Google
                             </button>
                             <button
                                 type="button"
                                 className="flex-1 flex items-center justify-center gap-2 bg-[#2D2B3D] text-white rounded-lg p-3 hover:bg-[#363447] transition-colors"
                             >
-                                <img src="https://www.apple.com/favicon.ico" alt="Apple" className="w-5 h-5"/>
+                                <img src="https://www.apple.com/favicon.ico" alt="Apple" className="w-5 h-5" />
                                 Apple
                             </button>
                         </div>
