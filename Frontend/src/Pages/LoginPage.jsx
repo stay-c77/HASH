@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from 'lucide-react';
 
 function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
-    const [currentSlide, setCurrentSlide] = useState(0);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const navigate = useNavigate();
 
     const slides = [
         'Images/LoginPage-Background.jpg',
         'Images/LoginPage-Background2.jpg',
         'Images/LoginPage-Background3.jpg'
     ];
+
+     const [currentSlide, setCurrentSlide] = useState(0);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -18,6 +24,16 @@ function LoginPage() {
 
         return () => clearInterval(interval);
     }, []);
+
+    const handleLogin = (e) => {
+        e.preventDefault();
+
+        if (email === "User@gmail.com" && password === "User123") {
+            navigate("/Dashboard"); // Redirect to Dashboard
+        } else {
+            setError("Invalid credentials. Please try again.");
+        }
+    };
 
     return (
         <div className="min-h-screen bg-[#2D2B3D] flex items-center justify-center p-4">
@@ -57,8 +73,10 @@ function LoginPage() {
 
                     <form className="space-y-6">
                         <input
-                            type="email"
+                            type="text"
                             placeholder="Enter your email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             className="w-full bg-[#2D2B3D] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
 
@@ -67,6 +85,8 @@ function LoginPage() {
                             <input
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Enter your password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                                 className="w-full bg-[#2D2B3D] text-white rounded-lg p-3 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-500"
                             />
                             <button
@@ -80,6 +100,7 @@ function LoginPage() {
 
                         <button
                             type="submit"
+                            onClick={handleLogin}
                             className="w-full bg-[#7C3AED] text-white rounded-lg p-3 font-medium hover:bg-[#6D28D9] transition-colors"
                         >
                             Login to your account
