@@ -82,7 +82,7 @@ function LoginPage() {
                             type="submit"
                             className="w-full bg-[#7C3AED] text-white rounded-lg p-3 font-medium hover:bg-[#6D28D9] transition-colors"
                         >
-                            Create account
+                            Login to your account
                         </button>
 
                         <div className="relative my-10">
