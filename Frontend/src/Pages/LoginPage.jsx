@@ -56,22 +56,9 @@ function LoginPage() {
                     </div>
 
                     <form className="space-y-6">
-                        <div className="flex gap-4">
-                            <input
-                                type="text"
-                                placeholder="First name"
-                                className="flex-1 bg-[#2D2B3D] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Last name"
-                                className="flex-1 bg-[#2D2B3D] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            />
-                        </div>
-
                         <input
                             type="email"
-                            placeholder="Email"
+                            placeholder="Enter your email"
                             className="w-full bg-[#2D2B3D] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
 
@@ -103,7 +90,7 @@ function LoginPage() {
                                 <div className="w-full border-t border-[#2D2B3D]"></div>
                             </div>
                             <div className="relative flex justify-center text-sm">
-                                <span className="px-2 bg-[#1E1C2E] text-[#8F8F8F]">Or register with</span>
+                                <span className="px-2 bg-[#1E1C2E] text-[#8F8F8F]">Or login with</span>
                             </div>
                         </div>
 
