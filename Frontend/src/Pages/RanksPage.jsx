@@ -1,10 +1,10 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Search, Bell, CheckCircle, Clock, AlertCircle, FileText,
   Book, BookMarked, Trophy, Users, LogOut,
   Brain, Lightbulb, Target, Glasses, GraduationCap,
-  Cpu, Compass, Award, Crown, Star
+  Cpu, Compass, Award, Crown, Star, X
 } from 'lucide-react';
 
 // Dummy data for top ranks
@@ -46,9 +46,12 @@ const rankSystem = [
 const RanksPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [expandedSubject, setExpandedSubject] = useState(null);
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
 
   const handleLogout = () => {
-    // Add your logout logic here
+    localStorage.removeItem("user");
+    navigate("/LoginPage");
   };
 
   return (
@@ -94,13 +97,16 @@ const RanksPage = () => {
               <div className="mb-6">
                   <div className="text-[#8F8F8F] text-sm mb-3">RESOURCES</div>
                   <ul className="space-y-3">
-                      <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+                      <li className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                      onClick={() => navigate("/PYQsPage")}>
                           <FileText size={18} className="mr-2"/> PYQs
                       </li>
-                      <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+                      <li className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                      onClick={() => navigate("/SyllabusPage")}>
                           <Book size={18} className="mr-2"/> Syllabus
                       </li>
-                      <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+                      <li className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                      onClick={() => navigate("/MaterialsPage")}>
                           <BookMarked size={18} className="mr-2"/> Materials / Notes
                       </li>
                   </ul>
@@ -133,13 +139,45 @@ const RanksPage = () => {
               {/* Logout at bottom */}
               <div className="mt-auto">
                   <button
-                      onClick={handleLogout}
+                      onClick={() => setLogoutModalOpen(true)}
                       className="flex items-center text-gray-300 hover:text-white hover:bg-[#3A3750] transition-all duration-200 p-2 rounded-lg"
                   >
                       <LogOut size={18} className="mr-2"/> Logout
                   </button>
               </div>
           </div>
+          {/* Logout Confirmation Modal */}
+{logoutModalOpen && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-80 text-white relative">
+            {/* Close Button */}
+            <button
+                onClick={() => setLogoutModalOpen(false)}
+                className="absolute top-2 right-2 text-gray-400 hover:text-white"
+            >
+                <X size={20} />
+            </button>
+
+            <h2 className="text-xl font-semibold mb-4">Confirm Logout</h2>
+            <p className="text-gray-400 mb-6">Are you sure you want to log out?</p>
+
+            <div className="flex justify-between">
+                <button
+                    onClick={() => setLogoutModalOpen(false)}
+                    className="bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded-lg transition-all duration-200"
+                >
+                    Cancel
+                </button>
+                <button
+                    onClick={handleLogout}
+                    className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-all duration-200"
+                >
+                    Yes, Logout
+                </button>
+            </div>
+        </div>
+    </div>
+)}
 
     {/* Main Content */
     }

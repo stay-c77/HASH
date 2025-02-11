@@ -85,13 +85,15 @@ const StudentDashboard = () => {
         <div className="mb-6">
           <div className="text-[#8F8F8F] text-sm mb-3">RESOURCES</div>
             <ul className="space-y-3">
-                <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+                <li className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                onClick={() => navigate("/PYQsPage")}>
                     <Book size={18} className="mr-2"/> PYQs
                 </li>
                 <li className="flex items-center text-white bg-[#3A3750] cursor-default p-2 rounded-lg">
                     <FileText size={18} className="mr-2"/> Syllabus
                 </li>
-                <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+                <li className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                onClick={() => navigate("/MaterialsPage")}>
                     <BookMarked size={18} className="mr-2"/> Materials / Notes
                 </li>
             </ul>
@@ -103,7 +105,8 @@ const StudentDashboard = () => {
           <div className="mb-6">
               <div className="text-[#8F8F8F] text-sm mb-3">RANKS</div>
           <ul className="space-y-3">
-            <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+            <li className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+            onClick={() => navigate("/RanksPage")}>
               <Trophy size={18} className="mr-2"/> View Ranks
             </li>
           </ul>
