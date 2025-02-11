@@ -6,12 +6,13 @@ import ResultsPage from "./pages/ResultsPage";
 import PYQsPage from "./pages/PYQsPage";
 import SyllabusPage from "./pages/SyllabusPage";
 import MaterialsPage from "./pages/MaterialsPage";
+import RanksPage from "./pages/RanksPage";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<MaterialsPage />} />
+        <Route path="/" element={<RanksPage />} />
         <Route path="/StudentDashboard" element={<StudentDashboard />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
