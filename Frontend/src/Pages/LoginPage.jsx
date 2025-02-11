@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from 'lucide-react';
 
+function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState("");
@@ -27,12 +31,19 @@ function LoginPage() {
 
     const handleLogin = (e) => {
         e.preventDefault();
+        setError("");
 
-        if (email === "User@gmail.com" && password === "User123") {
-            navigate("/Dashboard"); // Redirect to Dashboard
-        } else {
-            setError("Invalid credentials. Please try again.");
+        if (!validateEmail(email)) {
+            setError("Invalid email or password. Please try again.");
+            return;
         }
+
+        if (email !== "User@gmail.com" || password !== "User123") {
+            setError("Invalid email or password. Please try again.");
+            return;
+        }
+
+        navigate("/StudentDashboard");
     };
 
     return (
@@ -94,10 +105,10 @@ function LoginPage() {
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8F8F8F]"
                                 onClick={() => setShowPassword(!showPassword)}
                             >
-                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                {showPassword ? <EyeOff size={20}/> : <Eye size={20}/>}
                             </button>
                         </div>
-
+                        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
                         <button
                             type="submit"
                             onClick={handleLogin}
@@ -116,7 +127,7 @@ function LoginPage() {
                         </div>
 
                         <div className="flex gap-6">
-                            <button
+                        <button
                                 type="button"
                                 className="flex-1 flex items-center justify-center gap-2 bg-[#2D2B3D] text-white rounded-lg p-3 hover:bg-[#363447] transition-colors"
                             >

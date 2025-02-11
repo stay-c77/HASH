@@ -19,7 +19,7 @@ const teachersData = [
   { name: "Dr. Lisa Kumar", subject: "Chemistry", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop" },
 ];
 
-const Dashboard = () => {
+const StudentDashboard = () => {
 
   const navigate = useNavigate();
   const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
@@ -47,7 +47,7 @@ const Dashboard = () => {
 
           {/* My Assignments Section */}
           <div className="mb-6">
-            <div className="text-[#8F8F8F] text-sm mb-3">MY ASSIGNMENTS</div>
+            <div className="text-[#8F8F8F] text-sm mb-3">ASSIGNMENTS</div>
             <ul className="space-y-3">
               <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
                 <CheckCircle size={18} className="mr-2"/> Completed Quizzes
@@ -65,7 +65,7 @@ const Dashboard = () => {
 
           {/* My Subjects Section */}
           <div className="mb-6">
-            <div className="text-[#8F8F8F] text-sm mb-3">MY SUBJECTS</div>
+            <div className="text-[#8F8F8F] text-sm mb-3">RESOURCES</div>
             <ul className="space-y-3">
               <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
                 <FileText size={18} className="mr-2"/> PYQs
@@ -145,7 +145,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Dashboard Content */}
+          {/* StudentDashboard Content */}
           <div className="p-6 space-y-6">
             {/* Continue Learning Section */}
             <div className="bg-[#1E1C2E] rounded-xl p-6">
@@ -285,4 +285,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default StudentDashboard;
