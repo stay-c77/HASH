@@ -10,11 +10,12 @@ import {
   BookMarked,
   Trophy,
   Users,
+    X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 
-const StudentDashboard = () => {
+const SyllabusPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [expandedSubject, setExpandedSubject] = useState(null);
@@ -127,13 +128,46 @@ const StudentDashboard = () => {
         {/* Logout at bottom */}
         <div className="mt-auto">
           <button
-              onClick={handleLogout}
+              onClick={() => setLogoutModalOpen(true)}
               className="flex items-center text-gray-300 hover:text-white hover:bg-[#3A3750] transition-all duration-200 p-2 rounded-lg"
           >
             <LogOut size={18} className="mr-2"/> Logout
           </button>
         </div>
       </div>
+      {/* Logout Confirmation Modal */}
+{logoutModalOpen && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-80 text-white relative">
+            {/* Close Button */}
+            <button
+                onClick={() => setLogoutModalOpen(false)}
+                className="absolute top-2 right-2 text-gray-400 hover:text-white"
+            >
+                <X size={20} />
+            </button>
+
+            <h2 className="text-xl font-semibold mb-4">Confirm Logout</h2>
+            <p className="text-gray-400 mb-6">Are you sure you want to log out?</p>
+
+            <div className="flex justify-between">
+                <button
+                    onClick={() => setLogoutModalOpen(false)}
+                    className="bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded-lg transition-all duration-200"
+                >
+                    Cancel
+                </button>
+                <button
+                    onClick={handleLogout}
+                    className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-all duration-200"
+                >
+                    Yes, Logout
+                </button>
+            </div>
+        </div>
+    </div>
+)}
+
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
@@ -208,4 +242,4 @@ const StudentDashboard = () => {
   );
 };
 
-export default StudentDashboard;
+export default SyllabusPage;
