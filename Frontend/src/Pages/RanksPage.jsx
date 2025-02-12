@@ -7,6 +7,8 @@ import {
   Cpu, Compass, Award, Crown, Star, X
 } from 'lucide-react';
 import {motion} from "framer-motion";
+import { HoverBorderGradient } from "../../ui/hover-border-gradient";
+
 
 // Dummy data for top ranks
 const topRanks = [
@@ -77,7 +79,6 @@ const RanksPage = () => {
 
               <div className="border-b border-gray-700 mb-6"></div>
 
-              {/* My Assignments Section */}
               {/* My Assignments Section */}
         <div className="mb-6">
           <div className="text-[#8F8F8F] text-sm mb-3">ASSIGNMENTS</div>

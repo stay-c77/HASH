@@ -14,12 +14,13 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<MyTeachersPage />} />
+        <Route path="/" element={<LoginPage />} />
         <Route path="/StudentDashboard" element={<StudentDashboard />} />
         <Route path="/PYQsPage" element={<PYQsPage />} />
         <Route path="/SyllabusPage" element={<SyllabusPage />} />
         <Route path="/MaterialsPage" element={<MaterialsPage />} />
         <Route path="/RanksPage" element={<RanksPage />} />
+        <Route path="/MyTeachersPage" element={<MyTeachersPage />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
