@@ -12,6 +12,7 @@ function LoginPage() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
     const slides = [
         'Images/LoginPage-Background.jpg',
@@ -43,7 +44,11 @@ function LoginPage() {
             return;
         }
 
-        navigate("/StudentDashboard");
+        setLoading(true); // Show loading animation
+
+        setTimeout(() => {
+            navigate("/StudentDashboard");
+            }, 1500); // Simulate loading time (2 seconds)
     };
 
     return (
@@ -109,13 +114,19 @@ function LoginPage() {
                             </button>
                         </div>
                         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-                        <button
-                            type="submit"
-                            onClick={handleLogin}
-                            className="w-full bg-[#7C3AED] text-white rounded-lg p-3 font-medium hover:bg-[#6D28D9] transition-colors"
-                        >
-                            Login to your account
-                        </button>
+                        {loading ? (
+    <div className="flex justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-white border-t-transparent rounded-full"></div>
+    </div>
+) : (
+    <button
+        type="submit"
+        onClick={handleLogin}
+        className="w-full bg-[#7C3AED] text-white rounded-lg p-3 font-medium hover:bg-[#6D28D9] transition-colors"
+    >
+        Login to your account
+    </button>
+)}
 
                         <div className="relative my-10">
                             <div className="absolute inset-0 flex items-center">
