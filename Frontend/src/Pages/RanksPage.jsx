@@ -6,6 +6,7 @@ import {
   Brain, Lightbulb, Target, Glasses, GraduationCap,
   Cpu, Compass, Award, Crown, Star, X
 } from 'lucide-react';
+import {motion} from "framer-motion";
 
 // Dummy data for top ranks
 const topRanks = [
@@ -64,59 +65,64 @@ const RanksPage = () => {
               </div>
               <div className="border-b border-gray-700 mb-6"></div>
 
-              <div
+              <motion.div
+                  whileHover={{scale: 1.02}}
                   className={`text-lg font-semibold mb-4 cursor-pointer transition-colors duration-200 ${
                       location.pathname === "/StudentDashboard" ? "text-purple-400" : "text-white hover:text-purple-400"
                   }`}
                   onClick={() => navigate("/StudentDashboard")}
               >
                   Dashboard
-              </div>
+              </motion.div>
 
               <div className="border-b border-gray-700 mb-6"></div>
 
               {/* My Assignments Section */}
-              <div className="mb-6">
-                  <div className="text-[#8F8F8F] text-sm mb-3">ASSIGNMENTS</div>
-                  <ul className="space-y-3">
-                      <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-                          <CheckCircle size={18} className="mr-2"/> Completed Quizzes
-                      </li>
-                      <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-                          <Clock size={18} className="mr-2"/> Upcoming Quizzes
-                      </li>
-                      <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-                          <AlertCircle size={18} className="mr-2"/> Pending Quizzes
-                      </li>
-                  </ul>
-              </div>
+              {/* My Assignments Section */}
+        <div className="mb-6">
+          <div className="text-[#8F8F8F] text-sm mb-3">ASSIGNMENTS</div>
+          <ul className="space-y-3">
+            <motion.li whileHover={{ x: 4 }} className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+              <CheckCircle size={18} className="mr-2"/> Completed Quizzes
+            </motion.li>
+            <motion.li whileHover={{ x: 4 }} className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+              <Clock size={18} className="mr-2"/> Upcoming Quizzes
+            </motion.li>
+            <motion.li whileHover={{ x: 4 }} className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+              <AlertCircle size={18} className="mr-2"/> Pending Quizzes
+            </motion.li>
+          </ul>
+        </div>
 
               <div className="border-b border-gray-700 mb-6"></div>
 
-              {/* My Subjects Section */}
-              <div className="mb-6">
-                  <div className="text-[#8F8F8F] text-sm mb-3">RESOURCES</div>
-                  <ul className="space-y-3">
-                      <li className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                      onClick={() => navigate("/PYQsPage")}>
-                          <FileText size={18} className="mr-2"/> PYQs
-                      </li>
-                      <li className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                      onClick={() => navigate("/SyllabusPage")}>
-                          <Book size={18} className="mr-2"/> Syllabus
-                      </li>
-                      <li className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                      onClick={() => navigate("/MaterialsPage")}>
-                          <BookMarked size={18} className="mr-2"/> Materials / Notes
-                      </li>
-                  </ul>
-              </div>
+              {/* Resources Section */}
+        <div className="mb-6">
+          <div className="text-[#8F8F8F] text-sm mb-3">RESOURCES</div>
+          <ul className="space-y-3">
+            <motion.li
+                whileHover={{x: 4}}
+                className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                onClick={() => navigate("/PYQsPage")}
+                >
+              <FileText size={18} className="mr-2"/> PYQs
+            </motion.li>
+            <motion.li whileHover={{x: 4}} className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+            onClick={() => navigate("/SyllabusPage")}>
+              <Book size={18} className="mr-2"/> Syllabus
+            </motion.li>
+            <motion.li whileHover={{x: 4}} className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+            onClick={() => navigate("/MaterialsPage")}>
+              <BookMarked size={18} className="mr-2"/> Materials / Notes
+            </motion.li>
+          </ul>
+        </div>
 
               <div className="border-b border-gray-700 mb-6"></div>
 
               {/* Ranks Section */}
               <div className="mb-6">
-              <div className="text-[#8F8F8F] text-sm mb-3">RANKS</div>
+                  <div className="text-[#8F8F8F] text-sm mb-3">RANKS</div>
                   <ul className="space-y-3">
                       <li className="flex items-center text-white bg-[#3A3750] cursor-default p-2 rounded-lg">
                           <Trophy size={18} className="mr-2"/> Ranks
@@ -127,14 +133,15 @@ const RanksPage = () => {
               <div className="border-b border-gray-700 mb-6"></div>
 
               {/* Teachers Section */}
-              <div className="mb-6">
-                  <div className="text-[#8F8F8F] text-sm mb-3">TEACHERS</div>
-                  <ul className="space-y-3">
-                      <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-                          <Users size={18} className="mr-2"/> My Teachers
-                      </li>
-                  </ul>
-              </div>
+        <div className="mb-6">
+          <div className="text-[#8F8F8F] text-sm mb-3">TEACHERS</div>
+          <ul className="space-y-3">
+            <motion.li whileHover={{x: 4}} className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                       onClick={() => navigate("/MyTeachersPage")}>
+              <Users size={18} className="mr-2"/> My Teachers
+            </motion.li>
+          </ul>
+        </div>
 
               {/* Logout at bottom */}
               <div className="mt-auto">
@@ -147,13 +154,13 @@ const RanksPage = () => {
               </div>
           </div>
           {/* Logout Confirmation Modal */}
-{logoutModalOpen && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-        <div className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-80 text-white relative">
-            {/* Close Button */}
-            <button
-                onClick={() => setLogoutModalOpen(false)}
-                className="absolute top-2 right-2 text-gray-400 hover:text-white"
+          {logoutModalOpen && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                  <div className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-80 text-white relative">
+                      {/* Close Button */}
+                      <button
+                          onClick={() => setLogoutModalOpen(false)}
+                          className="absolute top-2 right-2 text-gray-400 hover:text-white"
             >
                 <X size={20} />
             </button>

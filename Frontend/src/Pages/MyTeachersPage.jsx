@@ -11,7 +11,7 @@ import {
 const facultyData = [
   {
     name: "Dr. Manoj T Joy",
-    position: "HOD",
+    position: "Head of Department",
     department: "Computer Science & Engineering",
     education: "Ph.D. in Computer Science",
     specialization: "Artificial Intelligence, Machine Learning",
@@ -248,13 +248,19 @@ const TeachersPage = () => {
         <div className="mb-6">
           <div className="text-[#8F8F8F] text-sm mb-3">RESOURCES</div>
           <ul className="space-y-3">
-            <motion.li whileHover={{ x: 4 }} className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+            <motion.li
+                whileHover={{x: 4}}
+                className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                onClick={() => navigate("/PYQsPage")}
+                >
               <FileText size={18} className="mr-2"/> PYQs
             </motion.li>
-            <motion.li whileHover={{ x: 4 }} className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+            <motion.li whileHover={{x: 4}} className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+            onClick={() => navigate("/SyllabusPage")}>
               <Book size={18} className="mr-2"/> Syllabus
             </motion.li>
-            <motion.li whileHover={{ x: 4 }} className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+            <motion.li whileHover={{x: 4}} className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+            onClick={() => navigate("/MaterialsPage")}>
               <BookMarked size={18} className="mr-2"/> Materials / Notes
             </motion.li>
           </ul>
@@ -266,7 +272,8 @@ const TeachersPage = () => {
         <div className="mb-6">
           <div className="text-[#8F8F8F] text-sm mb-3">RANKS</div>
           <ul className="space-y-3">
-            <motion.li whileHover={{ x: 4 }} className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+          <motion.li whileHover={{ x: 4 }} className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+          onClick={() => navigate("/RanksPage")}>
               <Trophy size={18} className="mr-2"/> View Ranks
             </motion.li>
           </ul>

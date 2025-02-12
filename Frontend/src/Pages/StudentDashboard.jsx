@@ -4,6 +4,7 @@ import {
   Bell, Search, User, BookOpen, Clock, CheckCircle, AlertCircle,
   FileText, Book, GraduationCap, Trophy, Users, LogOut, ChevronRight, Star, BookMarked, X
 } from 'lucide-react';
+import {motion} from "framer-motion";
 
 // Dummy data for ranks
 const leaderboardData = [
@@ -46,66 +47,70 @@ const StudentDashboard = () => {
           <div className="border-b border-gray-700 mb-6"></div>
 
           {/* My Assignments Section */}
-          <div className="mb-6">
-            <div className="text-[#8F8F8F] text-sm mb-3">ASSIGNMENTS</div>
-            <ul className="space-y-3">
-              <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-                <CheckCircle size={18} className="mr-2"/> Completed Quizzes
-              </li>
-              <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-                <Clock size={18} className="mr-2"/> Upcoming Quizzes
-              </li>
-              <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-                <AlertCircle size={18} className="mr-2"/> Pending Quizzes
-              </li>
-            </ul>
-          </div>
+        <div className="mb-6">
+          <div className="text-[#8F8F8F] text-sm mb-3">ASSIGNMENTS</div>
+          <ul className="space-y-3">
+            <motion.li whileHover={{ x: 4 }} className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+              <CheckCircle size={18} className="mr-2"/> Completed Quizzes
+            </motion.li>
+            <motion.li whileHover={{ x: 4 }} className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+              <Clock size={18} className="mr-2"/> Upcoming Quizzes
+            </motion.li>
+            <motion.li whileHover={{ x: 4 }} className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+              <AlertCircle size={18} className="mr-2"/> Pending Quizzes
+            </motion.li>
+          </ul>
+        </div>
 
-          <div className="border-b border-gray-700 mb-6"></div>
+        <div className="border-b border-gray-700 mb-6"></div>
 
-          {/* My Subjects Section */}
-          <div className="mb-6">
-            <div className="text-[#8F8F8F] text-sm mb-3">RESOURCES</div>
-            <ul className="space-y-3">
-              <li className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-              onClick={() => navigate("/PYQsPage")}>
-                <FileText size={18} className="mr-2"/> PYQs
-              </li>
-              <li className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-              onClick={() => navigate("/SyllabusPage")}>
-                <Book size={18} className="mr-2"/> Syllabus
-              </li>
-              <li className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-              onClick={() => navigate("/MaterialsPage")}>
-                <BookMarked size={18} className="mr-2"/> Materials / Notes
-              </li>
-            </ul>
-          </div>
 
-          <div className="border-b border-gray-700 mb-6"></div>
+          {/* Resources Section */}
+        <div className="mb-6">
+          <div className="text-[#8F8F8F] text-sm mb-3">RESOURCES</div>
+          <ul className="space-y-3">
+            <motion.li
+                whileHover={{x: 4}}
+                className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                onClick={() => navigate("/PYQsPage")}
+                >
+              <FileText size={18} className="mr-2"/> PYQs
+            </motion.li>
+            <motion.li whileHover={{x: 4}} className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+            onClick={() => navigate("/SyllabusPage")}>
+              <Book size={18} className="mr-2"/> Syllabus
+            </motion.li>
+            <motion.li whileHover={{x: 4}} className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+            onClick={() => navigate("/MaterialsPage")}>
+              <BookMarked size={18} className="mr-2"/> Materials / Notes
+            </motion.li>
+          </ul>
+        </div>
+        <div className="border-b border-gray-700 mb-6"></div>
 
           {/* Ranks Section */}
-          <div className="mb-6">
-            <div className="text-[#8F8F8F] text-sm mb-3">RANKS</div>
-            <ul className="space-y-3">
-              <li className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-              onClick={() => navigate("/RanksPage")}>
-                <Trophy size={18} className="mr-2"/> View Ranks
-              </li>
-            </ul>
-          </div>
+        <div className="mb-6">
+          <div className="text-[#8F8F8F] text-sm mb-3">RANKS</div>
+          <ul className="space-y-3">
+          <motion.li whileHover={{ x: 4 }} className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+          onClick={() => navigate("/RanksPage")}>
+              <Trophy size={18} className="mr-2"/> View Ranks
+            </motion.li>
+          </ul>
+        </div>
 
-          <div className="border-b border-gray-700 mb-6"></div>
+        <div className="border-b border-gray-700 mb-6"></div>
 
           {/* Teachers Section */}
-          <div className="mb-6">
-            <div className="text-[#8F8F8F] text-sm mb-3">TEACHERS</div>
-            <ul className="space-y-3">
-              <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-                <Users size={18} className="mr-2"/> My Teachers
-              </li>
-            </ul>
-          </div>
+        <div className="mb-6">
+          <div className="text-[#8F8F8F] text-sm mb-3">TEACHERS</div>
+          <ul className="space-y-3">
+            <motion.li whileHover={{x: 4}} className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                       onClick={() => navigate("/MyTeachersPage")}>
+              <Users size={18} className="mr-2"/> My Teachers
+            </motion.li>
+          </ul>
+        </div>
 
           {/* Logout at bottom */}
           <div className="mt-auto">
