@@ -7,12 +7,13 @@ import PYQsPage from "./pages/PYQsPage";
 import SyllabusPage from "./pages/SyllabusPage";
 import MaterialsPage from "./pages/MaterialsPage";
 import RanksPage from "./pages/RanksPage";
+import TeacherDashboard from "./pages/TeacherDashboard";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/" element={<TeacherDashboard />} />
         <Route path="/StudentDashboard" element={<StudentDashboard />} />
         <Route path="/PYQsPage" element={<PYQsPage />} />
         <Route path="/SyllabusPage" element={<SyllabusPage />} />
