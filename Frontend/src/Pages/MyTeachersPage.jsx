@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Bell, CheckCircle, Clock, AlertCircle, FileText,
   Book, BookMarked, Trophy, Users, LogOut,
-  ChevronDown, ChevronUp, GraduationCap, Award, BookOpen
+  ChevronDown, ChevronUp, GraduationCap, Award, BookOpen, X
 } from 'lucide-react';
 
 // Faculty data
@@ -195,9 +195,11 @@ const TeachersPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [expandedId, setExpandedId] = useState(null);
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
 
   const handleLogout = () => {
-    // Add logout logic here
+    localStorage.removeItem("user");
+    navigate("/LoginPage");
   };
 
   const toggleExpand = (index) => {
@@ -205,104 +207,150 @@ const TeachersPage = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#2D2B3D]">
-      {/* Sidebar */}
-      <div className="w-64 bg-[#1E1C2E] text-white p-6 flex flex-col">
-        {/* Logo */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold">Hash - Quiz Learning Platform</h1>
-        </div>
-        <div className="border-b border-gray-700 mb-6"></div>
+      <div className="flex h-screen bg-[#2D2B3D]">
+        {/* Sidebar */}
+        <div className="w-64 bg-[#1E1C2E] text-white p-6 flex flex-col">
+          {/* Logo */}
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold">Hash - Quiz Learning Platform</h1>
+          </div>
+          <div className="border-b border-gray-700 mb-6"></div>
 
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          className={`text-lg font-semibold mb-4 cursor-pointer transition-colors duration-200 ${
-            location.pathname === "/StudentDashboard" ? "text-purple-400" : "text-white hover:text-purple-400"
-          }`}
-          onClick={() => navigate("/StudentDashboard")}
-        >
-          Dashboard
-        </motion.div>
-
-        <div className="border-b border-gray-700 mb-6"></div>
-
-        {/* My Assignments Section */}
-        <div className="mb-6">
-          <div className="text-[#8F8F8F] text-sm mb-3">ASSIGNMENTS</div>
-          <ul className="space-y-3">
-            <motion.li whileHover={{ x: 4 }} className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-              <CheckCircle size={18} className="mr-2"/> Completed Quizzes
-            </motion.li>
-            <motion.li whileHover={{ x: 4 }} className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-              <Clock size={18} className="mr-2"/> Upcoming Quizzes
-            </motion.li>
-            <motion.li whileHover={{ x: 4 }} className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-              <AlertCircle size={18} className="mr-2"/> Pending Quizzes
-            </motion.li>
-          </ul>
-        </div>
-
-        <div className="border-b border-gray-700 mb-6"></div>
-
-        {/* Resources Section */}
-        <div className="mb-6">
-          <div className="text-[#8F8F8F] text-sm mb-3">RESOURCES</div>
-          <ul className="space-y-3">
-            <motion.li
-                whileHover={{x: 4}}
-                className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                onClick={() => navigate("/PYQsPage")}
-                >
-              <FileText size={18} className="mr-2"/> PYQs
-            </motion.li>
-            <motion.li whileHover={{x: 4}} className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-            onClick={() => navigate("/SyllabusPage")}>
-              <Book size={18} className="mr-2"/> Syllabus
-            </motion.li>
-            <motion.li whileHover={{x: 4}} className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-            onClick={() => navigate("/MaterialsPage")}>
-              <BookMarked size={18} className="mr-2"/> Materials / Notes
-            </motion.li>
-          </ul>
-        </div>
-
-        <div className="border-b border-gray-700 mb-6"></div>
-
-        {/* Ranks Section */}
-        <div className="mb-6">
-          <div className="text-[#8F8F8F] text-sm mb-3">RANKS</div>
-          <ul className="space-y-3">
-          <motion.li whileHover={{ x: 4 }} className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-          onClick={() => navigate("/RanksPage")}>
-              <Trophy size={18} className="mr-2"/> View Ranks
-            </motion.li>
-          </ul>
-        </div>
-
-        <div className="border-b border-gray-700 mb-6"></div>
-
-        {/* Teachers Section */}
-        <div className="mb-6">
-          <div className="text-[#8F8F8F] text-sm mb-3">TEACHERS</div>
-          <ul className="space-y-3">
-            <li className="flex items-center text-white bg-[#3A3750] cursor-default p-2 rounded-lg">
-              <Users size={18} className="mr-2"/> My Teachers
-            </li>
-          </ul>
-        </div>
-
-        {/* Logout */}
-        <motion.div whileHover={{ scale: 1.02 }} className="mt-auto">
-          <button
-            onClick={handleLogout}
-            className="flex items-center text-gray-300 hover:text-white hover:bg-[#3A3750] transition-all duration-200 p-2 rounded-lg w-full"
+          <motion.div
+              whileHover={{scale: 1.02}}
+              className={`text-lg font-semibold mb-4 cursor-pointer transition-colors duration-200 ${
+                  location.pathname === "/StudentDashboard" ? "text-purple-400" : "text-white hover:text-purple-400"
+              }`}
+              onClick={() => navigate("/StudentDashboard")}
           >
-            <LogOut size={18} className="mr-2"/> Logout
-          </button>
-        </motion.div>
-      </div>
+            Dashboard
+          </motion.div>
 
-      {/* Main Content */}
+          <div className="border-b border-gray-700 mb-6"></div>
+
+          {/* My Assignments Section */}
+          <div className="mb-6">
+            <div className="text-[#8F8F8F] text-sm mb-3">ASSIGNMENTS</div>
+            <ul className="space-y-3">
+              <motion.li whileHover={{x: 4}}
+                         className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+                <CheckCircle size={18} className="mr-2"/> Completed Quizzes
+              </motion.li>
+              <motion.li whileHover={{x: 4}}
+                         className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+                <Clock size={18} className="mr-2"/> Upcoming Quizzes
+              </motion.li>
+              <motion.li whileHover={{x: 4}}
+                         className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+                <AlertCircle size={18} className="mr-2"/> Pending Quizzes
+              </motion.li>
+            </ul>
+          </div>
+
+          <div className="border-b border-gray-700 mb-6"></div>
+
+          {/* Resources Section */}
+          <div className="mb-6">
+            <div className="text-[#8F8F8F] text-sm mb-3">RESOURCES</div>
+            <ul className="space-y-3">
+              <motion.li
+                  whileHover={{x: 4}}
+                  className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                  onClick={() => navigate("/PYQsPage")}
+              >
+                <FileText size={18} className="mr-2"/> PYQs
+              </motion.li>
+              <motion.li whileHover={{x: 4}} className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                         onClick={() => navigate("/SyllabusPage")}>
+                <Book size={18} className="mr-2"/> Syllabus
+              </motion.li>
+              <motion.li whileHover={{x: 4}} className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                         onClick={() => navigate("/MaterialsPage")}>
+                <BookMarked size={18} className="mr-2"/> Materials / Notes
+              </motion.li>
+            </ul>
+          </div>
+
+          <div className="border-b border-gray-700 mb-6"></div>
+
+          {/* Ranks Section */}
+          <div className="mb-6">
+            <div className="text-[#8F8F8F] text-sm mb-3">RANKS</div>
+            <ul className="space-y-3">
+              <motion.li whileHover={{x: 4}} className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                         onClick={() => navigate("/RanksPage")}>
+                <Trophy size={18} className="mr-2"/> View Ranks
+              </motion.li>
+            </ul>
+          </div>
+
+          <div className="border-b border-gray-700 mb-6"></div>
+
+          {/* Teachers Section */}
+          <div className="mb-6">
+            <div className="text-[#8F8F8F] text-sm mb-3">TEACHERS</div>
+            <ul className="space-y-3">
+              <li className="flex items-center text-white bg-[#3A3750] cursor-default p-2 rounded-lg">
+                <Users size={18} className="mr-2"/> My Teachers
+              </li>
+            </ul>
+          </div>
+
+          {/* Logout */}
+          <motion.div whileHover={{scale: 1.02}} className="mt-auto">
+            <button
+                onClick={() => setLogoutModalOpen(true)}
+                className="flex items-center text-gray-300 hover:text-white hover:bg-[#3A3750] transition-all duration-200 p-2 rounded-lg w-full"
+            >
+              <LogOut size={18} className="mr-2"/> Logout
+            </button>
+          </motion.div>
+        </div>
+
+        <AnimatePresence>
+          {logoutModalOpen && (
+              <motion.div
+                  initial={{opacity: 0}}
+                  animate={{opacity: 1}}
+                  exit={{opacity: 0}}
+                  className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+              >
+                <motion.div
+                    initial={{scale: 0.95, opacity: 0}}
+                    animate={{scale: 1, opacity: 1}}
+                    exit={{scale: 0.95, opacity: 0}}
+                    className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-80 text-white relative"
+                >
+                  <button
+                      onClick={() => setLogoutModalOpen(false)}
+                      className="absolute top-2 right-2 text-gray-400 hover:text-white"
+                  >
+                    <X size={20}/>
+                  </button>
+
+                  <h2 className="text-xl font-semibold mb-4">Confirm Logout</h2>
+                  <p className="text-gray-400 mb-6">Are you sure you want to log out?</p>
+
+                  <div className="flex justify-between">
+                    <button
+                        onClick={() => setLogoutModalOpen(false)}
+                        className="bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded-lg transition-all duration-200"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                        onClick={handleLogout}
+                        className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-all duration-200"
+                    >
+                      Yes, Logout
+                    </button>
+                  </div>
+                </motion.div>
+              </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Main Content */}
       <div className="flex-1 overflow-auto">
         {/* Navbar */}
         <div className="bg-[#1E1C2E] p-4 flex justify-between items-center shadow-md">

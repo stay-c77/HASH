@@ -6,7 +6,7 @@ import {
   Brain, Lightbulb, Target, Glasses, GraduationCap,
   Cpu, Compass, Award, Crown, Star, X
 } from 'lucide-react';
-import {motion} from "framer-motion";
+import {motion,AnimatePresence} from "framer-motion";
 import { HoverBorderGradient } from "../../ui/hover-border-gradient";
 
 
@@ -155,38 +155,48 @@ const RanksPage = () => {
               </div>
           </div>
           {/* Logout Confirmation Modal */}
-          {logoutModalOpen && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                  <div className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-80 text-white relative">
-                      {/* Close Button */}
-                      <button
-                          onClick={() => setLogoutModalOpen(false)}
-                          className="absolute top-2 right-2 text-gray-400 hover:text-white"
+          <AnimatePresence>
+        {logoutModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-80 text-white relative"
             >
+              <button
+                onClick={() => setLogoutModalOpen(false)}
+                className="absolute top-2 right-2 text-gray-400 hover:text-white"
+              >
                 <X size={20} />
-            </button>
+              </button>
 
-            <h2 className="text-xl font-semibold mb-4">Confirm Logout</h2>
-            <p className="text-gray-400 mb-6">Are you sure you want to log out?</p>
+              <h2 className="text-xl font-semibold mb-4">Confirm Logout</h2>
+              <p className="text-gray-400 mb-6">Are you sure you want to log out?</p>
 
-            <div className="flex justify-between">
+              <div className="flex justify-between">
                 <button
-                    onClick={() => setLogoutModalOpen(false)}
-                    className="bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded-lg transition-all duration-200"
+                  onClick={() => setLogoutModalOpen(false)}
+                  className="bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded-lg transition-all duration-200"
                 >
-                    Cancel
+                  Cancel
                 </button>
                 <button
-                    onClick={handleLogout}
-                    className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-all duration-200"
+                  onClick={handleLogout}
+                  className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-all duration-200"
                 >
-                    Yes, Logout
+                  Yes, Logout
                 </button>
-            </div>
-        </div>
-    </div>
-)}
-
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     {/* Main Content */
     }
     <div className="flex-1 overflow-auto">
@@ -255,20 +265,54 @@ const RanksPage = () => {
 
                     {/* Ranks Grid */}
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 relative">
-                        {rankSystem.map((rank, index) => (
-                            <div key={index}
-                                 className="bg-[#2D2B3D] rounded-xl p-6 transform hover:scale-105 transition-transform duration-300">
-                                <div className="flex flex-col items-center text-center">
-                                    <div
-                                        className={`w-16 h-16 rounded-full bg-[#1E1C2E] flex items-center justify-center mb-4 ${rank.color}`}>
-                                        <rank.icon size={32}/>
-                                    </div>
-                                    <h3 className="text-xl font-bold text-white mb-2">{rank.title}</h3>
-                                    <p className="text-gray-400 text-sm mb-3">{rank.description}</p>
-                                    <p className="text-purple-400 font-semibold">{rank.points}+ points</p>
-                    </div>
-                  </div>
-                ))}
+                        {rankSystem.map((rank, index) => {
+  const isSpecialRank = rank.title === "Expert" || rank.title === "Elite" || rank.title === "Grandmaster";
+  const getHighlightColor = () => {
+    switch (rank.title) {
+      case "Expert":
+        return "#7C3AED"; // Purple
+      case "Elite":
+        return "#EF4444"; // Red
+      case "Grandmaster":
+        return "#F59E0B"; // Gold
+      default:
+        return "#3275F8";
+    }
+  };
+
+  const Card = isSpecialRank ? HoverBorderGradient : "div";
+  const cardProps = isSpecialRank
+    ? {
+        highlightColor: getHighlightColor(),
+        containerClassName: "w-full h-full transform hover:scale-105 transition-all duration-300",
+        className: "p-6 bg-opacity-50",
+        duration: 3,
+      }
+    : {
+        className: "bg-[#2D2B3D] rounded-xl p-6 transform hover:scale-105 transition-transform duration-300",
+      };
+
+  return (
+    <motion.div
+      key={index}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
+      className="h-full"
+    >
+      <Card {...cardProps}>
+        <div className="flex flex-col items-center text-center relative z-20">
+          <div className={`w-16 h-16 rounded-full bg-[#1E1C2E] flex items-center justify-center mb-4 ${rank.color}`}>
+            <rank.icon size={32} />
+          </div>
+          <h3 className="text-xl font-bold text-white mb-2">{rank.title}</h3>
+          <p className="text-gray-400 text-sm mb-3">{rank.description}</p>
+          <p className="text-purple-400 font-semibold">{rank.points}+ points</p>
+        </div>
+      </Card>
+    </motion.div>
+  );
+})}
               </div>
             </div>
           </div>
