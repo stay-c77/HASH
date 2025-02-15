@@ -23,6 +23,8 @@ function App() {
         <Route path="/CompletedQuizPage" element={<CompletedQuizPage />} />
         <Route path="/UpcomingQuizPage" element={<UpcomingQuizPage />} />
         <Route path="/PendingQuizPage" element={<PendingQuizPage />} />
+        <Route path="/QuizPage" element={<QuizPage />} />
+        <Route path="/ResultsPage" element={<ResultsPage />} />
         <Route path="/PYQsPage" element={<PYQsPage />} />
         <Route path="/SyllabusPage" element={<SyllabusPage />} />
         <Route path="/MaterialsPage" element={<MaterialsPage />} />

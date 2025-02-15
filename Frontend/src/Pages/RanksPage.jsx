@@ -13,16 +13,16 @@ import { HoverBorderGradient } from "../../ui/hover-border-gradient";
 // Dummy data for top ranks
 const topRanks = [
   {
-    name: "Alex Thompson",
+    name: "Mohammed Ziyan",
     rank: "Grandmaster",
     points: 15000,
-    avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&h=80&fit=crop"
+    avatar: "Images/Ziyan.jpg"
   },
   {
-    name: "Sarah Chen",
+    name: "Muhammed Hasheem",
     rank: "Elite",
     points: 12000,
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop"
+    avatar: "Images/Hasheem.png"
   },
   {
     name: "Michael Park",

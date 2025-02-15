@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 // Dummy data for pending quizzes
 const pendingQuizzes = [
   {
+    id: 1,
     topic: "Graph Algorithms",
     subject: "Data Structures and Algorithms",
     totalQuestions: 25,
@@ -22,6 +23,7 @@ const pendingQuizzes = [
     marks: 100
   },
   {
+    id: 2,
     topic: "OSI Model",
     subject: "Computer Networks",
     totalQuestions: 20,
@@ -34,6 +36,7 @@ const pendingQuizzes = [
     marks: 75
   },
   {
+    id: 3,
     topic: "Deep Learning Fundamentals",
     subject: "Artificial Intelligence",
     totalQuestions: 30,
@@ -54,6 +57,18 @@ const PendingQuizPage = () => {
   const handleLogout = () => {
     localStorage.removeItem("user");
     navigate("/LoginPage");
+  };
+
+  const handleStartQuiz = (quiz) => {
+    navigate('/QuizPage', {
+      state: {
+        quizData: {
+          ...quiz,
+          currentQuestion: 0,
+          timeStarted: new Date().toISOString()
+        }
+      }
+    });
   };
 
   const getDifficultyColor = (difficulty) => {
@@ -315,6 +330,7 @@ const PendingQuizPage = () => {
 
                     <motion.button
                       whileHover={{ scale: 1.02 }}
+                      onClick={() => handleStartQuiz(quiz)}
                       className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 rounded-lg transition-colors duration-300"
                     >
                       Start Quiz
