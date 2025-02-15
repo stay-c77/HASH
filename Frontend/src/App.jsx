@@ -9,13 +9,16 @@ import MaterialsPage from "./pages/MaterialsPage";
 import RanksPage from "./pages/RanksPage";
 import MyTeachersPage from "./Pages/MyTeachersPage.jsx";
 import TeacherDashboard from "./pages/TeacherDashboard";
+import CompletedQuizPage from "./pages/CompletedQuizPage"
+import UpcomingQuizPage from "./pages/UpcomingQuizPage"
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/" element={<UpcomingQuizPage />} />
         <Route path="/StudentDashboard" element={<StudentDashboard />} />
+        <Route path="/TeacherDashboard" element={<TeacherDashboard />} />
         <Route path="/PYQsPage" element={<PYQsPage />} />
         <Route path="/SyllabusPage" element={<SyllabusPage />} />
         <Route path="/MaterialsPage" element={<MaterialsPage />} />

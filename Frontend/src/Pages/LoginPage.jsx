@@ -52,19 +52,22 @@ function LoginPage() {
             return;
         }
 
-        if (email !== "User@gmail.com" || password !== "User123") {
+        setTimeout(() => {
+        if (email === "User@gmail.com" && password === "User123") {
+            navigate("/StudentDashboard");
+        } else if (email === "teacher@gmail.com" && password === "teacher@123") {
+            navigate("/TeacherDashboard");
+        } else {
             setError("Invalid email or password. Please try again.");
-            return;
+            setLoading(false);
         }
+    }, 1500);
 
         setLoading(true);
 
-        setTimeout(() => {
-            navigate("/StudentDashboard");
-        }, 1500);
     };
 
-    const words = ["Learn", "Grow", "Succeed", "Excel"];
+    const words = ["Learn", "Practice", "Test", "Rank", "Certify"];
 
     return (
         <>
@@ -92,35 +95,32 @@ function LoginPage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-[#1E1C2E]/80 to-transparent" />
                         <div className="relative z-10 p-12 flex flex-col h-full">
                             <motion.div
-                                initial={{ scale: 0.5, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{ duration: 0.5, delay: 2.2 }}
+                                initial={{scale: 0.5, opacity: 0}}
+                                animate={{scale: 1, opacity: 1}}
+                                transition={{duration: 0.5, delay: 2.2}}
                                 className="absolute -top-4 left-1 bg-no-repeat bg-center bg-contain"
-                                style={{ backgroundImage: "url('Images/HashLogo.png')", width: "150px", height: "150px" }}
+                                style={{backgroundImage: "url('Images/HashLogo.png')", width: "150px", height: "150px"}}
                             />
-                            <div className="text-white mt-auto">
-                                <h2 className="text-4xl font-bold mb-6">
-                                    <FlipWords words={words} className="text-white" /> Smart,
-                                    <br />Learn Fast
-                                </h2>
-                                <div className="flex gap-2">
-                                    {slides.map((_, index) => (
-                                        <motion.div
-                                            key={index}
-                                            className={`w-8 h-1 rounded-full ${index === currentSlide ? 'bg-white' : 'bg-gray-500'}`}
-                                            initial={false}
-                                            animate={{ scale: index === currentSlide ? 1.2 : 1 }}
-                                            transition={{ duration: 0.3 }}
-                                        />
-                                    ))}
-                                </div>
+                            <div className="text-white mt-auto text-4xl font-bold">
+                                <FlipWords words={words} className="text-white ml-[-10px]"/>
+                            </div>
+                            <div className="flex gap-2 mt-4">
+                                {slides.map((_, index) => (
+                                    <motion.div
+                                        key={index}
+                                        className={`w-8 h-1 rounded-full ${index === currentSlide ? 'bg-white' : 'bg-gray-500'}`}
+                                        initial={false}
+                                        animate={{scale: index === currentSlide ? 1.2 : 1}}
+                                        transition={{duration: 0.3}}
+                                    />
+                                ))}
                             </div>
                         </div>
                     </div>
 
                     {/* Right Side - Form Section */}
                     <motion.div
-                        initial={{ opacity: 0, x: 20 }}
+                        initial={{opacity: 0, x: 20}}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.5, delay: 2.4 }}
                         className="w-full lg:w-1/2 p-8 md:p-12"
