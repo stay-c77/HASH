@@ -6,7 +6,7 @@ All Planned pages -->
 4. Dashboard Page - HOD/Admin
 5. Student Side - Subjects Page -- Done
 6. Student Side - Notes/Materials/Syllabus/Prev-QnPs Page -- Done
-7. Student Side - Quiz Page
+7. Student Side - Quiz Page -- Done
 8. Student Side - Results Page/Synopsis Page
 9. Student Side - Ranks Page -- Done
 10. Teacher Side - All Classes Page

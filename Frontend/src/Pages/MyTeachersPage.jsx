@@ -233,15 +233,18 @@ const TeachersPage = () => {
             <div className="text-[#8F8F8F] text-sm mb-3">ASSIGNMENTS</div>
             <ul className="space-y-3">
               <motion.li whileHover={{x: 4}}
-                         className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+                         className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+              onClick={() => navigate("/CompletedQuizPage")}>
                 <CheckCircle size={18} className="mr-2"/> Completed Quizzes
               </motion.li>
               <motion.li whileHover={{x: 4}}
-                         className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+                         className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+              onClick={() => navigate("/UpcomingQuizPage")}>
                 <Clock size={18} className="mr-2"/> Upcoming Quizzes
               </motion.li>
               <motion.li whileHover={{x: 4}}
-                         className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+                         className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+              onClick={() => navigate("/PendingQuizPage")}>
                 <AlertCircle size={18} className="mr-2"/> Pending Quizzes
               </motion.li>
             </ul>

@@ -11,14 +11,18 @@ import MyTeachersPage from "./Pages/MyTeachersPage.jsx";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import CompletedQuizPage from "./pages/CompletedQuizPage"
 import UpcomingQuizPage from "./pages/UpcomingQuizPage"
+import PendingQuizPage from "./pages/PendingQuizPage"
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<UpcomingQuizPage />} />
+        <Route path="/" element={<LoginPage />} />
         <Route path="/StudentDashboard" element={<StudentDashboard />} />
         <Route path="/TeacherDashboard" element={<TeacherDashboard />} />
+        <Route path="/CompletedQuizPage" element={<CompletedQuizPage />} />
+        <Route path="/UpcomingQuizPage" element={<UpcomingQuizPage />} />
+        <Route path="/PendingQuizPage" element={<PendingQuizPage />} />
         <Route path="/PYQsPage" element={<PYQsPage />} />
         <Route path="/SyllabusPage" element={<SyllabusPage />} />
         <Route path="/MaterialsPage" element={<MaterialsPage />} />
