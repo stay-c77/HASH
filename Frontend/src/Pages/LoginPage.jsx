@@ -53,10 +53,12 @@ function LoginPage() {
         }
 
         setTimeout(() => {
-        if (email === "User@gmail.com" && password === "User123") {
+        if (email === "user@gmail.com" && password === "user@123") {
             navigate("/StudentDashboard");
         } else if (email === "teacher@gmail.com" && password === "teacher@123") {
             navigate("/TeacherDashboard");
+        } else if (email === "admin@gmail.com" && password === "admin@123") {
+            navigate("AdminDashboard");
         } else {
             setError("Invalid email or password. Please try again.");
             setLoading(false);

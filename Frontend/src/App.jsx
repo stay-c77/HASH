@@ -12,6 +12,7 @@ import TeacherDashboard from "./pages/TeacherDashboard";
 import CompletedQuizPage from "./pages/CompletedQuizPage"
 import UpcomingQuizPage from "./pages/UpcomingQuizPage"
 import PendingQuizPage from "./pages/PendingQuizPage"
+import AdminDashboard from "./pages/AdminDashboard"
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/StudentDashboard" element={<StudentDashboard />} />
         <Route path="/TeacherDashboard" element={<TeacherDashboard />} />
+        <Route path="/AdminDashboard" element={<AdminDashboard />} />
         <Route path="/CompletedQuizPage" element={<CompletedQuizPage />} />
         <Route path="/UpcomingQuizPage" element={<UpcomingQuizPage />} />
         <Route path="/PendingQuizPage" element={<PendingQuizPage />} />
