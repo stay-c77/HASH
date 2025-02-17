@@ -70,7 +70,7 @@ const studentsData = [
   // Add more students as needed...
 ];
 
-const Year1StudentsPage = () => {
+const Year4StudentsPage = () => {
   const navigate = useNavigate();
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
 
@@ -113,25 +113,22 @@ const Year1StudentsPage = () => {
 
             {/* Students Section */}
             <div className="mb-6">
-  <div className="text-[#8F8F8F] text-sm mb-3">STUDENTS</div>
-  <ul className="space-y-3">
-    {/* Year 1 Students */}
-    <li className="flex items-center text-white bg-[#3A3750] cursor-default p-2 rounded-lg">
-      <School size={18} className="mr-2" /> Year 1 Students
-    </li>
-
-    {/* Year 2, 3, and 4 Students */}
-    {[2, 3, 4].map((year) => (
-      <motion.li
-        key={year}
-        whileHover={{ x: 4 }}
-        className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-      >
-        <School size={18} className="mr-2" /> Year {year} Students
-      </motion.li>
-    ))}
-  </ul>
-</div>
+              <div className="text-[#8F8F8F] text-sm mb-3">STUDENTS</div>
+              <ul className="space-y-3">
+                <li className="flex items-center text-white bg-[#3A3750] cursor-default p-2 rounded-lg">
+                  <School size={18} className="mr-2"/> Year 1 Students
+                </li>
+                {[2, 3, 4].map((year) => (
+                  <motion.li
+                    key={year}
+                    whileHover={{ x: 4 }}
+                    className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                  >
+                    <School size={18} className="mr-2"/> Year {year} Students
+                  </motion.li>
+                ))}
+              </ul>
+            </div>
 
             <div className="border-b border-gray-700 mb-6"></div>
 
@@ -350,4 +347,4 @@ const Year1StudentsPage = () => {
   );
 };
 
-export default Year1StudentsPage;
+export default Year4StudentsPage;
