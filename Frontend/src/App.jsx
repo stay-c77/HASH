@@ -13,6 +13,7 @@ import CompletedQuizPage from "./pages/Student_Pages/CompletedQuizPage"
 import UpcomingQuizPage from "./pages/Student_Pages/UpcomingQuizPage"
 import PendingQuizPage from "./pages/Student_Pages/PendingQuizPage"
 import AdminDashboard from "./pages/Admin_Pages/AdminDashboard"
+import Year1StudentsPage from "./pages/Admin_Pages/Year1StudentsPage"
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/StudentDashboard" element={<StudentDashboard />} />
         <Route path="/TeacherDashboard" element={<TeacherDashboard />} />
         <Route path="/AdminDashboard" element={<AdminDashboard />} />
+        <Route path="/Year1StudentsPage" element={<Year1StudentsPage />} />
         <Route path="/CompletedQuizPage" element={<CompletedQuizPage />} />
         <Route path="/UpcomingQuizPage" element={<UpcomingQuizPage />} />
         <Route path="/PendingQuizPage" element={<PendingQuizPage />} />
