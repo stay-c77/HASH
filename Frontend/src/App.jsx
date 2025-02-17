@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import StudentDashboard from "./pages/Student_Pages/StudentDashboard";
 import QuizPage from "./pages/Student_Pages/QuizPage";
@@ -19,31 +19,31 @@ import Year3StudentsPage from "./pages/Admin_Pages/Year3StudentsPage"
 import Year4StudentsPage from "./pages/Admin_Pages/Year4StudentsPage"
 
 function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/StudentDashboard" element={<StudentDashboard />} />
-        <Route path="/TeacherDashboard" element={<TeacherDashboard />} />
-        <Route path="/AdminDashboard" element={<AdminDashboard />} />
-        <Route path="/Year1StudentsPage" element={<Year1StudentsPage />} />
-        <Route path="/Year2StudentsPage" element={<Year2StudentsPage />} />
-        <Route path="/Year3StudentsPage" element={<Year3StudentsPage />} />
-        <Route path="/Year4StudentsPage" element={<Year4StudentsPage />} />
-        <Route path="/CompletedQuizPage" element={<CompletedQuizPage />} />
-        <Route path="/UpcomingQuizPage" element={<UpcomingQuizPage />} />
-        <Route path="/PendingQuizPage" element={<PendingQuizPage />} />
-        <Route path="/QuizPage" element={<QuizPage />} />
-        <Route path="/ResultsPage" element={<ResultsPage />} />
-        <Route path="/PYQsPage" element={<PYQsPage />} />
-        <Route path="/SyllabusPage" element={<SyllabusPage />} />
-        <Route path="/MaterialsPage" element={<MaterialsPage />} />
-        <Route path="/RanksPage" element={<RanksPage />} />
-        <Route path="/MyTeachersPage" element={<MyTeachersPage />} />
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-    </Router>
-  );
+    return (
+        <Router>
+            <Routes>
+                <Route path="/" element={<LoginPage/>}/>
+                <Route path="/StudentDashboard" element={<StudentDashboard/>}/>
+                <Route path="/TeacherDashboard" element={<TeacherDashboard/>}/>
+                <Route path="/AdminDashboard" element={<AdminDashboard/>}/>
+                <Route path="/Year1StudentsPage" element={<Year1StudentsPage/>}/>
+                <Route path="/Year2StudentsPage" element={<Year2StudentsPage/>}/>
+                <Route path="/Year3StudentsPage" element={<Year3StudentsPage/>}/>
+                <Route path="/Year4StudentsPage" element={<Year4StudentsPage/>}/>
+                <Route path="/CompletedQuizPage" element={<CompletedQuizPage/>}/>
+                <Route path="/UpcomingQuizPage" element={<UpcomingQuizPage/>}/>
+                <Route path="/PendingQuizPage" element={<PendingQuizPage/>}/>
+                <Route path="/QuizPage" element={<QuizPage/>}/>
+                <Route path="/ResultsPage" element={<ResultsPage/>}/>
+                <Route path="/PYQsPage" element={<PYQsPage/>}/>
+                <Route path="/SyllabusPage" element={<SyllabusPage/>}/>
+                <Route path="/MaterialsPage" element={<MaterialsPage/>}/>
+                <Route path="/RanksPage" element={<RanksPage/>}/>
+                <Route path="/MyTeachersPage" element={<MyTeachersPage/>}/>
+                <Route path="*" element={<Navigate to="/"/>}/>
+            </Routes>
+        </Router>
+    );
 }
 
 export default App;
