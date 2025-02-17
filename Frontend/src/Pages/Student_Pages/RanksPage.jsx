@@ -7,7 +7,7 @@ import {
   Cpu, Compass, Award, Crown, Star, X
 } from 'lucide-react';
 import {motion,AnimatePresence} from "framer-motion";
-import { HoverBorderGradient } from "../../ui/hover-border-gradient";
+import { HoverBorderGradient } from "../../../ui/hover-border-gradient";
 
 
 // Dummy data for top ranks
