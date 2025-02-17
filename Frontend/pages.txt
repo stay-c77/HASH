@@ -3,7 +3,7 @@ All Planned pages -->
 1. Login Page -- Done
 2. Dashboard Page - Student -- Done
 3. Dashboard Page - Teacher
-4. Dashboard Page - HOD/Admin
+4. Dashboard Page - HOD/Admin -- Done
 5. Student Side - Subjects Page -- Done
 6. Student Side - Notes/Materials/Syllabus/Prev-QnPs Page -- Done
 7. Student Side - Quiz Page -- Done
