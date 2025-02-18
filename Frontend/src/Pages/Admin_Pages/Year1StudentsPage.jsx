@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {
     Bell, Search, UserCog, School, Briefcase, ClipboardList,
     MessagesSquare, Microscope, Building2, ListChecks,
@@ -93,8 +93,13 @@ const Year1StudentsPage = () => {
             <div className="w-64 bg-[#1E1C2E] text-white p-6 flex flex-col h-screen overflow-hidden">
                 <div className="flex-1 flex flex-col min-h-0">
                     {/* Logo */}
-                    <div className="mb-8 flex-shrink-0">
-                        <h1 className="text-2xl font-bold">Hash - Quiz Learning Platform</h1>
+                    <div className="mb-8 whitespace-nowrap">
+                        <Link to="/AdminDashboard">
+                            <img
+                                src="../Images/HashLogoDashboard.png"
+                                alt="Hash Logo"
+                                className="h-12 w-auto transition-transform duration-200 transform hover:scale-110"/>
+                        </Link>
                     </div>
 
                     {/* Scrollable content */}

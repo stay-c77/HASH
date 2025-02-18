@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {useNavigate, useLocation} from 'react-router-dom';
+import {useNavigate, useLocation, Link} from 'react-router-dom';
 import {motion, AnimatePresence} from 'framer-motion';
 import {
     Search, Bell, CheckCircle, Clock, AlertCircle, FileText,
@@ -80,8 +80,13 @@ const ResultsPage = () => {
             {/* Sidebar */}
             <div className="w-64 bg-[#1E1C2E] text-white p-6 flex flex-col">
                 {/* Logo */}
-                <div className="mb-8">
-                    <h1 className="text-2xl font-bold">Hash - Quiz Learning Platform</h1>
+                <div className="mb-8 whitespace-nowrap">
+                    <Link to="/StudentDashboard">
+                        <img
+                            src="../Images/HashLogoDashboard.png"
+                            alt="Hash Logo"
+                            className="h-12 w-auto transition-transform duration-200 transform hover:scale-110"/>
+                    </Link>
                 </div>
                 <div className="border-b border-gray-700 mb-6"></div>
 
