@@ -114,7 +114,7 @@ const MaterialsPage = () => {
                             <Book size={18} className="mr-2"/> Syllabus
                         </motion.li>
                         <li className="flex items-center text-white bg-[#3A3750] cursor-default p-2 rounded-lg">
-                            <FileText size={18} className="mr-2"/> Materials / Notes
+                            <BookMarked size={18} className="mr-2"/> Materials / Notes
                         </li>
                     </ul>
                 </div>

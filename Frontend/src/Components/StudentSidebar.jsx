@@ -6,8 +6,14 @@ import {
   Book, BookMarked, Trophy, Users, LogOut
 } from 'lucide-react';
 
-const StudentSidebar = ({ onLogout }) => {
+const StudentSidebar = ({ onLogout, currentPage }) => {
   const navigate = useNavigate();
+
+  const getItemStyle = (pageName) => {
+    return currentPage === pageName
+      ? "flex items-center text-white bg-[#3A3750] cursor-default p-2 rounded-lg"
+      : "flex items-center text-gray-300 hover:text-white cursor-pointer";
+  };
 
   return (
     <div className="w-64 bg-[#1E1C2E] text-white p-6 flex flex-col">
@@ -26,7 +32,9 @@ const StudentSidebar = ({ onLogout }) => {
 
       <motion.div
         whileHover={{scale: 1.02}}
-        className="text-lg font-semibold mb-4 cursor-pointer text-white hover:text-purple-400"
+        className={`text-lg font-semibold mb-4 cursor-pointer ${
+          currentPage === "StudentDashboard" ? "text-purple-400" : "text-white hover:text-purple-400"
+        }`}
         onClick={() => navigate("/StudentDashboard")}
       >
         Dashboard
@@ -40,21 +48,21 @@ const StudentSidebar = ({ onLogout }) => {
         <ul className="space-y-3">
           <motion.li
             whileHover={{x: 4}}
-            className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+            className={getItemStyle("CompletedQuizPage")}
             onClick={() => navigate("/CompletedQuizPage")}
           >
             <CheckCircle size={18} className="mr-2"/> Completed Quizzes
           </motion.li>
           <motion.li
             whileHover={{x: 4}}
-            className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+            className={getItemStyle("UpcomingQuizPage")}
             onClick={() => navigate("/UpcomingQuizPage")}
           >
             <Clock size={18} className="mr-2"/> Upcoming Quizzes
           </motion.li>
           <motion.li
             whileHover={{x: 4}}
-            className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+            className={getItemStyle("PendingQuizPage")}
             onClick={() => navigate("/PendingQuizPage")}
           >
             <AlertCircle size={18} className="mr-2"/> Pending Quizzes
@@ -70,21 +78,21 @@ const StudentSidebar = ({ onLogout }) => {
         <ul className="space-y-3">
           <motion.li
             whileHover={{x: 4}}
-            className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+            className={getItemStyle("PYQsPage")}
             onClick={() => navigate("/PYQsPage")}
           >
             <FileText size={18} className="mr-2"/> PYQs
           </motion.li>
           <motion.li
             whileHover={{x: 4}}
-            className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+            className={getItemStyle("SyllabusPage")}
             onClick={() => navigate("/SyllabusPage")}
           >
             <Book size={18} className="mr-2"/> Syllabus
           </motion.li>
           <motion.li
             whileHover={{x: 4}}
-            className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+            className={getItemStyle("MaterialsPage")}
             onClick={() => navigate("/MaterialsPage")}
           >
             <BookMarked size={18} className="mr-2"/> Materials / Notes
@@ -100,7 +108,7 @@ const StudentSidebar = ({ onLogout }) => {
         <ul className="space-y-3">
           <motion.li
             whileHover={{x: 4}}
-            className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+            className={getItemStyle("RanksPage")}
             onClick={() => navigate("/RanksPage")}
           >
             <Trophy size={18} className="mr-2"/> View Ranks
@@ -116,7 +124,7 @@ const StudentSidebar = ({ onLogout }) => {
         <ul className="space-y-3">
           <motion.li
             whileHover={{x: 4}}
-            className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+            className={getItemStyle("MyTeachersPage")}
             onClick={() => navigate("/MyTeachersPage")}
           >
             <Users size={18} className="mr-2"/> My Teachers

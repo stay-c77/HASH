@@ -104,10 +104,10 @@ const SyllabusPage = () => {
                             className="flex items-center text-gray-300 hover:text-white cursor-pointer"
                             onClick={() => navigate("/PYQsPage")}
                         >
-                            <Book size={18} className="mr-2"/> PYQs
+                            <FileText size={18} className="mr-2"/> PYQs
                         </motion.li>
                         <li className="flex items-center text-white bg-[#3A3750] cursor-default p-2 rounded-lg">
-                            <FileText size={18} className="mr-2"/> Syllabus
+                            <Book size={18} className="mr-2"/> Syllabus
                         </li>
                         <motion.li
                             whileHover={{x: 4}}

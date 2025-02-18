@@ -36,7 +36,7 @@ const PYQsPage = () => {
 
   return (
     <div className="flex h-screen bg-[#2D2B3D]">
-      <StudentSidebar onLogout={() => setLogoutModalOpen(true)} />
+      <StudentSidebar onLogout={() => setLogoutModalOpen(true)} currentPage="PYQsPage" />
 
       <div className="flex-1 overflow-auto">
         <StudentNavbar />
