@@ -9,6 +9,13 @@ import MaterialsPage from "./pages/Student_Pages/MaterialsPage";
 import RanksPage from "./pages/Student_Pages/RanksPage";
 import MyTeachersPage from "./pages/Student_Pages/MyTeachersPage.jsx";
 import TeacherDashboard from "./pages/Teacher_Pages/TeacherDashboard";
+import CompletedQuizzes from "./pages/Teacher_Pages/CompletedQuizzes";
+import AssignQuizzes from "./pages/Teacher_Pages/AssignQuizzes";
+import PYQs from "./pages/Teacher_Pages/PYQs";
+import Syllabus from "./pages/Teacher_Pages/Syllabus";
+import Materials from "./pages/Teacher_Pages/Materials";
+import ViewRanks from "./pages/Teacher_Pages/ViewRanks";
+import MyStudents from "./pages/Teacher_Pages/MyStudents";
 import CompletedQuizPage from "./pages/Student_Pages/CompletedQuizPage"
 import UpcomingQuizPage from "./pages/Student_Pages/UpcomingQuizPage"
 import PendingQuizPage from "./pages/Student_Pages/PendingQuizPage"
@@ -24,7 +31,14 @@ function App() {
             <Routes>
                 <Route path="/" element={<LoginPage/>}/>
                 <Route path="/StudentDashboard" element={<StudentDashboard/>}/>
-                <Route path="/TeacherDashboard" element={<TeacherDashboard/>}/>
+                <Route path="/TeacherDashboard" element={<TeacherDashboard />} />
+                <Route path="/completed-quizzes" element={<CompletedQuizzes />} />
+                <Route path="/assign-quizzes" element={<AssignQuizzes />} />
+                <Route path="/pyqs" element={<PYQs />} />
+                <Route path="/syllabus" element={<Syllabus />} />
+                <Route path="/materials" element={<Materials />} />
+                <Route path="/view-ranks" element={<ViewRanks />} />
+                <Route path="/my-students" element={<MyStudents />} />
                 <Route path="/AdminDashboard" element={<AdminDashboard/>}/>
                 <Route path="/Year1StudentsPage" element={<Year1StudentsPage/>}/>
                 <Route path="/Year2StudentsPage" element={<Year2StudentsPage/>}/>
