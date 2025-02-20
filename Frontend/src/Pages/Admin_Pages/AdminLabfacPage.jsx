@@ -1,79 +1,59 @@
 import React, {useState} from 'react';
 import {Link, useNavigate} from "react-router-dom";
+import {motion, AnimatePresence} from 'framer-motion';
 import {
     Bell, Search, UserCog, School, Briefcase, ClipboardList,
     MessagesSquare, Microscope, Building2, ListChecks,
     Upload, CheckSquare, AlertOctagon, FileText, Book,
-    BookMarked, Trophy, Users, LogOut, X, Plus, Edit2, Trash2
+    BookMarked, Trophy, Users, LogOut, X, ChevronDown,
+    GraduationCap, Award, BookOpen, Plus, Edit2, Trash2
 } from 'lucide-react';
-import {motion, AnimatePresence} from "framer-motion";
 
-// Dummy data for students (20 students as example)
-const initialStudentsData = [
+// Lab Faculty data
+const initialLabFacultyData = [
     {
-        id: 1,
-        name: "Aaron Anderson",
-        regNo: "CS2024001",
-        type: "Hosteler",
-        subjectGrades: {
-            "Data Structures": "A",
-            "Computer Networks": "A+",
-            "Database Systems": "A",
-            "Operating Systems": "B+",
-            "Web Development": "A"
-        },
-        labGrades: {
-            "DS Lab": "A",
-            "CN Lab": "A+"
-        },
-        image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&fit=crop",
-        dob: "2003-05-15",
-        address: "123 College Ave, New York, NY"
+        name: "R Harikrishnan",
+        position: "Lab Instructor",
+        department: "Computer Science & Engineering",
+        education: "B.Tech in Computer Science",
+        specialization: "System Maintenance, Hardware",
+        experience: "12+ years in lab management",
+        research: "Improving lab efficiency for practical learning",
+        image: "Images/Hari.jpg"
     },
     {
-        id: 2,
-        name: "Beth Barnes",
-        regNo: "CS2024002",
-        type: "Day Scholar",
-        subjectGrades: {
-            "Data Structures": "A+",
-            "Computer Networks": "A",
-            "Database Systems": "A+",
-            "Operating Systems": "A",
-            "Web Development": "A+"
-        },
-        labGrades: {
-            "DS Lab": "A+",
-            "CN Lab": "A"
-        },
-        image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&fit=crop",
-        dob: "2003-07-22",
-        address: "456 University Blvd, Boston, MA"
+        name: "P G Renjithkumar",
+        position: "Lab Instructor",
+        department: "Computer Science & Engineering",
+        education: "Diploma in Computer Science",
+        specialization: "Networking, System Administration",
+        experience: "10+ years in academia",
+        research: "Optimizing lab infrastructure",
+        image: "Images/Renjith.jpg"
     }
 ];
 
-const Year1StudentsPage = () => {
+const AdminLabfacPage = () => {
     const navigate = useNavigate();
     const [logoutModalOpen, setLogoutModalOpen] = useState(false);
-    const [studentsData, setStudentsData] = useState(initialStudentsData);
+    const [expandedId, setExpandedId] = useState(null);
+    const [facultyData, setFacultyData] = useState(initialLabFacultyData);
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [addModalOpen, setAddModalOpen] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [selectedTeacher, setSelectedTeacher] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
 
-    // CRUD Modal States
-    const [addModalOpen, setAddModalOpen] = useState(false);
-    const [editModalOpen, setEditModalOpen] = useState(false);
-    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [selectedStudent, setSelectedStudent] = useState(null);
-
-    // Form Data State
+    // Form state for add/edit
     const [formData, setFormData] = useState({
         name: '',
-        regNo: '',
-        type: 'Day Scholar',
-        subjectGrades: {},
-        labGrades: {},
-        image: '',
-        dob: '',
-        address: ''
+        position: 'Lab Instructor', // Default position for lab faculty
+        department: '',
+        education: '',
+        specialization: '',
+        experience: '',
+        research: '',
+        image: ''
     });
 
     const handleLogout = () => {
@@ -81,67 +61,62 @@ const Year1StudentsPage = () => {
         navigate("/LoginPage");
     };
 
-    const calculateAverage = (grades) => {
-        const gradeValues = {
-            'A+': 10, 'A': 9, 'B+': 8, 'B': 7, 'C+': 6, 'C': 5, 'D': 4, 'F': 0
-        };
-        const total = Object.values(grades).reduce((sum, grade) => sum + gradeValues[grade], 0);
-        return (total / Object.keys(grades).length).toFixed(2);
+    const toggleExpand = (id) => {
+        setExpandedId(expandedId === id ? null : id);
     };
 
-    // CRUD Operations
     const handleAdd = () => {
         setFormData({
             name: '',
-            regNo: '',
-            type: 'Day Scholar',
-            subjectGrades: {},
-            labGrades: {},
-            image: '',
-            dob: '',
-            address: ''
+            position: 'Lab Instructor',
+            department: '',
+            education: '',
+            specialization: '',
+            experience: '',
+            research: '',
+            image: ''
         });
         setAddModalOpen(true);
     };
 
-    const handleEdit = (student) => {
-        setSelectedStudent(student);
-        setFormData(student);
+    const handleEdit = (teacher) => {
+        setSelectedTeacher(teacher);
+        setFormData(teacher);
         setEditModalOpen(true);
     };
 
-    const handleDelete = (student) => {
-        setSelectedStudent(student);
+    const handleDelete = (teacher) => {
+        setSelectedTeacher(teacher);
         setDeleteModalOpen(true);
     };
 
     const handleSubmitAdd = () => {
-        const newStudent = {
-            ...formData,
-            id: studentsData.length + 1
+        const newTeacher = {
+            id: facultyData.length + 1,
+            ...formData
         };
-        setStudentsData([...studentsData, newStudent]);
+        setFacultyData([...facultyData, newTeacher]);
         setAddModalOpen(false);
     };
 
     const handleSubmitEdit = () => {
-        const updatedStudents = studentsData.map(student =>
-            student.id === selectedStudent.id ? {...formData, id: student.id} : student
+        const updatedFaculty = facultyData.map(teacher =>
+            teacher.id === selectedTeacher.id ? {...formData, id: teacher.id} : teacher
         );
-        setStudentsData(updatedStudents);
+        setFacultyData(updatedFaculty);
         setEditModalOpen(false);
     };
 
     const handleConfirmDelete = () => {
-        const updatedStudents = studentsData.filter(student => student.id !== selectedStudent.id);
-        setStudentsData(updatedStudents);
+        const updatedFaculty = facultyData.filter(teacher => teacher.id !== selectedTeacher.id);
+        setFacultyData(updatedFaculty);
         setDeleteModalOpen(false);
     };
 
-    // Filter students based on search
-    const filteredStudents = studentsData.filter(student =>
-        student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        student.regNo.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredFaculty = facultyData.filter(teacher =>
+        teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        teacher.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        teacher.specialization.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     // Modal Component
@@ -175,7 +150,7 @@ const Year1StudentsPage = () => {
     );
 
     return (
-        <div className="flex h-screen bg-[#2D2B3D] overflow-hidden">
+        <div className="flex h-screen bg-[#2D2B3D]">
             {/* Sidebar */}
             <div className="w-64 bg-[#1E1C2E] text-white p-6 flex flex-col h-screen overflow-hidden">
                 <div className="flex-1 flex flex-col min-h-0">
@@ -208,30 +183,16 @@ const Year1StudentsPage = () => {
                         <div className="mb-6">
                             <div className="text-[#8F8F8F] text-sm mb-3">STUDENTS</div>
                             <ul className="space-y-3">
-                                <motion.li
-                                    whileHover={{x: 4}}
-                                    className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                                    onClick={() => navigate("/Year1StudentsPage")}
-                                >
-                                    <School size={18} className="mr-2"/> Year 1 Students
-                                </motion.li>
-                                <motion.li
-                                    whileHover={{x: 4}}
-                                    className="flex items-center text-white bg-[#3A3750] cursor-default p-2 rounded-lg"
-                                >
-                                    <School size={18} className="mr-2"/> Year 2 Students
-                                </motion.li>
-                                <li className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                                    onClick={() => navigate("/Year3StudentsPage")}>
-                                    <School size={18} className="mr-2"/> Year 3 Students
-                                </li>
-                                <motion.li
-                                    whileHover={{x: 4}}
-                                    className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                                    onClick={() => navigate("/Year4StudentsPage")}
-                                >
-                                    <School size={18} className="mr-2"/> Year 4 Students
-                                </motion.li>
+                                {[1, 2, 3, 4].map((year) => (
+                                    <motion.li
+                                        key={year}
+                                        whileHover={{x: 4}}
+                                        className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                                        onClick={() => navigate(`/Year${year}StudentsPage`)}
+                                    >
+                                        <School size={18} className="mr-2"/> Year {year} Students
+                                    </motion.li>
+                                ))}
                             </ul>
                         </div>
 
@@ -246,11 +207,9 @@ const Year1StudentsPage = () => {
                                            onClick={() => navigate("/AdminTeachersPage")}>
                                     <Briefcase size={18} className="mr-2"/> Teachers
                                 </motion.li>
-                                <motion.li whileHover={{x: 4}}
-                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                                           onClick={() => navigate("/AdminLabfacPage")}>
+                                <li className="flex items-center text-white bg-[#3A3750] cursor-default p-2 rounded-lg">
                                     <Microscope size={18} className="mr-2"/> Lab Instructors
-                                </motion.li>
+                                </li>
                                 <motion.li whileHover={{x: 4}}
                                            className="flex items-center text-gray-300 hover:text-white cursor-pointer">
                                     <UserCog size={18} className="mr-2"/> Administrators
@@ -317,31 +276,25 @@ const Year1StudentsPage = () => {
                 </div>
             </div>
 
-            {/* Main content */}
+            {/* Main Content */}
             <div className="flex-1 overflow-auto">
-                {/* Top Navigation */}
-                <div className="bg-[#1E1C2E] p-4 flex justify-between items-center">
-                    <div className="flex items-center space-x-4">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                    size={20}/>
-                            <input
-                                type="text"
-                                placeholder="Search students..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 pr-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            />
-                        </div>
+                {/* Navbar */}
+                <div className="bg-[#1E1C2E] p-4 flex justify-between items-center shadow-md">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20}/>
+                        <input
+                            type="text"
+                            placeholder="Search lab faculty..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-10 pr-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        />
                     </div>
-
                     <div className="flex items-center space-x-6">
                         <motion.button whileHover={{scale: 1.1}} className="relative">
                             <Bell size={24} className="text-gray-300 hover:text-white"/>
                             <span
-                                className="absolute -top-1 -right-1 bg-red-500 rounded-full w-4 h-4 text-xs flex items-center justify-center text-white">
-                3
-              </span>
+                                className="absolute -top-1 -right-1 bg-red-500 rounded-full w-4 h-4 text-xs flex items-center justify-center text-white">3</span>
                         </motion.button>
                         <div className="flex items-center space-x-3">
                             <span className="text-white">Welcome, Admin</span>
@@ -355,89 +308,136 @@ const Year1StudentsPage = () => {
                     </div>
                 </div>
 
-                {/* Students Content */}
-                <div className="p-6">
+                {/* Lab Faculty Content */}
+                <div className="p-8">
                     <motion.div
                         initial={{opacity: 0, y: 20}}
                         animate={{opacity: 1, y: 0}}
-                        className="bg-[#1E1C2E] rounded-xl p-6"
+                        className="bg-[#1E1C2E] rounded-2xl p-8"
                     >
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold text-white">Year 2 Students</h2>
+                        <div className="flex justify-between items-center mb-8">
+                            <h2 className="text-3xl font-bold text-white">Lab Faculty Management</h2>
                             <motion.button
                                 whileHover={{scale: 1.05}}
                                 onClick={handleAdd}
                                 className="flex items-center space-x-2 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors"
                             >
                                 <Plus size={20}/>
-                                <span>Add New Student</span>
+                                <span>Add New Lab Faculty</span>
                             </motion.button>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredStudents.map((student) => (
+                        <div className="space-y-4">
+                            {filteredFaculty.map((faculty) => (
                                 <motion.div
-                                    key={student.id}
+                                    layout
+                                    key={faculty.id}
                                     initial={{opacity: 0, y: 20}}
                                     animate={{opacity: 1, y: 0}}
-                                    className="bg-[#2D2B3D] rounded-lg p-6 flex"
+                                    className="bg-[#2D2B3D] rounded-xl overflow-hidden"
                                 >
-                                    {/* Left Side */}
-                                    <div className="flex-1 pr-4">
-                                        <div className="flex justify-between items-start">
-                                            <h3 className="text-white font-semibold text-lg mb-2">{student.name}</h3>
-                                            <div className="flex space-x-2">
+                                    <motion.div
+                                        layout="position"
+                                        className="p-6 cursor-pointer"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center space-x-4">
+                                                <motion.img
+                                                    layout="position"
+                                                    src={faculty.image}
+                                                    alt={faculty.name}
+                                                    className="w-12 h-12 rounded-full object-cover"
+                                                />
+                                                <div>
+                                                    <motion.h3 layout="position"
+                                                               className="text-white font-semibold">
+                                                        {faculty.name}
+                                                    </motion.h3>
+                                                    <motion.p layout="position" className="text-purple-400">
+                                                        {faculty.position}
+                                                    </motion.p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center space-x-4">
                                                 <motion.button
                                                     whileHover={{scale: 1.1}}
-                                                    onClick={() => handleEdit(student)}
+                                                    onClick={() => handleEdit(faculty)}
                                                     className="text-blue-400 hover:text-blue-300"
                                                 >
                                                     <Edit2 size={20}/>
                                                 </motion.button>
                                                 <motion.button
                                                     whileHover={{scale: 1.1}}
-                                                    onClick={() => handleDelete(student)}
+                                                    onClick={() => handleDelete(faculty)}
                                                     className="text-red-400 hover:text-red-300"
                                                 >
                                                     <Trash2 size={20}/>
                                                 </motion.button>
+                                                <motion.div
+                                                    onClick={() => toggleExpand(faculty.id)}
+                                                    animate={{rotate: expandedId === faculty.id ? 180 : 0}}
+                                                    transition={{duration: 0.3}}
+                                                >
+                                                    <ChevronDown className="text-gray-400 cursor-pointer"/>
+                                                </motion.div>
                                             </div>
                                         </div>
-                                        <div className="space-y-2">
-                                            <p className="text-gray-400">
-                                                <span className="text-purple-400">Reg No:</span> {student.regNo}
-                                            </p>
-                                            <p className="text-gray-400">
-                                                <span className="text-purple-400">Type:</span> {student.type}
-                                            </p>
-                                            <div>
-                                                <p className="text-purple-400 mb-1">Subject Grades</p>
-                                                <p className="text-gray-400">Average: {calculateAverage(student.subjectGrades)}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-purple-400 mb-1">Lab Grades</p>
-                                                <p className="text-gray-400">Average: {calculateAverage(student.labGrades)}</p>
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                    {/* Right Side */}
-                                    <div className="flex flex-col items-center">
-                                        <motion.img
-                                            whileHover={{scale: 1.1}}
-                                            src={student.image}
-                                            alt={student.name}
-                                            className="w-20 h-20 rounded-full mb-4 object-cover"
-                                        />
-                                        <p className="text-gray-400 text-sm">
-                                            <span className="text-purple-400">DOB:</span><br/>
-                                            {new Date(student.dob).toLocaleDateString()}
-                                        </p>
-                                        <p className="text-gray-400 text-sm mt-2 text-center">
-                                            <span className="text-purple-400">Address:</span><br/>
-                                            {student.address}
-                                        </p>
-                                    </div>
+                                        <AnimatePresence>
+                                            {expandedId === faculty.id && (
+                                                <motion.div
+                                                    initial={{height: 0, opacity: 0}}
+                                                    animate={{height: "auto", opacity: 1}}
+                                                    exit={{height: 0, opacity: 0}}
+                                                    transition={{duration: 0.3}}
+                                                    className="mt-4 pt-4 border-t border-gray-700"
+                                                >
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div className="space-y-3">
+                                                            <motion.div
+                                                                initial={{x: -20, opacity: 0}}
+                                                                animate={{x: 0, opacity: 1}}
+                                                                transition={{delay: 0.3}}
+                                                                className="flex items-center space-x-2"
+                                                            >
+                                                                <GraduationCap className="text-purple-400" size={20}/>
+                                                                <p className="text-gray-300">{faculty.education}</p>
+                                                            </motion.div>
+                                                            <motion.div
+                                                                initial={{x: -20, opacity: 0}}
+                                                                animate={{x: 0, opacity: 1}}
+                                                                transition={{delay: 0.4}}
+                                                                className="flex items-center space-x-2"
+                                                            >
+                                                                <Award className="text-purple-400" size={20}/>
+                                                                <p className="text-gray-300">{faculty.specialization}</p>
+                                                            </motion.div>
+                                                        </div>
+                                                        <div className="space-y-3">
+                                                            <motion.div
+                                                                initial={{x: 20, opacity: 0}}
+                                                                animate={{x: 0, opacity: 1}}
+                                                                transition={{delay: 0.5}}
+                                                                className="flex items-center space-x-2"
+                                                            >
+                                                                <Users className="text-purple-400" size={20}/>
+                                                                <p className="text-gray-300">{faculty.experience}</p>
+                                                            </motion.div>
+                                                            <motion.div
+                                                                initial={{x: 20, opacity: 0}}
+                                                                animate={{x: 0, opacity: 1}}
+                                                                transition={{delay: 0.6}}
+                                                                className="flex items-center space-x-2"
+                                                            >
+                                                                <BookOpen className="text-purple-400" size={20}/>
+                                                                <p className="text-gray-300">{faculty.research}</p>
+                                                            </motion.div>
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </motion.div>
                                 </motion.div>
                             ))}
                         </div>
@@ -445,11 +445,11 @@ const Year1StudentsPage = () => {
                 </div>
             </div>
 
-            {/* Add Student Modal */}
+            {/* Add Lab Faculty Modal */}
             <Modal
                 isOpen={addModalOpen}
                 onClose={() => setAddModalOpen(false)}
-                title="Add New Student"
+                title="Add New Lab Faculty"
             >
                 <div className="space-y-4">
                     <div>
@@ -462,39 +462,46 @@ const Year1StudentsPage = () => {
                         />
                     </div>
                     <div>
-                        <label className="block text-gray-400 mb-2">Registration Number</label>
+                        <label className="block text-gray-400 mb-2">Department</label>
                         <input
                             type="text"
-                            value={formData.regNo}
-                            onChange={(e) => setFormData({...formData, regNo: e.target.value})}
+                            value={formData.department}
+                            onChange={(e) => setFormData({...formData, department: e.target.value})}
                             className="w-full bg-[#2D2B3D] text-white rounded-lg p-2"
                         />
                     </div>
                     <div>
-                        <label className="block text-gray-400 mb-2">Type</label>
-                        <select
-                            value={formData.type}
-                            onChange={(e) => setFormData({...formData, type: e.target.value})}
-                            className="w-full bg-[#2D2B3D] text-white rounded-lg p-2"
-                        >
-                            <option value="Day Scholar">Day Scholar</option>
-                            <option value="Hosteler">Hosteler</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-gray-400 mb-2">Date of Birth</label>
+                        <label className="block text-gray-400 mb-2">Education</label>
                         <input
-                            type="date"
-                            value={formData.dob}
-                            onChange={(e) => setFormData({...formData, dob: e.target.value})}
+                            type="text"
+                            value={formData.education}
+                            onChange={(e) => setFormData({...formData, education: e.target.value})}
                             className="w-full bg-[#2D2B3D] text-white rounded-lg p-2"
                         />
                     </div>
                     <div>
-                        <label className="block text-gray-400 mb-2">Address</label>
+                        <label className="block text-gray-400 mb-2">Specialization</label>
+                        <input
+                            type="text"
+                            value={formData.specialization}
+                            onChange={(e) => setFormData({...formData, specialization: e.target.value})}
+                            className="w-full bg-[#2D2B3D] text-white rounded-lg p-2"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-gray-400 mb-2">Experience</label>
+                        <input
+                            type="text"
+                            value={formData.experience}
+                            onChange={(e) => setFormData({...formData, experience: e.target.value})}
+                            className="w-full bg-[#2D2B3D] text-white rounded-lg p-2"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-gray-400 mb-2">Research</label>
                         <textarea
-                            value={formData.address}
-                            onChange={(e) => setFormData({...formData, address: e.target.value})}
+                            value={formData.research}
+                            onChange={(e) => setFormData({...formData, research: e.target.value})}
                             className="w-full bg-[#2D2B3D] text-white rounded-lg p-2"
                             rows={3}
                         />
@@ -519,17 +526,17 @@ const Year1StudentsPage = () => {
                             onClick={handleSubmitAdd}
                             className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
                         >
-                            Add Student
+                            Add Lab Faculty
                         </button>
                     </div>
                 </div>
             </Modal>
 
-            {/* Edit Student Modal */}
+            {/* Edit Lab Faculty Modal */}
             <Modal
                 isOpen={editModalOpen}
                 onClose={() => setEditModalOpen(false)}
-                title="Edit Student"
+                title="Edit Lab Faculty"
             >
                 <div className="space-y-4">
                     <div>
@@ -542,39 +549,46 @@ const Year1StudentsPage = () => {
                         />
                     </div>
                     <div>
-                        <label className="block text-gray-400 mb-2">Registration Number</label>
+                        <label className="block text-gray-400 mb-2">Department</label>
                         <input
                             type="text"
-                            value={formData.regNo}
-                            onChange={(e) => setFormData({...formData, regNo: e.target.value})}
+                            value={formData.department}
+                            onChange={(e) => setFormData({...formData, department: e.target.value})}
                             className="w-full bg-[#2D2B3D] text-white rounded-lg p-2"
                         />
                     </div>
                     <div>
-                        <label className="block text-gray-400 mb-2">Type</label>
-                        <select
-                            value={formData.type}
-                            onChange={(e) => setFormData({...formData, type: e.target.value})}
-                            className="w-full bg-[#2D2B3D] text-white rounded-lg p-2"
-                        >
-                            <option value="Day Scholar">Day Scholar</option>
-                            <option value="Hosteler">Hosteler</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-gray-400 mb-2">Date of Birth</label>
+                        <label className="block text-gray-400 mb-2">Education</label>
                         <input
-                            type="date"
-                            value={formData.dob}
-                            onChange={(e) => setFormData({...formData, dob: e.target.value})}
+                            type="text"
+                            value={formData.education}
+                            onChange={(e) => setFormData({...formData, education: e.target.value})}
                             className="w-full bg-[#2D2B3D] text-white rounded-lg p-2"
                         />
                     </div>
                     <div>
-                        <label className="block text-gray-400 mb-2">Address</label>
+                        <label className="block text-gray-400 mb-2">Specialization</label>
+                        <input
+                            type="text"
+                            value={formData.specialization}
+                            onChange={(e) => setFormData({...formData, specialization: e.target.value})}
+                            className="w-full bg-[#2D2B3D] text-white rounded-lg p-2"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-gray-400 mb-2">Experience</label>
+                        <input
+                            type="text"
+                            value={formData.experience}
+                            onChange={(e) => setFormData({...formData, experience: e.target.value})}
+                            className="w-full bg-[#2D2B3D] text-white rounded-lg p-2"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-gray-400 mb-2">Research</label>
                         <textarea
-                            value={formData.address}
-                            onChange={(e) => setFormData({...formData, address: e.target.value})}
+                            value={formData.research}
+                            onChange={(e) => setFormData({...formData, research: e.target.value})}
                             className="w-full bg-[#2D2B3D] text-white rounded-lg p-2"
                             rows={3}
                         />
@@ -613,7 +627,7 @@ const Year1StudentsPage = () => {
             >
                 <div className="space-y-4">
                     <p className="text-gray-300">
-                        Are you sure you want to delete {selectedStudent?.name}? This action cannot be undone.
+                        Are you sure you want to delete {selectedTeacher?.name}? This action cannot be undone.
                     </p>
                     <div className="flex justify-end space-x-4 mt-6">
                         <button
@@ -660,4 +674,4 @@ const Year1StudentsPage = () => {
     );
 };
 
-export default Year1StudentsPage;
+export default AdminLabfacPage;

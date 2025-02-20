@@ -24,6 +24,8 @@ import Year1StudentsPage from "./pages/Admin_Pages/Year1StudentsPage"
 import Year2StudentsPage from "./pages/Admin_Pages/Year2StudentsPage"
 import Year3StudentsPage from "./pages/Admin_Pages/Year3StudentsPage"
 import Year4StudentsPage from "./pages/Admin_Pages/Year4StudentsPage"
+import AdminTeachersPage from "./pages/Admin_Pages/AdminTeachersPage"
+import AdminLabfacPage from "./pages/Admin_Pages/AdminLabfacPage"
 
 function App() {
     return (
@@ -44,6 +46,8 @@ function App() {
                 <Route path="/Year2StudentsPage" element={<Year2StudentsPage/>}/>
                 <Route path="/Year3StudentsPage" element={<Year3StudentsPage/>}/>
                 <Route path="/Year4StudentsPage" element={<Year4StudentsPage/>}/>
+                <Route path="/AdminTeachersPage" element={<AdminTeachersPage/>}/>
+                <Route path="/AdminLabfacPage" element={<AdminLabfacPage/>}/>
                 <Route path="/CompletedQuizPage" element={<CompletedQuizPage/>}/>
                 <Route path="/UpcomingQuizPage" element={<UpcomingQuizPage/>}/>
                 <Route path="/PendingQuizPage" element={<PendingQuizPage/>}/>

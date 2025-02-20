@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {useNavigate} from "react-router-dom";
+import {useNavigate, Link} from "react-router-dom";
 import {
     Bell, Search, BookOpen, Clock, CheckCircle, AlertCircle,
     FileText, Book, GraduationCap, Trophy, Users, LogOut, ChevronRight,
@@ -77,10 +77,12 @@ const StudentDashboard = () => {
         <div className="flex flex-col h-full">
             {/* Logo */}
             <div className="mb-8 whitespace-nowrap">
-                <img
-                    src="../Images/HashLogoDashboard.png"
-                    alt="Hash Logo"
-                    className="h-12 w-auto"/>
+                <Link to="/StudentDashboard">
+                    <img
+                        src="../Images/HashLogoDashboard.png"
+                        alt="Hash Logo"
+                        className="h-12 w-auto transition-transform duration-200 transform hover:scale-110"/>
+                </Link>
             </div>
 
             <div className="border-b border-gray-700 mb-6"></div>
