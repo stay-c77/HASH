@@ -61,7 +61,7 @@ const Materials = () => {
                 <div className="flex items-center space-x-4">
                     <motion.button
                         whileHover={{ scale: 1.1 }}
-                        onClick={() => navigate('/teacher-dashboard')}
+                        onClick={() => navigate('/TeacherDashboard')}
                         className="text-white hover:text-purple-400 transition-colors"
                     >
                         <ArrowLeft size={24} />

@@ -1,5 +1,6 @@
 import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
+
 import StudentDashboard from "./pages/Student_Pages/StudentDashboard";
 import QuizPage from "./pages/Student_Pages/QuizPage";
 import ResultsPage from "./pages/Student_Pages/ResultsPage";
@@ -8,6 +9,10 @@ import SyllabusPage from "./pages/Student_Pages/SyllabusPage";
 import MaterialsPage from "./pages/Student_Pages/MaterialsPage";
 import RanksPage from "./pages/Student_Pages/RanksPage";
 import MyTeachersPage from "./pages/Student_Pages/MyTeachersPage.jsx";
+import CompletedQuizPage from "./pages/Student_Pages/CompletedQuizPage"
+import UpcomingQuizPage from "./pages/Student_Pages/UpcomingQuizPage"
+import PendingQuizPage from "./pages/Student_Pages/PendingQuizPage"
+
 import TeacherDashboard from "./pages/Teacher_Pages/TeacherDashboard";
 import CompletedQuizzes from "./pages/Teacher_Pages/CompletedQuizzes";
 import AssignQuizzes from "./pages/Teacher_Pages/AssignQuizzes";
@@ -16,9 +21,7 @@ import Syllabus from "./pages/Teacher_Pages/Syllabus";
 import Materials from "./pages/Teacher_Pages/Materials";
 import ViewRanks from "./pages/Teacher_Pages/ViewRanks";
 import MyStudents from "./pages/Teacher_Pages/MyStudents";
-import CompletedQuizPage from "./pages/Student_Pages/CompletedQuizPage"
-import UpcomingQuizPage from "./pages/Student_Pages/UpcomingQuizPage"
-import PendingQuizPage from "./pages/Student_Pages/PendingQuizPage"
+
 import AdminDashboard from "./pages/Admin_Pages/AdminDashboard"
 import Year1StudentsPage from "./pages/Admin_Pages/Year1StudentsPage"
 import Year2StudentsPage from "./pages/Admin_Pages/Year2StudentsPage"
@@ -34,13 +37,13 @@ function App() {
                 <Route path="/" element={<LoginPage/>}/>
                 <Route path="/StudentDashboard" element={<StudentDashboard/>}/>
                 <Route path="/TeacherDashboard" element={<TeacherDashboard />} />
-                <Route path="/completed-quizzes" element={<CompletedQuizzes />} />
-                <Route path="/assign-quizzes" element={<AssignQuizzes />} />
-                <Route path="/pyqs" element={<PYQs />} />
-                <Route path="/syllabus" element={<Syllabus />} />
-                <Route path="/materials" element={<Materials />} />
-                <Route path="/view-ranks" element={<ViewRanks />} />
-                <Route path="/my-students" element={<MyStudents />} />
+                <Route path="/CompletedQuizzes" element={<CompletedQuizzes />} />
+                <Route path="/AssignQuizzes" element={<AssignQuizzes />} />
+                <Route path="/PYQs" element={<PYQs />} />
+                <Route path="/Syllabus" element={<Syllabus />} />
+                <Route path="/Materials" element={<Materials />} />
+                <Route path="/ViewRanks" element={<ViewRanks />} />
+                <Route path="/MyStudents" element={<MyStudents />} />
                 <Route path="/AdminDashboard" element={<AdminDashboard/>}/>
                 <Route path="/Year1StudentsPage" element={<Year1StudentsPage/>}/>
                 <Route path="/Year2StudentsPage" element={<Year2StudentsPage/>}/>

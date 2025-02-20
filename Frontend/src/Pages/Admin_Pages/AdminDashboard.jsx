@@ -206,7 +206,7 @@ const AdminDashboard = () => {
                 <div className="flex-1 flex flex-col min-h-0">
                     {/* Logo */}
                     <div className="mb-8 whitespace-nowrap">
-                        <Link to="/StudentDashboard">
+                        <Link to="/AdminDashboard">
                             <img
                                 src="../Images/HashLogoDashboard.png"
                                 alt="Hash Logo"

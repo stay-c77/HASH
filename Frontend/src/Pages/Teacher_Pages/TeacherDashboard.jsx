@@ -25,7 +25,7 @@ const recentActivities = [
     {
         type: "material_uploaded",
         subject: "Database Systems",
-        type: "Lecture Notes",
+        topic: "Lecture Notes",
         time: "1 day ago"
     }
 ];
@@ -85,7 +85,7 @@ const TeacherDashboard = () => {
                     <motion.li
                         whileHover={{x: 4}}
                         className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                        onClick={() => navigate("/AssignQuiz")}
+                        onClick={() => navigate("/AssignQuizzes")}
                     >
                         <PlusCircle size={18} className="mr-2"/> Assign Quiz
                     </motion.li>
