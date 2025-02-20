@@ -253,11 +253,13 @@ const AdminDashboard = () => {
                             <div className="text-[#8F8F8F] text-sm mb-3">FACULTY</div>
                             <ul className="space-y-3">
                                 <motion.li whileHover={{x: 4}}
-                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                                           onClick={() => navigate("/AdminTeachersPage")}>
                                     <Briefcase size={18} className="mr-2"/> Teachers
                                 </motion.li>
                                 <motion.li whileHover={{x: 4}}
-                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                                           onClick={() => navigate("/AdminLabfacPage")}>
                                     <Microscope size={18} className="mr-2"/> Lab Instructors
                                 </motion.li>
                                 <motion.li whileHover={{x: 4}}
