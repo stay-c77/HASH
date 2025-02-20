@@ -237,8 +237,7 @@ const AdminDashboard = () => {
                                         key={year}
                                         whileHover={{x: 4}}
                                         className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-
-                                        onClick={() => navigate(`/year${year}StudentsPage`)}
+                                        onClick={() => navigate(`/Year${year}StudentsPage`)}
                                     >
                                         <School size={18} className="mr-2"/> Year {year} Students
                                     </motion.li>

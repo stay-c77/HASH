@@ -116,18 +116,30 @@ const Year2StudentsPage = () => {
                         <div className="mb-6">
                             <div className="text-[#8F8F8F] text-sm mb-3">STUDENTS</div>
                             <ul className="space-y-3">
-                                <li className="flex items-center text-white bg-[#3A3750] cursor-default p-2 rounded-lg">
+                                <motion.li
+                                    whileHover={{x: 4}}
+                                    className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                                    onClick={() => navigate("/Year1StudentsPage")}
+                                >
                                     <School size={18} className="mr-2"/> Year 1 Students
+                                </motion.li>
+                                <li className="flex items-center text-white bg-[#3A3750] cursor-default p-2 rounded-lg">
+                                    <School size={18} className="mr-2"/> Year 2 Students
                                 </li>
-                                {[2, 3, 4].map((year) => (
-                                    <motion.li
-                                        key={year}
-                                        whileHover={{x: 4}}
-                                        className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                                    >
-                                        <School size={18} className="mr-2"/> Year {year} Students
-                                    </motion.li>
-                                ))}
+                                <motion.li
+                                    whileHover={{x: 4}}
+                                    className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                                    onClick={() => navigate("/Year3StudentsPage")}
+                                >
+                                    <School size={18} className="mr-2"/> Year 3 Students
+                                </motion.li>
+                                <motion.li
+                                    whileHover={{x: 4}}
+                                    className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                                    onClick={() => navigate("/Year4StudentsPage")}
+                                >
+                                    <School size={18} className="mr-2"/> Year 4 Students
+                                </motion.li>
                             </ul>
                         </div>
 
@@ -255,7 +267,7 @@ const Year2StudentsPage = () => {
                         className="bg-[#1E1C2E] rounded-xl p-6"
                     >
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold text-white">Year 1 Students</h2>
+                            <h2 className="text-2xl font-bold text-white">Year 2 Students</h2>
                             <span className="text-gray-400">Total Students: {studentsData.length}</span>
                         </div>
 
