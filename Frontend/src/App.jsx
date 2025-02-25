@@ -8,7 +8,7 @@ import PYQsPage from "./pages/Student_Pages/PYQsPage";
 import SyllabusPage from "./pages/Student_Pages/SyllabusPage";
 import MaterialsPage from "./pages/Student_Pages/MaterialsPage";
 import RanksPage from "./pages/Student_Pages/RanksPage";
-import MyTeachersPage from "./pages/Student_Pages/MyTeachersPage.jsx";
+import MyTeachersPage from "./pages/Student_Pages/MyTeachersPage";
 import CompletedQuizPage from "./pages/Student_Pages/CompletedQuizPage"
 import UpcomingQuizPage from "./pages/Student_Pages/UpcomingQuizPage"
 import PendingQuizPage from "./pages/Student_Pages/PendingQuizPage"
@@ -29,12 +29,14 @@ import Year3StudentsPage from "./pages/Admin_Pages/Year3StudentsPage"
 import Year4StudentsPage from "./pages/Admin_Pages/Year4StudentsPage"
 import AdminTeachersPage from "./pages/Admin_Pages/AdminTeachersPage"
 import AdminLabfacPage from "./pages/Admin_Pages/AdminLabfacPage"
+import AdminAdminPage from "./pages/Admin_Pages/AdminAdminPage"
+import QuizzesUploaded from "./Pages/Admin_Pages/QuizzesUploaded";
 
 function App() {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<LoginPage/>}/>
+                <Route path="/" element={<QuizzesUploaded/>}/>
                 <Route path="/StudentDashboard" element={<StudentDashboard/>}/>
                 <Route path="/TeacherDashboard" element={<TeacherDashboard />} />
                 <Route path="/CompletedQuizzes" element={<CompletedQuizzes />} />
@@ -51,6 +53,8 @@ function App() {
                 <Route path="/Year4StudentsPage" element={<Year4StudentsPage/>}/>
                 <Route path="/AdminTeachersPage" element={<AdminTeachersPage/>}/>
                 <Route path="/AdminLabfacPage" element={<AdminLabfacPage/>}/>
+                <Route path="/AdminAdminPage" element={<AdminAdminPage/>}/>
+                <Route path="/QuizzesUploaded" element={<QuizzesUploaded/>}/>
                 <Route path="/CompletedQuizPage" element={<CompletedQuizPage/>}/>
                 <Route path="/UpcomingQuizPage" element={<UpcomingQuizPage/>}/>
                 <Route path="/PendingQuizPage" element={<PendingQuizPage/>}/>
