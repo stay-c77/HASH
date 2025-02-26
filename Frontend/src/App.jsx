@@ -31,6 +31,7 @@ import AdminTeachersPage from "./pages/Admin_Pages/AdminTeachersPage"
 import AdminLabfacPage from "./pages/Admin_Pages/AdminLabfacPage"
 import AdminAdminPage from "./pages/Admin_Pages/AdminAdminPage"
 import QuizzesUploaded from "./Pages/Admin_Pages/QuizzesUploaded";
+import QuizzesCorrectionPage from "./Pages/Admin_Pages/QuizzesCorrectionPage.jsx";
 
 function App() {
     return (
@@ -55,6 +56,7 @@ function App() {
                 <Route path="/AdminLabfacPage" element={<AdminLabfacPage/>}/>
                 <Route path="/AdminAdminPage" element={<AdminAdminPage/>}/>
                 <Route path="/QuizzesUploaded" element={<QuizzesUploaded/>}/>
+                <Route path="/QuizzesCorrectionPage" element={<QuizzesCorrectionPage/>}/>
                 <Route path="/CompletedQuizPage" element={<CompletedQuizPage/>}/>
                 <Route path="/UpcomingQuizPage" element={<UpcomingQuizPage/>}/>
                 <Route path="/PendingQuizPage" element={<PendingQuizPage/>}/>
