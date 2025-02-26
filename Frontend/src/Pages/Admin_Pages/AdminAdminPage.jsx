@@ -243,10 +243,6 @@ const AdminAdminPage = () => {
                                 </motion.li>
                                 <motion.li whileHover={{x: 4}}
                                            className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-                                    <CheckSquare size={18} className="mr-2"/> Quizzes Evaluated
-                                </motion.li>
-                                <motion.li whileHover={{x: 4}}
-                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer">
                                     <AlertOctagon size={18} className="mr-2"/> Quizzes Correction
                                 </motion.li>
                             </ul>

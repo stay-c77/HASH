@@ -2,25 +2,25 @@ import React, {useState} from 'react';
 import {Link, useNavigate} from "react-router-dom";
 import {motion, AnimatePresence} from 'framer-motion';
 import {
-  Bell,
-  Search,
-  UserCog,
-  School,
-  Briefcase,
-  Microscope,
-  Upload,
-  CheckSquare,
-  AlertOctagon,
-  FileText,
-  Book,
-  BookMarked,
-  Trophy,
-  Users,
-  LogOut,
-  X,
-  Filter,
-  ChevronDown,
-  Eye
+    Bell,
+    Search,
+    UserCog,
+    School,
+    Briefcase,
+    Microscope,
+    Upload,
+    CheckSquare,
+    AlertOctagon,
+    FileText,
+    Book,
+    BookMarked,
+    Trophy,
+    Users,
+    LogOut,
+    X,
+    Filter,
+    ChevronDown,
+    Eye
 } from 'lucide-react';
 
 // Dummy data for quizzes
@@ -181,13 +181,10 @@ const QuizzesUploaded = () => {
                         <div className="mb-6">
                             <div className="text-[#8F8F8F] text-sm mb-3">QUIZ TRACKER</div>
                             <ul className="space-y-3">
-                                <li className="flex items-center text-white bg-[#3A3750] cursor-default p-2 rounded-lg">
+                                <li className="flex items-center text-white bg-[#3A3750] cursor-default p-2 rounded-lg"
+                                >
                                     <Upload size={18} className="mr-2"/> Quizzes Uploaded
                                 </li>
-                                <motion.li whileHover={{x: 4}}
-                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-                                    <CheckSquare size={18} className="mr-2"/> Quizzes Evaluated
-                                </motion.li>
                                 <motion.li whileHover={{x: 4}}
                                            className="flex items-center text-gray-300 hover:text-white cursor-pointer">
                                     <AlertOctagon size={18} className="mr-2"/> Quizzes Correction
@@ -239,7 +236,8 @@ const QuizzesUploaded = () => {
                 <div className="bg-[#1E1C2E] p-4 flex justify-between items-center shadow-md">
                     <div className="flex items-center space-x-4">
                         <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20}/>
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                                    size={20}/>
                             <input
                                 type="text"
                                 placeholder="Search quizzes..."
@@ -259,7 +257,7 @@ const QuizzesUploaded = () => {
                                     className="flex items-center space-x-2 bg-[#2D2B3D] px-4 py-2 rounded-lg hover:bg-[#3A3750] transition-colors text-white"
                                 >
                                     <Filter size={20}/>
-                                    <span>Teacher</span>
+                                    <span>{selectedTeacher === 'all' ? 'Teacher' : selectedTeacher.split(' ')[1]}</span>
                                     <ChevronDown size={16}/>
                                 </motion.button>
                                 <AnimatePresence>
@@ -304,7 +302,7 @@ const QuizzesUploaded = () => {
                                     className="flex items-center space-x-2 bg-[#2D2B3D] px-4 py-2 rounded-lg hover:bg-[#3A3750] transition-colors text-white"
                                 >
                                     <Filter size={20}/>
-                                    <span>Year</span>
+                                    <span>{selectedYear === 'all' ? 'Year' : `Year ${selectedYear}`}</span>
                                     <ChevronDown size={16}/>
                                 </motion.button>
                                 <AnimatePresence>
