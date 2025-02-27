@@ -1,14 +1,14 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, FileText } from 'lucide-react';
+import {motion, AnimatePresence} from 'framer-motion';
+import {X, FileText} from 'lucide-react';
 
-const PopupModal = ({ title, isExpanded, onToggle, children }) => {
+const PopupModal = ({title, isExpanded, onToggle, children}) => {
   return (
     <>
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
+        initial={{opacity: 0, y: 20}}
+        animate={{opacity: 1, y: 0}}
+        transition={{duration: 0.3, ease: "easeOut"}}
         className="bg-[#2D2B3D] rounded-lg overflow-hidden cursor-pointer"
         onClick={onToggle}
       >
@@ -25,20 +25,20 @@ const PopupModal = ({ title, isExpanded, onToggle, children }) => {
           <>
             {/* Backdrop overlay */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              initial={{opacity: 0}}
+              animate={{opacity: 1}}
+              exit={{opacity: 0}}
+              transition={{duration: 0.2}}
               className="fixed inset-0 bg-black bg-opacity-50 z-40"
               onClick={onToggle}
             />
 
             {/* Modal */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
+              initial={{opacity: 0, scale: 0.9}}
+              animate={{opacity: 1, scale: 1}}
+              exit={{opacity: 0, scale: 0.9}}
+              transition={{duration: 0.3, ease: "easeOut"}}
               className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#1E1C2E] rounded-xl p-6 shadow-xl z-50 w-11/12 max-w-lg max-h-[80vh] overflow-y-auto"
             >
               <div className="flex justify-between items-center mb-4">
@@ -47,7 +47,7 @@ const PopupModal = ({ title, isExpanded, onToggle, children }) => {
                   onClick={onToggle}
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  <X size={24} />
+                  <X size={24}/>
                 </button>
               </div>
 
