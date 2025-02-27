@@ -38,7 +38,7 @@ function App() {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<PYQsPage/>}/>
+                <Route path="/" element={<LoginPage/>}/>
                 <Route path="/StudentDashboard" element={<StudentDashboard/>}/>
                 <Route path="/TeacherDashboard" element={<TeacherDashboard />} />
                 <Route path="/CompletedQuizzes" element={<CompletedQuizzes />} />
