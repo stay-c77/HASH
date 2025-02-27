@@ -5,7 +5,7 @@ import { FileText } from "lucide-react";
 import StudentNavbar from '../../components/StudentNavbar';
 import StudentSidebar from '../../components/StudentSidebar';
 import LogoutModal from '../../components/LogoutModal';
-import ExpandableCard from '../../components/ExpandableCard';
+import PopupModal from '../../components/PopupModal.jsx';
 
 const PYQsPage = () => {
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ const PYQsPage = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {subjects.map((subject, index) => (
-                <ExpandableCard
+                <PopupModal
                   key={index}
                   title={subject}
                   isExpanded={expandedSubject === index}
@@ -74,7 +74,7 @@ const PYQsPage = () => {
                       </motion.li>
                     ))}
                   </ul>
-                </ExpandableCard>
+                </PopupModal>
               ))}
             </div>
           </motion.div>

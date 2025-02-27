@@ -5,7 +5,7 @@ import { FileText } from "lucide-react";
 import StudentNavbar from '../../components/StudentNavbar';
 import StudentSidebar from '../../components/StudentSidebar';
 import LogoutModal from '../../components/LogoutModal';
-import ExpandableCard from '../../components/ExpandableCard';
+import ExpandableCard from '../../components/PopupModal.jsx';
 
 const MaterialsPage = () => {
   const navigate = useNavigate();
