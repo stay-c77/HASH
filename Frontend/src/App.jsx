@@ -33,13 +33,27 @@ import AdminAdminPage from "./pages/Admin_Pages/AdminAdminPage"
 import QuizzesUploaded from "./Pages/Admin_Pages/QuizzesUploaded";
 import QuizzesCorrectionPage from "./Pages/Admin_Pages/QuizzesCorrectionPage.jsx";
 import AdminPYQsPage from "./Pages/Admin_Pages/AdminPYQsPage.jsx";
+import AdminSyllabusPage from "./Pages/Admin_Pages/AdminSyllabusPage"
+import AdminMaterialsPage from "./Pages/Admin_Pages/AdminMaterialsPage.jsx";
 
 function App() {
     return (
         <Router>
             <Routes>
                 <Route path="/" element={<LoginPage/>}/>
+
                 <Route path="/StudentDashboard" element={<StudentDashboard/>}/>
+                <Route path="/CompletedQuizPage" element={<CompletedQuizPage/>}/>
+                <Route path="/UpcomingQuizPage" element={<UpcomingQuizPage/>}/>
+                <Route path="/PendingQuizPage" element={<PendingQuizPage/>}/>
+                <Route path="/QuizPage" element={<QuizPage/>}/>
+                <Route path="/ResultsPage" element={<ResultsPage/>}/>
+                <Route path="/PYQsPage" element={<PYQsPage/>}/>
+                <Route path="/SyllabusPage" element={<SyllabusPage/>}/>
+                <Route path="/MaterialsPage" element={<MaterialsPage/>}/>
+                <Route path="/RanksPage" element={<RanksPage/>}/>
+                <Route path="/MyTeachersPage" element={<MyTeachersPage/>}/>
+
                 <Route path="/TeacherDashboard" element={<TeacherDashboard />} />
                 <Route path="/CompletedQuizzes" element={<CompletedQuizzes />} />
                 <Route path="/AssignQuizzes" element={<AssignQuizzes />} />
@@ -48,6 +62,7 @@ function App() {
                 <Route path="/Materials" element={<Materials />} />
                 <Route path="/ViewRanks" element={<ViewRanks />} />
                 <Route path="/MyStudents" element={<MyStudents />} />
+
                 <Route path="/AdminDashboard" element={<AdminDashboard/>}/>
                 <Route path="/Year1StudentsPage" element={<Year1StudentsPage/>}/>
                 <Route path="/Year2StudentsPage" element={<Year2StudentsPage/>}/>
@@ -59,16 +74,9 @@ function App() {
                 <Route path="/QuizzesUploaded" element={<QuizzesUploaded/>}/>
                 <Route path="/QuizzesCorrectionPage" element={<QuizzesCorrectionPage/>}/>
                 <Route path="/AdminPYQsPage" element={<AdminPYQsPage/>}/>
-                <Route path="/CompletedQuizPage" element={<CompletedQuizPage/>}/>
-                <Route path="/UpcomingQuizPage" element={<UpcomingQuizPage/>}/>
-                <Route path="/PendingQuizPage" element={<PendingQuizPage/>}/>
-                <Route path="/QuizPage" element={<QuizPage/>}/>
-                <Route path="/ResultsPage" element={<ResultsPage/>}/>
-                <Route path="/PYQsPage" element={<PYQsPage/>}/>
-                <Route path="/SyllabusPage" element={<SyllabusPage/>}/>
-                <Route path="/MaterialsPage" element={<MaterialsPage/>}/>
-                <Route path="/RanksPage" element={<RanksPage/>}/>
-                <Route path="/MyTeachersPage" element={<MyTeachersPage/>}/>
+                <Route path="/AdminSyllabusPage" element={<AdminSyllabusPage/>}/>
+                <Route path="/AdminMaterialsPage" element={<AdminMaterialsPage/>}/>
+
                 <Route path="*" element={<Navigate to="/"/>}/>
             </Routes>
         </Router>
