@@ -4,7 +4,7 @@ import {Eye, EyeOff} from 'lucide-react';
 import {motion} from 'framer-motion';
 import {FlipWords} from '../../ui/flip-words';
 import {Spotlight} from '../../ui/spotlight-new';
-import {LoadingScreen} from '../components/LoadingScreen';
+import {LoadingScreen} from '../Components/LoadingScreen';
 
 function validateEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);

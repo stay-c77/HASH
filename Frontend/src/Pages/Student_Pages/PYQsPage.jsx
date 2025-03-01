@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FileText } from "lucide-react";
-import StudentNavbar from '../../components/StudentNavbar';
-import StudentSidebar from '../../components/StudentSidebar';
-import LogoutModal from '../../components/LogoutModal';
-import PopupModal from '../../components/PopupModal.jsx';
+import StudentNavbar from '../../Components/StudentNavbar';
+import StudentSidebar from '../../Components/StudentSidebar';
+import LogoutModal from '../../Components/LogoutModal';
+import PopupModal from '../../Components/PopupModal.jsx';
 
 const PYQsPage = () => {
   const navigate = useNavigate();

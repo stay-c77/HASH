@@ -8,7 +8,7 @@ import {
     BookMarked, Trophy, Users, LogOut, X, ChevronDown,
     Plus, Edit2, Trash2, Download
 } from 'lucide-react';
-import ExpandableCard from '../../components/PopupModal.jsx';
+import ExpandableCard from '../../Components/PopupModal.jsx';
 
 const AdminMaterialsPage = () => {
     const navigate = useNavigate();
