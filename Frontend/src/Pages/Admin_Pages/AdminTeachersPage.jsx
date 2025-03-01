@@ -390,7 +390,8 @@ const AdminTeachersPage = () => {
                                     <Upload size={18} className="mr-2"/> Quizzes Uploaded
                                 </motion.li>
                                 <motion.li whileHover={{x: 4}}
-                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                                           onClick={() => navigate("/QuizzesCorrectionPage")}>
                                     <AlertOctagon size={18} className="mr-2"/> Quizzes Correction
                                 </motion.li>
                             </ul>
@@ -403,7 +404,8 @@ const AdminTeachersPage = () => {
                             <div className="text-[#8F8F8F] text-sm mb-3">RESOURCES / RANKS</div>
                             <ul className="space-y-3">
                                 <motion.li whileHover={{x: 4}}
-                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                                           onClick={() => navigate("/AdminPYQsPage")}>
                                     <FileText size={18} className="mr-2"/> PYQs
                                 </motion.li>
                                 <motion.li whileHover={{x: 4}}

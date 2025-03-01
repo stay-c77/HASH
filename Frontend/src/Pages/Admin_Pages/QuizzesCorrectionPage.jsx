@@ -193,7 +193,8 @@ const QuizzesCorrectionPage = () => {
                             <div className="text-[#8F8F8F] text-sm mb-3">RESOURCES / RANKS</div>
                             <ul className="space-y-3">
                                 <motion.li whileHover={{x: 4}}
-                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                                           onClick={() => navigate("/AdminPYQsPage")}>
                                     <FileText size={18} className="mr-2"/> PYQs
                                 </motion.li>
                                 <motion.li whileHover={{x: 4}}
@@ -275,9 +276,11 @@ const QuizzesCorrectionPage = () => {
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <div className="flex items-center space-x-3 mb-2">
-                                                <span className="text-purple-400 font-semibold">Complaint #{complaint.id}</span>
+                                                <span
+                                                    className="text-purple-400 font-semibold">Complaint #{complaint.id}</span>
                                                 {complaint.status === "resolved" && (
-                                                    <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-sm">
+                                                    <span
+                                                        className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-sm">
                                                         Resolved
                                                     </span>
                                                 )}

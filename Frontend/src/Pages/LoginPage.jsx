@@ -131,7 +131,7 @@ function LoginPage() {
                             <h1 className="text-3xl text-white font-bold">Login to your Account</h1>
                         </div>
 
-                        <form className="space-y-6">
+                        <form className="space-y-6" onSubmit={handleLogin}>
                             <motion.div
                                 initial={{opacity: 0, y: 20}}
                                 animate={{opacity: 1, y: 0}}
