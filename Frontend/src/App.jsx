@@ -35,6 +35,7 @@ import QuizzesCorrectionPage from "./Pages/Admin_Pages/QuizzesCorrectionPage.jsx
 import AdminPYQsPage from "./Pages/Admin_Pages/AdminPYQsPage.jsx";
 import AdminSyllabusPage from "./Pages/Admin_Pages/AdminSyllabusPage"
 import AdminMaterialsPage from "./Pages/Admin_Pages/AdminMaterialsPage.jsx";
+import AdminRanksPage from "./Pages/Admin_Pages/AdminRanksPage.jsx";
 
 function App() {
     return (
@@ -76,6 +77,7 @@ function App() {
                 <Route path="/AdminPYQsPage" element={<AdminPYQsPage/>}/>
                 <Route path="/AdminSyllabusPage" element={<AdminSyllabusPage/>}/>
                 <Route path="/AdminMaterialsPage" element={<AdminMaterialsPage/>}/>
+                <Route path="/AdminRanksPage" element={<AdminRanksPage/>}/>
 
                 <Route path="*" element={<Navigate to="/"/>}/>
             </Routes>

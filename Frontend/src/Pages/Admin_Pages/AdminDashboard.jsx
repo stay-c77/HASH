@@ -310,7 +310,8 @@ const AdminDashboard = () => {
                                     <BookMarked size={18} className="mr-2"/> Materials / Notes
                                 </motion.li>
                                 <motion.li whileHover={{x: 4}}
-                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                                           onClick={() => navigate("/AdminRanksPage")}>
                                     <Trophy size={18} className="mr-2"/> View Ranks
                                 </motion.li>
                             </ul>
