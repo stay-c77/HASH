@@ -279,7 +279,8 @@ const AdminRanksPage = () => {
                                        onClick={() => navigate("/AdminMaterialsPage")}>
                                 <BookMarked size={18} className="mr-2"/> Materials / Notes
                             </motion.li>
-                            <li className="flex items-center text-white bg-[#3A3750] cursor-default p-2 rounded-lg">
+                            <li className="flex items-center text-white bg-[#3A3750] cursor-default p-2 rounded-lg"
+                                onClick={() => navigate("/AdminRanksPage")}>
                                 <Trophy size={18} className="mr-2"/> View Ranks
                             </li>
                         </ul>

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from 'framer-motion';
+import React, {useState} from 'react';
+import {Link, useNavigate} from "react-router-dom";
+import {motion, AnimatePresence} from 'framer-motion';
 import {
     Bell, Search, UserCog, School, Briefcase, ClipboardList,
     MessagesSquare, Microscope, Building2, ListChecks,
@@ -285,12 +285,14 @@ const AdminSyllabusPage = () => {
                                     <Book size={18} className="mr-2"/> Syllabus
                                 </li>
                                 <motion.li whileHover={{x: 4}}
-                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer">
+                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                                           onClick={() => navigate("/AdminMaterialsPage")}>
                                     <BookMarked size={18} className="mr-2"/> Materials / Notes
                                 </motion.li>
                                 <motion.li whileHover={{x: 4}}
-                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-                                    <Trophy size={18} className="mr-2"/> View Ranks
+                                           className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                                           onClick={() => navigate("/AdminRanksPage")}>
+                                    < Trophy size={18} className="mr-2"/> View Ranks
                                 </motion.li>
                             </ul>
                         </div>
@@ -313,7 +315,8 @@ const AdminSyllabusPage = () => {
                 {/* Navbar */}
                 <div className="bg-[#1E1C2E] p-4 flex justify-between items-center shadow-md">
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20}/>
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                                size={20}/>
                         <input
                             type="text"
                             placeholder="Search subjects..."
@@ -510,7 +513,8 @@ const AdminSyllabusPage = () => {
             >
                 <div className="space-y-4">
                     <p className="text-gray-300">
-                        Are you sure you want to delete "{selectedSyllabus?.name}"? This action cannot be undone.
+                        Are you sure you want to delete "{selectedSyllabus?.name}"? This action cannot be
+                        undone.
                     </p>
                     <div className="flex justify-end space-x-4 mt-6">
                         <button
