@@ -58,7 +58,7 @@ const StudentDashboard = () => {
 
     return (
         <div className="flex min-h-screen bg-[#2D2B3D]">
-            {/* Sidebar */}
+            {/* Sidebar - Fixed on desktop, collapsible on mobile */}
             <motion.div
                 initial={false}
                 animate={{
@@ -69,7 +69,7 @@ const StudentDashboard = () => {
                 transition={{duration: 0.3}}
                 className={`bg-[#1E1C2E] text-white h-screen sticky top-0 overflow-hidden ${isMobile ? 'absolute z-30' : ''}`}
             >
-                <StudentSidebar onLogout={() => setLogoutModalOpen(true)} currentPage="StudentDashboard" />
+                <SidebarContent/>
             </motion.div>
 
             {/* Main Content */}
@@ -87,10 +87,11 @@ const StudentDashboard = () => {
                             </motion.button>
                         )}
                         <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20}/>
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                                    size={20}/>
                             <input
                                 type="text"
-                                placeholder="Search..."
+                                placeholder="Search resources..."
                                 className="w-full sm:w-64 pl-10 pr-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                             />
                         </div>
@@ -99,8 +100,9 @@ const StudentDashboard = () => {
                     <div className="flex items-center space-x-4">
                         <motion.button whileHover={{scale: 1.1}} className="relative">
                             <Bell size={24} className="text-gray-300 hover:text-white"/>
-                            <span className="absolute -top-1 -right-1 bg-red-500 rounded-full w-4 h-4 text-xs flex items-center justify-center text-white">
-                                5
+                            <span
+                                className="absolute -top-1 -right-1 bg-red-500 rounded-full w-4 h-4 text-xs flex items-center justify-center text-white">
+                                3
                             </span>
                         </motion.button>
                         <div className="flex items-center space-x-3">
@@ -115,9 +117,19 @@ const StudentDashboard = () => {
                     </div>
                 </div>
 
+                {/* Overlay for mobile when sidebar is open */}
+                {isMobile && sidebarOpen && (
+                    <motion.div
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        exit={{opacity: 0}}
+                        className="fixed inset-0 bg-black bg-opacity-50 z-20"
+                        onClick={() => setSidebarOpen(false)}
+                    />
+                )}
+
                 {/* Dashboard Content */}
                 <div className="p-6 space-y-6">
-
                     {/* Continue Learning Section */}
                     <motion.div
                         initial={{opacity: 0, y: 20}}
@@ -186,6 +198,92 @@ const StudentDashboard = () => {
                         </div>
                     </motion.div>
 
+
+                    {/* Leaderboard Section */}
+                    <motion.div
+                        initial={{opacity: 0, y: 20}}
+                        animate={{opacity: 1, y: 0}}
+                        transition={{delay: 0.3}}
+                        className="bg-[#1E1C2E] rounded-xl p-6"
+                    >
+                        <h2 className="text-2xl font-bold text-white mb-4">Top Performers</h2>
+                        <div className="space-y-4">
+                            {leaderboardData.map((user, index) => (
+                                <motion.div
+                                    key={index}
+                                    initial={{opacity: 0, x: -20}}
+                                    animate={{opacity: 1, x: 0}}
+                                    transition={{delay: 0.1 * (index + 1)}}
+                                    whileHover={{scale: 1.02}}
+                                    className="bg-[#2D2B3D] p-4 rounded-lg flex items-center justify-between"
+                                >
+                                    <div className="flex items-center space-x-4">
+                                        <motion.img
+                                            whileHover={{scale: 1.1}}
+                                            src={user.avatar}
+                                            alt={user.name}
+                                            className="w-10 h-10 rounded-full"
+                                        />
+                                        <div>
+                                            <h3 className="text-white font-semibold">{user.name}</h3>
+                                            <p className="text-gray-400 text-sm">{user.rank}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <motion.div
+                                            whileHover={{rotate: 180}}
+                                            transition={{duration: 0.3}}
+                                        >
+                                            <Star className="text-yellow-500" size={20}/>
+                                        </motion.div>
+                                        <span className="text-white">{user.score}</span>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </motion.div>
+
+                    {/* Teachers Section */}
+                    <motion.div
+                        initial={{opacity: 0, y: 20}}
+                        animate={{opacity: 1, y: 0}}
+                        transition={{delay: 0.4}}
+                        className="bg-[#1E1C2E] rounded-xl p-6"
+                    >
+                        <h2 className="text-2xl font-bold text-white mb-4">Your Teachers</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {teachersData.map((teacher, index) => (
+                                <motion.div
+                                    key={index}
+                                    initial={{opacity: 0, x: -20}}
+                                    animate={{opacity: 1, x: 0}}
+                                    transition={{delay: 0.1 * (index + 1)}}
+                                    whileHover={{scale: 1.02}}
+                                    className="bg-[#2D2B3D] p-4 rounded-lg flex items-center justify-between"
+                                >
+                                    <div className="flex items-center space-x-4">
+                                        <motion.img
+                                            whileHover={{scale: 1.1}}
+                                            src={teacher.avatar}
+                                            alt={teacher.name}
+                                            className="w-10 h-10 rounded-full"
+                                        />
+                                        <div>
+                                            <h3 className="text-white font-semibold">{teacher.name}</h3>
+                                            <p className="text-gray-400 text-sm">{teacher.subject}</p>
+                                        </div>
+                                    </div>
+                                    <motion.div
+                                        whileHover={{x: 5}}
+                                        transition={{duration: 0.2}}
+                                    >
+                                        <ChevronRight className="text-gray-400" size={20}/>
+                                    </motion.div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </motion.div>
+
                     {/* Upcoming Semester */}
                     <motion.div
                         initial={{opacity: 0, y: 20}}
@@ -246,23 +344,49 @@ const StudentDashboard = () => {
                 </div>
             </div>
 
-            {/* Logout Modal */}
-            <LogoutModal
-                isOpen={logoutModalOpen}
-                onClose={() => setLogoutModalOpen(false)}
-                onConfirm={handleLogout}
-            />
-
-            {/* Overlay for mobile when sidebar is open */}
-            {isMobile && sidebarOpen && (
-                <motion.div
-                    initial={{opacity: 0}}
-                    animate={{opacity: 1}}
-                    exit={{opacity: 0}}
-                    className="fixed inset-0 bg-black bg-opacity-50 z-20"
-                    onClick={() => setSidebarOpen(false)}
-                />
-            )}
+            {/* Logout Confirmation Modal */}
+            <AnimatePresence>
+                {logoutModalOpen && (
+                    <motion.div
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        exit={{opacity: 0}}
+                        className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+                    >
+                        <motion.div
+                            initial={{scale: 0.95, opacity: 0}}
+                            animate={{scale: 1, opacity: 1}}
+                            exit={{scale: 0.95, opacity: 0}}
+                            className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-80 text-white relative"
+                        >
+                            <button
+                                onClick={() => setLogoutModalOpen(false)}
+                                className="absolute top-2 right-2 text-gray-400 hover:text-white"
+                            >
+                                <X size={20}/>
+                            </button>
+                            <h2 className="text-xl font-semibold mb-4">Confirm Logout</h2>
+                            <p className="text-gray-400 mb-6">Are you sure you want to log out?</p>
+                            <div className="flex justify-between">
+                                <motion.button
+                                    whileHover={{scale: 1.05}}
+                                    onClick={() => setLogoutModalOpen(false)}
+                                    className="bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded-lg transition-all duration-200"
+                                >
+                                    Cancel
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{scale: 1.05}}
+                                    onClick={handleLogout}
+                                    className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-all duration-200"
+                                >
+                                    Yes, Logout
+                                </motion.button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
