@@ -16,7 +16,7 @@ const StudentSidebar = ({ onLogout, currentPage }) => {
   };
 
   return (
-    <div className="w-64 bg-[#1E1C2E] text-white p-6 flex flex-col">
+    <div className="w-64 bg-[#1E1C2E] text-white p-6 flex flex-col h-screen sticky top-0">
       {/* Logo */}
       <div className="mb-8 whitespace-nowrap">
         <Link to="/StudentDashboard">
