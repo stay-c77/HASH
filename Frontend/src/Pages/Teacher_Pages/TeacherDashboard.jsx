@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
     Bell, Search, CheckCircle, FileText, Book,
     Users, LogOut, ChevronRight, Menu, ChevronLeft,
-    X, PlusCircle, BookOpen, GraduationCap
+    X, PlusCircle, BookOpen, GraduationCap, Trophy,
+    ChevronDown, Megaphone, Clock, AlertCircle, BookMarked
 } from 'lucide-react';
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -11,7 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const recentActivities = [
     {
         type: "quiz_completed",
-        student: "Alex Thompson",
+        class: "CSE-A Year 2",
         subject: "Data Structures",
         score: "85%",
         time: "2 hours ago"
@@ -19,14 +20,40 @@ const recentActivities = [
     {
         type: "quiz_assigned",
         subject: "Algorithms",
-        class: "CSE-A",
+        class: "CSE-B Year 3",
         time: "5 hours ago"
     },
     {
-        type: "material_uploaded",
+        type: "topic_completed",
         subject: "Database Systems",
-        topic: "Lecture Notes",
+        topic: "Normalization",
+        class: "CSE-A Year 2",
         time: "1 day ago"
+    }
+];
+
+// Dummy data for announcements
+const announcements = [
+    {
+        id: 1,
+        from: "Dr. Manoj T Joy (HOD)",
+        content: "Faculty meeting scheduled for tomorrow at 2 PM",
+        time: "1 hour ago",
+        type: "important"
+    },
+    {
+        id: 2,
+        from: "Prof. Sarah Wilson",
+        content: "Updated syllabus for Data Structures course is now available",
+        time: "3 hours ago",
+        type: "academic"
+    },
+    {
+        id: 3,
+        from: "You",
+        content: "Quiz postponed for CSE-A Year 2 to next week",
+        time: "5 hours ago",
+        type: "announcement"
     }
 ];
 
@@ -35,6 +62,39 @@ const TeacherDashboard = () => {
     const [logoutModalOpen, setLogoutModalOpen] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
+    const [selectedYear, setSelectedYear] = useState('Year 2');
+
+    // Class statistics based on selected year
+    const classStats = {
+        'Year 1': {
+            students: 45,
+            quizzes: 8,
+            avgScore: 78,
+            topicsLeft: 5,
+            quizzesToAssign: 3
+        },
+        'Year 2': {
+            students: 50,
+            quizzes: 10,
+            avgScore: 82,
+            topicsLeft: 3,
+            quizzesToAssign: 2
+        },
+        'Year 3': {
+            students: 48,
+            quizzes: 7,
+            avgScore: 75,
+            topicsLeft: 6,
+            quizzesToAssign: 4
+        },
+        'Year 4': {
+            students: 52,
+            quizzes: 9,
+            avgScore: 80,
+            topicsLeft: 4,
+            quizzesToAssign: 2
+        }
+    };
 
     useEffect(() => {
         const checkMobile = () => {
@@ -58,16 +118,23 @@ const TeacherDashboard = () => {
         <div className="flex flex-col h-full">
             {/* Logo */}
             <div className="mb-8 whitespace-nowrap">
-                <img
-                    src="../Images/HashLogoDashboard.png"
-                    alt="Hash Logo"
-                    className="h-12 w-auto"
-                />
+                <Link to="/TeacherDashboard">
+                    <img
+                        src="../Images/HashLogoDashboard.png"
+                        alt="Hash Logo"
+                        className="h-12 w-auto transition-transform duration-200 transform hover:scale-110"
+                    />
+                </Link>
             </div>
 
             <div className="border-b border-gray-700 mb-6"></div>
 
-            <div className="text-lg font-semibold mb-4 whitespace-nowrap">Teacher Dashboard</div>
+            <Link
+                to="/TeacherDashboard"
+                className="text-lg font-semibold mb-4 whitespace-nowrap text-white hover:text-purple-400 transition-colors"
+            >
+                Dashboard
+            </Link>
 
             <div className="border-b border-gray-700 mb-6"></div>
 
@@ -78,16 +145,16 @@ const TeacherDashboard = () => {
                     <motion.li
                         whileHover={{x: 4}}
                         className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                        onClick={() => navigate("/CompletedQuizzes")}
+                        onClick={() => navigate("/AssignQuizzes")}
                     >
-                        <CheckCircle size={18} className="mr-2"/> Completed Quizzes
+                        <PlusCircle size={18} className="mr-2"/> Assign Quiz
                     </motion.li>
                     <motion.li
                         whileHover={{x: 4}}
                         className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                        onClick={() => navigate("/AssignQuizzes")}
+                        onClick={() => navigate("/CompletedQuizzes")}
                     >
-                        <PlusCircle size={18} className="mr-2"/> Assign Quiz
+                        <CheckCircle size={18} className="mr-2"/> Completed Quizzes
                     </motion.li>
                 </ul>
             </div>
@@ -101,16 +168,23 @@ const TeacherDashboard = () => {
                     <motion.li
                         whileHover={{x: 4}}
                         className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                        onClick={() => navigate("/Subjects")}
+                        onClick={() => navigate("/Syllabus")}
                     >
-                        <BookOpen size={18} className="mr-2"/> My Subjects
+                        <Book size={18} className="mr-2"/> Syllabus
+                    </motion.li>
+                    <motion.li
+                        whileHover={{x: 4}}
+                        className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                        onClick={() => navigate("/PYQs")}
+                    >
+                        <FileText size={18} className="mr-2"/> PYQs
                     </motion.li>
                     <motion.li
                         whileHover={{x: 4}}
                         className="flex items-center text-gray-300 hover:text-white cursor-pointer"
                         onClick={() => navigate("/Materials")}
                     >
-                        <FileText size={18} className="mr-2"/> Materials
+                        <BookMarked size={18} className="mr-2"/> Materials
                     </motion.li>
                 </ul>
             </div>
@@ -126,7 +200,14 @@ const TeacherDashboard = () => {
                         className="flex items-center text-gray-300 hover:text-white cursor-pointer"
                         onClick={() => navigate("/MyStudents")}
                     >
-                        <Users size={18} className="mr-2"/> My Students
+                        <Users size={18} className="mr-2"/> Student Section
+                    </motion.li>
+                    <motion.li
+                        whileHover={{x: 4}}
+                        className="flex items-center text-gray-300 hover:text-white cursor-pointer"
+                        onClick={() => navigate("/ViewRanks")}
+                    >
+                        <Trophy size={18} className="mr-2"/> Ranks Section
                     </motion.li>
                 </ul>
             </div>
@@ -187,7 +268,7 @@ const TeacherDashboard = () => {
                         <motion.button whileHover={{scale: 1.1}} className="relative">
                             <Bell size={24} className="text-gray-300 hover:text-white"/>
                             <span className="absolute -top-1 -right-1 bg-red-500 rounded-full w-4 h-4 text-xs flex items-center justify-center text-white">
-                                5
+                                3
                             </span>
                         </motion.button>
                         <div className="flex items-center space-x-3">
@@ -204,84 +285,177 @@ const TeacherDashboard = () => {
 
                 {/* Dashboard Content */}
                 <div className="p-6 space-y-6">
-                    {/* Quick Stats */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <motion.div
-                            initial={{opacity: 0, y: 20}}
-                            animate={{opacity: 1, y: 0}}
-                            className="bg-[#1E1C2E] p-6 rounded-xl"
-                        >
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-white text-lg font-semibold">Total Students</h3>
-                                <Users className="text-[#7C3AED]" size={24}/>
-                            </div>
-                            <p className="text-3xl font-bold text-white mt-2">156</p>
-                            <p className="text-gray-400 text-sm mt-1">Across 4 classes</p>
-                        </motion.div>
-
-                        <motion.div
-                            initial={{opacity: 0, y: 20}}
-                            animate={{opacity: 1, y: 0}}
-                            transition={{delay: 0.1}}
-                            className="bg-[#1E1C2E] p-6 rounded-xl"
-                        >
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-white text-lg font-semibold">Active Quizzes</h3>
-                                <Book className="text-[#7C3AED]" size={24}/>
-                            </div>
-                            <p className="text-3xl font-bold text-white mt-2">8</p>
-                            <p className="text-gray-400 text-sm mt-1">Due this week</p>
-                        </motion.div>
-
-                        <motion.div
-                            initial={{opacity: 0, y: 20}}
-                            animate={{opacity: 1, y: 0}}
-                            transition={{delay: 0.2}}
-                            className="bg-[#1E1C2E] p-6 rounded-xl"
-                        >
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-white text-lg font-semibold">Average Score</h3>
-                                <GraduationCap className="text-[#7C3AED]" size={24}/>
-                            </div>
-                            <p className="text-3xl font-bold text-white mt-2">78%</p>
-                            <p className="text-gray-400 text-sm mt-1">Last 30 days</p>
-                        </motion.div>
-                    </div>
-
-                    {/* Recent Activity */}
+                    {/* Student List Section */}
                     <motion.div
                         initial={{opacity: 0, y: 20}}
                         animate={{opacity: 1, y: 0}}
-                        transition={{delay: 0.3}}
-                        className="bg-[#1E1C2E] rounded-xl p-6"
+                        className="bg-[#1E1C2E] p-6 rounded-xl"
                     >
-                        <h2 className="text-2xl font-bold text-white mb-4">Recent Activity</h2>
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-white text-lg font-semibold">Student List</h3>
+                            <select
+                                value={selectedYear}
+                                onChange={(e) => setSelectedYear(e.target.value)}
+                                className="bg-[#2D2B3D] text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            >
+                                {Object.keys(classStats).map((year) => (
+                                    <option key={year} value={year}>{year}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="bg-[#2D2B3D] p-4 rounded-lg">
+                                <div className="flex items-center justify-between">
+                                    <p className="text-gray-400">Total Students</p>
+                                    <Users className="text-purple-400" size={20}/>
+                                </div>
+                                <p className="text-2xl font-bold text-white mt-2">{classStats[selectedYear].students}</p>
+                            </div>
+                            <div className="bg-[#2D2B3D] p-4 rounded-lg">
+                                <div className="flex items-center justify-between">
+                                    <p className="text-gray-400">Class Average</p>
+                                    <GraduationCap className="text-green-400" size={20}/>
+                                </div>
+                                <p className="text-2xl font-bold text-white mt-2">{classStats[selectedYear].avgScore}%</p>
+                            </div>
+                            <div className="bg-[#2D2B3D] p-4 rounded-lg">
+                                <div className="flex items-center justify-between">
+                                    <p className="text-gray-400">Topics Left</p>
+                                    <BookOpen className="text-yellow-400" size={20}/>
+                                </div>
+                                <p className="text-2xl font-bold text-white mt-2">{classStats[selectedYear].topicsLeft}</p>
+                            </div>
+                        </div>
+                        <motion.button
+                            whileHover={{scale: 1.02}}
+                            onClick={() => navigate("/MyStudents")}
+                            className="mt-4 w-full bg-purple-500 text-white py-2 rounded-lg hover:bg-purple-600 transition-colors"
+                        >
+                            View All Students
+                        </motion.button>
+                    </motion.div>
+
+                    {/* Active Quizzes */}
+                    <motion.div
+                        initial={{opacity: 0, y: 20}}
+                        animate={{opacity: 1, y: 0}}
+                        transition={{delay: 0.1}}
+                        className="bg-[#1E1C2E] p-6 rounded-xl"
+                    >
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-white text-lg font-semibold">Active Quizzes</h3>
+                            <motion.button
+                                whileHover={{scale: 1.05}}
+                                onClick={() => navigate("/AssignQuizzes")}
+                                className="flex items-center space-x-2 bg-purple-500 px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors"
+                            >
+                                <PlusCircle size={18}/>
+                                <span>New Quiz</span>
+                            </motion.button>
+                        </div>
                         <div className="space-y-4">
-                            {recentActivities.map((activity, index) => (
+                            {[1, 2, 3].map((quiz) => (
                                 <motion.div
-                                    key={index}
-                                    initial={{opacity: 0, x: -20}}
-                                    animate={{opacity: 1, x: 0}}
-                                    transition={{delay: 0.1 * (index + 1)}}
-                                    className="bg-[#2D2B3D] p-4 rounded-lg"
+                                    key={quiz}
+                                    whileHover={{scale: 1.01}}
+                                    className="bg-[#2D2B3D] p-4 rounded-lg flex items-center justify-between"
                                 >
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <h3 className="text-white font-semibold">
-                                                {activity.type === "quiz_completed" && `${activity.student} completed ${activity.subject}`}
-                                                {activity.type === "quiz_assigned" && `New quiz assigned for ${activity.class}`}
-                                                {activity.type === "material_uploaded" && `New material uploaded for ${activity.subject}`}
-                                            </h3>
-                                            <p className="text-gray-400 text-sm">{activity.time}</p>
-                                        </div>
-                                        {activity.type === "quiz_completed" && (
-                                            <span className="text-green-500 font-semibold">{activity.score}</span>
-                                        )}
+                                    <div>
+                                        <h4 className="text-white font-semibold">Data Structures Quiz {quiz}</h4>
+                                        <p className="text-gray-400">Due in 2 days • CSE-A Year 2</p>
                                     </div>
+                                    <motion.button
+                                        whileHover={{scale: 1.05}}
+                                        className="text-purple-400 hover:text-purple-300"
+                                    >
+                                        <ChevronRight size={20}/>
+                                    </motion.button>
                                 </motion.div>
                             ))}
                         </div>
                     </motion.div>
+
+                    {/* Recent Activity and Announcements Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Recent Activity */}
+                        <motion.div
+                            initial={{opacity: 0, y: 20}}
+                            animate={{opacity: 1, y: 0}}
+                            transition={{delay: 0.2}}
+                            className="bg-[#1E1C2E] rounded-xl p-6"
+                        >
+                            <h2 className="text-xl font-bold text-white mb-4">Recent Activity</h2>
+                            <div className="space-y-4">
+                                {recentActivities.map((activity, index) => (
+                                    <motion.div
+                                        key={index}
+                                        initial={{opacity: 0, x: -20}}
+                                        animate={{opacity: 1, x: 0}}
+                                        transition={{delay: 0.1 * (index + 1)}}
+                                        className="bg-[#2D2B3D] p-4 rounded-lg"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h3 className="text-white font-semibold">
+                                                    {activity.type === "quiz_completed" && `${activity.class} completed ${activity.subject}`}
+                                                    {activity.type === "quiz_assigned" && `New quiz assigned for ${activity.class}`}
+                                                    {activity.type === "topic_completed" && `Completed ${activity.topic} in ${activity.class}`}
+                                                </h3>
+                                                <p className="text-gray-400 text-sm">{activity.time}</p>
+                                            </div>
+                                            {activity.type === "quiz_completed" && (
+                                                <span className="text-green-500 font-semibold">{activity.score}</span>
+                                            )}
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </motion.div>
+
+                        {/* Announcements */}
+                        <motion.div
+                            initial={{opacity: 0, y: 20}}
+                            animate={{opacity: 1, y: 0}}
+                            transition={{delay: 0.3}}
+                            className="bg-[#1E1C2E] rounded-xl p-6"
+                        >
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-xl font-bold text-white">Announcements</h2>
+                                <motion.button
+                                    whileHover={{scale: 1.05}}
+                                    className="flex items-center space-x-2 bg-purple-500 px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors"
+                                >
+                                    <Megaphone size={18}/>
+                                    <span>New Announcement</span>
+                                </motion.button>
+                            </div>
+                            <div className="space-y-4">
+                                {announcements.map((announcement, index) => (
+                                    <motion.div
+                                        key={index}
+                                        initial={{opacity: 0, x: -20}}
+                                        animate={{opacity: 1, x: 0}}
+                                        transition={{delay: 0.1 * (index + 1)}}
+                                        className="bg-[#2D2B3D] p-4 rounded-lg"
+                                    >
+                                        <div className="flex items-start justify-between">
+                                            <div>
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="text-purple-400 font-semibold">{announcement.from}</span>
+                                                    <span className="text-gray-400">•</span>
+                                                    <span className="text-gray-400 text-sm">{announcement.time}</span>
+                                                </div>
+                                                <p className="text-white mt-2">{announcement.content}</p>
+                                            </div>
+                                            {announcement.type === 'important' && (
+                                                <AlertCircle className="text-red-400" size={20}/>
+                                            )}
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </motion.div>
+                    </div>
                 </div>
             </div>
 
