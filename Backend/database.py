@@ -1,15 +1,31 @@
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from sqlalchemy.orm import declarative_base
-from config.config_parser import config
+import os
+import mysql.connector
+from configparser import ConfigParser
 
-DATABASE_URL = config.config['database']['DATABASE_URL']
+config_path = os.path.join(os.path.dirname(__file__), "config.ini")
 
-engine = create_async_engine(DATABASE_URL, echo=True)
+config = ConfigParser()
+config.read(config_path)
 
-SessionLocal = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
+if not config.sections():
+    raise FileNotFoundError("Error: config.ini file not found or is empty!")
 
-Base = declarative_base()
+db_config = {
+    "host": config.get("database", "HOST"),
+    "port": config.getint("database", "PORT"),
+    "user": config.get("database", "USER"),
+    "password": config.get("database", "PASSWORD"),
+    "database": config.get("database", "DATABASE"),
+}
 
-async def get_db():
-    async with SessionLocal() as session:
-        yield session
+def get_db_connection():
+    try:
+        conn = mysql.connector.connect(**db_config)
+        if conn.is_connected():
+            print("Connected to MySQL database")
+        return conn
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None
+
+get_db_connection()
