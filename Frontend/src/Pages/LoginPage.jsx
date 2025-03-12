@@ -43,31 +43,40 @@ function LoginPage() {
         };
     }, []);
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
+        setLoading(true);
         setError("");
 
-        if (!validateEmail(email)) {
-            setError("Invalid email or password. Please try again.");
-            return;
-        }
+        try {
+            const response = await fetch("http://localhost:8000/login", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({email, password}),
+            });
 
-        setTimeout(() => {
-            if (email === "user@gmail.com" && password === "user@123") {
-                navigate("/StudentDashboard");
-            } else if (email === "teacher@gmail.com" && password === "teacher@123") {
-                navigate("/TeacherDashboard");
-            } else if (email === "admin@gmail.com" && password === "admin@123") {
-                navigate("AdminDashboard");
+            const data = await response.json();
+            console.log("🔥 Full API Response:", JSON.stringify(data, null, 2));
+
+            if (response.ok && data?.role && data?.email) {
+                console.log("✅ Saving user to localStorage:", JSON.stringify(data));
+                localStorage.setItem("user", JSON.stringify(data));
+
+                // Wait for localStorage to update before navigating
+                setTimeout(() => {
+                    navigate(data.role === "student" ? "/studentdashboard" : "/teacherdashboard");
+                }, 100);
             } else {
-                setError("Invalid email or password. Please try again.");
-                setLoading(false);
+                setError("Invalid credentials or user not found.");
             }
-        }, 1500);
-
-        setLoading(true);
-
+        } catch (error) {
+            console.error("Login error:", error);
+            setError("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
+        }
     };
+
 
     const words = ["Learn", "Practice", "Test", "Rank", "Certify"];
 
