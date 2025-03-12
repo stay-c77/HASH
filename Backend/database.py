@@ -1,5 +1,5 @@
 import os
-import mysql.connector
+import psycopg2
 from configparser import ConfigParser
 
 config_path = os.path.join(os.path.dirname(__file__), "config.ini")
@@ -15,17 +15,19 @@ db_config = {
     "port": config.getint("database", "PORT"),
     "user": config.get("database", "USER"),
     "password": config.get("database", "PASSWORD"),
-    "database": config.get("database", "DATABASE"),
+    "dbname": config.get("database", "DATABASE"),
+    "sslmode": config.get("database", "SSL_MODE")
 }
+
 
 def get_db_connection():
     try:
-        conn = mysql.connector.connect(**db_config)
-        if conn.is_connected():
-            print("Connected to MySQL database")
+        conn = psycopg2.connect(**db_config)
+        print("✅ Connected to PostgreSQL database!")
         return conn
-    except mysql.connector.Error as err:
-        print(f"Error: {err}")
+    except psycopg2.Error as err:
+        print(f"❌ Error: {err}")
         return None
+
 
 get_db_connection()
