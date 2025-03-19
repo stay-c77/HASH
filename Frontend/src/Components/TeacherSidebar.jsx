@@ -6,7 +6,7 @@ import {
     Trophy, Users, LogOut
 } from 'lucide-react';
 
-const TeacherSidebar = ({ onLogout }) => {
+const TeacherSidebar = ({ onLogout, currentPage }) => {
     const navigate = useNavigate();
 
     return (
@@ -26,7 +26,11 @@ const TeacherSidebar = ({ onLogout }) => {
 
             <Link
                 to="/TeacherDashboard"
-                className="text-lg font-semibold mb-4 whitespace-nowrap text-white hover:text-purple-400 transition-colors"
+                className={`text-lg font-semibold mb-4 whitespace-nowrap transition-colors ${
+                    currentPage === "TeacherDashboard" 
+                    ? "text-white bg-[#3A3750] p-2 rounded-lg cursor-default" 
+                    : "text-gray-300 hover:text-white"
+                }`}
             >
                 Dashboard
             </Link>
@@ -37,20 +41,20 @@ const TeacherSidebar = ({ onLogout }) => {
             <div className="mb-6 whitespace-nowrap">
                 <div className="text-[#8F8F8F] text-sm mb-3">QUIZZES</div>
                 <ul className="space-y-3">
-                    <motion.li
-                        whileHover={{x: 4}}
-                        className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                        onClick={() => navigate("/AssignQuizzes")}
-                    >
+                    <li className={`flex items-center transition-colors ${
+                        currentPage === "AssignQuizzes" 
+                        ? "text-white bg-[#3A3750] p-2 rounded-lg cursor-default" 
+                        : "text-gray-300 hover:text-white cursor-pointer"
+                    }`} onClick={() => currentPage !== "AssignQuizzes" && navigate("/AssignQuizzes")}>
                         <Plus size={18} className="mr-2"/> Assign Quiz
-                    </motion.li>
-                    <motion.li
-                        whileHover={{x: 4}}
-                        className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                        onClick={() => navigate("/CompletedQuizzes")}
-                    >
+                    </li>
+                    <li className={`flex items-center transition-colors ${
+                        currentPage === "CompletedQuizzes" 
+                        ? "text-white bg-[#3A3750] p-2 rounded-lg cursor-default" 
+                        : "text-gray-300 hover:text-white cursor-pointer"
+                    }`} onClick={() => currentPage !== "CompletedQuizzes" && navigate("/CompletedQuizzes")}>
                         <CheckCircle size={18} className="mr-2"/> Completed Quizzes
-                    </motion.li>
+                    </li>
                 </ul>
             </div>
 
@@ -60,27 +64,27 @@ const TeacherSidebar = ({ onLogout }) => {
             <div className="mb-6 whitespace-nowrap">
                 <div className="text-[#8F8F8F] text-sm mb-3">RESOURCES</div>
                 <ul className="space-y-3">
-                    <motion.li
-                        whileHover={{x: 4}}
-                        className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                        onClick={() => navigate("/Syllabus")}
-                    >
+                    <li className={`flex items-center transition-colors ${
+                        currentPage === "Syllabus" 
+                        ? "text-white bg-[#3A3750] p-2 rounded-lg cursor-default" 
+                        : "text-gray-300 hover:text-white cursor-pointer"
+                    }`} onClick={() => currentPage !== "Syllabus" && navigate("/Syllabus")}>
                         <Book size={18} className="mr-2"/> Syllabus
-                    </motion.li>
-                    <motion.li
-                        whileHover={{x: 4}}
-                        className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                        onClick={() => navigate("/PYQs")}
-                    >
+                    </li>
+                    <li className={`flex items-center transition-colors ${
+                        currentPage === "PYQs" 
+                        ? "text-white bg-[#3A3750] p-2 rounded-lg cursor-default" 
+                        : "text-gray-300 hover:text-white cursor-pointer"
+                    }`} onClick={() => currentPage !== "PYQs" && navigate("/PYQs")}>
                         <FileText size={18} className="mr-2"/> PYQs
-                    </motion.li>
-                    <motion.li
-                        whileHover={{x: 4}}
-                        className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                        onClick={() => navigate("/Materials")}
-                    >
+                    </li>
+                    <li className={`flex items-center transition-colors ${
+                        currentPage === "Materials" 
+                        ? "text-white bg-[#3A3750] p-2 rounded-lg cursor-default" 
+                        : "text-gray-300 hover:text-white cursor-pointer"
+                    }`} onClick={() => currentPage !== "Materials" && navigate("/Materials")}>
                         <BookMarked size={18} className="mr-2"/> Materials
-                    </motion.li>
+                    </li>
                 </ul>
             </div>
 
@@ -90,20 +94,20 @@ const TeacherSidebar = ({ onLogout }) => {
             <div className="mb-6 whitespace-nowrap">
                 <div className="text-[#8F8F8F] text-sm mb-3">STUDENTS</div>
                 <ul className="space-y-3">
-                    <motion.li
-                        whileHover={{x: 4}}
-                        className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                        onClick={() => navigate("/MyStudents")}
-                    >
+                    <li className={`flex items-center transition-colors ${
+                        currentPage === "MyStudents" 
+                        ? "text-white bg-[#3A3750] p-2 rounded-lg cursor-default" 
+                        : "text-gray-300 hover:text-white cursor-pointer"
+                    }`} onClick={() => currentPage !== "MyStudents" && navigate("/MyStudents")}>
                         <Users size={18} className="mr-2"/> Student Section
-                    </motion.li>
-                    <motion.li
-                        whileHover={{x: 4}}
-                        className="flex items-center text-gray-300 hover:text-white cursor-pointer"
-                        onClick={() => navigate("/ViewRanks")}
-                    >
+                    </li>
+                    <li className={`flex items-center transition-colors ${
+                        currentPage === "ViewRanks" 
+                        ? "text-white bg-[#3A3750] p-2 rounded-lg cursor-default" 
+                        : "text-gray-300 hover:text-white cursor-pointer"
+                    }`} onClick={() => currentPage !== "ViewRanks" && navigate("/ViewRanks")}>
                         <Trophy size={18} className="mr-2"/> Ranks Section
-                    </motion.li>
+                    </li>
                 </ul>
             </div>
 
