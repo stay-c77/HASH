@@ -1,9 +1,11 @@
 "*" indicates Primary key
+"**" indicates Foreign key
 
 student_details (*student_id,student_name,email_id,password,student_year,student_pic,date_of_birth,address,living_status)
-teacher_details (*teacher_id,teacher_name,email_id,password,teacher_pic,teacher_subject)
+teacher_details (*teacher_id,teacher_name,email_id,password,teacher_pic)
+teacher_subjects(**teacher_id,**subject_id,
 admin_details (*admin_id, admin_name, email_id, password)
-student_subjectslist (*subject_id, *teacher_id, subject_name, semester_no)
+student_subjectslist (*subject_id, **teacher_id, subject_name, semester_no, student_year)
 student_ranks (*student_id, points, rank, student_year)
 student_complaints(*complaint_id(AUTO INCREMENT),*student_id,student_name,student_year,type_of_complaint,remarks)
 generated_quiz (*quiz_id, subject_id, topic_name, no_of_questions, difficulty, teacher_id, start_date, end_date)
