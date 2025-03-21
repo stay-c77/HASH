@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import React, {useState, useEffect} from 'react';
+import {useNavigate} from "react-router-dom";
 import {
     ArrowLeft, Plus, Wand2, Clock, Users,
     BookOpen, Calendar, ChevronDown, X,
     Bell, Search, CheckCircle, FileText,
     Book, Trophy, LogOut
 } from 'lucide-react';
-import { motion, AnimatePresence } from "framer-motion";
+import {motion, AnimatePresence} from "framer-motion";
+import axios from 'axios';
 
 const AssignQuizzes = () => {
     const navigate = useNavigate();
@@ -14,6 +15,7 @@ const AssignQuizzes = () => {
     const [logoutModalOpen, setLogoutModalOpen] = useState(false);
     const [quizData, setQuizData] = useState({
         subject: '',
+        moduleNo: '',
         topic: '',
         difficulty: 'medium',
         questionCount: 10,
@@ -22,9 +24,69 @@ const AssignQuizzes = () => {
         class: '',
     });
     const [showAIModal, setShowAIModal] = useState(false);
+    const [subjects, setSubjects] = useState([]);
+    const [modules, setModules] = useState([]);
+    const [topics, setTopics] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchSubjects = async () => {
+            try {
+                const user = JSON.parse(localStorage.getItem("user")); // Get logged-in teacher details
+                if (user && user.role === "teacher") {
+                    const response = await axios.get(`http://localhost:8000/api/subjects/${user.teacher_id}`);
+                    console.log("📌 API Response:", response.data); // Debugging
+
+                    if (response.data && response.data.subjects) {
+                        setSubjects(response.data.subjects); //
+                    } else {
+                        console.warn("⚠️ Subjects data missing in response");
+                        setSubjects([]); // Set empty array to avoid crashes
+                    }
+                }
+            } catch (error) {
+                console.error(" Error fetching subjects:", error);
+                setSubjects([]); // Prevent app from breaking
+            }
+        };
+
+        fetchSubjects();
+    }, []);
+
+    useEffect(() => {
+        const fetchModules = async () => {
+            if (quizData.subject) {
+                try {
+                    const response = await axios.get(`http://localhost:8000/api/modules/${quizData.subject}`);
+                    console.log("Modules API Response:", response.data);
+                    setModules(response.data.modules);
+                } catch (error) {
+                    console.error('Error fetching modules:', error);
+                }
+            }
+        };
+        fetchModules();
+    }, [quizData.subject]);
+
+
+    useEffect(() => {
+        // Fetch topics when module changes
+        const fetchTopics = async () => {
+            if (quizData.moduleNo) {
+                try {
+                    const response = await axios.get(`/api/topics/${quizData.moduleNo}`);
+                    setTopics(response.data.topics);
+                } catch (error) {
+                    console.error('Error fetching topics:', error);
+                }
+            }
+        };
+
+        fetchTopics();
+    }, [quizData.moduleNo]);
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setQuizData(prev => ({
             ...prev,
             [name]: value
@@ -63,7 +125,7 @@ const AssignQuizzes = () => {
                 <div className="border-b border-gray-700 mb-6"></div>
 
                 <motion.div
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{scale: 1.02}}
                     className="text-lg font-semibold mb-4 cursor-pointer text-white hover:text-purple-400"
                     onClick={() => navigate("/TeacherDashboard")}
                 >
@@ -159,7 +221,8 @@ const AssignQuizzes = () => {
                 <div className="bg-[#1E1C2E] p-4 flex justify-between items-center shadow-md">
                     <div className="flex items-center space-x-4">
                         <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20}/>
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                                    size={20}/>
                             <input
                                 type="text"
                                 placeholder="Search..."
@@ -189,8 +252,8 @@ const AssignQuizzes = () => {
                 {/* Quiz Assignment Content */}
                 <div className="p-6">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={{opacity: 0, y: 20}}
+                        animate={{opacity: 1, y: 0}}
                         className="bg-[#1E1C2E] rounded-xl p-6"
                     >
                         <div className="flex items-center justify-between mb-8">
@@ -204,27 +267,57 @@ const AssignQuizzes = () => {
                                     <label className="block text-sm font-medium text-gray-300 mb-2">
                                         Subject
                                     </label>
-                                    <input
-                                        type="text"
+                                    <select
                                         name="subject"
                                         value={quizData.subject}
                                         onChange={handleInputChange}
                                         className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                        placeholder="Enter subject name"
-                                    />
+                                    >
+                                        <option value="">Select subject</option>
+                                        {subjects.map(subject => (
+                                            <option key={subject.subject_id} value={subject.subject_id}>
+                                                {subject.subject_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                                        Module Number
+                                    </label>
+                                    <select
+                                        name="moduleNo"
+                                        value={quizData.moduleNo}
+                                        onChange={handleInputChange}
+                                        className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        disabled={!quizData.subject}
+                                    >
+                                        <option value="">Select module</option>
+                                        {modules.map(module => (
+                                            <option key={module.module_id} value={module.module_id}>
+                                                Module {module.module_no}: {module.module_name}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-300 mb-2">
                                         Topic
                                     </label>
-                                    <input
-                                        type="text"
+                                    <select
                                         name="topic"
                                         value={quizData.topic}
                                         onChange={handleInputChange}
                                         className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                        placeholder="Enter topic name"
-                                    />
+                                        disabled={!quizData.moduleNo}
+                                    >
+                                        <option value="">Select topic</option>
+                                        {topics.map(topic => (
+                                            <option key={topic.topic_id} value={topic.topic_id}>
+                                                {topic.topic_name}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -309,7 +402,7 @@ const AssignQuizzes = () => {
                             <div className="flex justify-between pt-6">
                                 {step > 1 && (
                                     <motion.button
-                                        whileHover={{ scale: 1.05 }}
+                                        whileHover={{scale: 1.05}}
                                         type="button"
                                         onClick={() => setStep(step - 1)}
                                         className="px-6 py-2 bg-gray-600 rounded-lg hover:bg-gray-700 transition-colors"
@@ -319,17 +412,17 @@ const AssignQuizzes = () => {
                                 )}
                                 <div className="flex space-x-4">
                                     <motion.button
-                                        whileHover={{ scale: 1.05 }}
+                                        whileHover={{scale: 1.05}}
                                         type="button"
                                         onClick={handleGenerateWithAI}
                                         className="flex items-center space-x-2 px-6 py-2 bg-[#2D2B3D] rounded-lg hover:bg-[#3A3750] transition-colors"
                                     >
-                                        <Wand2 size={18} />
+                                        <Wand2 size={18}/>
                                         <span>Generate with AI</span>
                                     </motion.button>
                                     {step < 3 ? (
                                         <motion.button
-                                            whileHover={{ scale: 1.05 }}
+                                            whileHover={{scale: 1.05}}
                                             type="button"
                                             onClick={() => setStep(step + 1)}
                                             className="px-6 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
@@ -338,7 +431,7 @@ const AssignQuizzes = () => {
                                         </motion.button>
                                     ) : (
                                         <motion.button
-                                            whileHover={{ scale: 1.05 }}
+                                            whileHover={{scale: 1.05}}
                                             type="submit"
                                             className="px-6 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
                                         >
@@ -356,37 +449,38 @@ const AssignQuizzes = () => {
             <AnimatePresence>
                 {showAIModal && (
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        exit={{opacity: 0}}
                         className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
                     >
                         <motion.div
-                            initial={{ scale: 0.95, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.95, opacity: 0 }}
+                            initial={{scale: 0.95, opacity: 0}}
+                            animate={{scale: 1, opacity: 1}}
+                            exit={{scale: 0.95, opacity: 0}}
                             className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-full max-w-md text-white relative"
                         >
                             <button
                                 onClick={() => setShowAIModal(false)}
                                 className="absolute top-2 right-2 text-gray-400 hover:text-white"
                             >
-                                <X size={20} />
+                                <X size={20}/>
                             </button>
                             <h2 className="text-xl font-semibold mb-4">Generate Quiz with AI</h2>
                             <p className="text-gray-400 mb-6">
-                                Our AI will generate questions based on your subject and topic. You can review and modify them before assigning.
+                                Our AI will generate questions based on your subject and topic. You can review and
+                                modify them before assigning.
                             </p>
                             <div className="space-y-4">
                                 <motion.button
-                                    whileHover={{ scale: 1.02 }}
+                                    whileHover={{scale: 1.02}}
                                     onClick={() => {
                                         // Handle AI generation
                                         setShowAIModal(false);
                                     }}
                                     className="w-full bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg transition-colors flex items-center justify-center space-x-2"
                                 >
-                                    <Wand2 size={18} />
+                                    <Wand2 size={18}/>
                                     <span>Generate Questions</span>
                                 </motion.button>
                             </div>
@@ -399,35 +493,35 @@ const AssignQuizzes = () => {
             <AnimatePresence>
                 {logoutModalOpen && (
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        exit={{opacity: 0}}
                         className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
                     >
                         <motion.div
-                            initial={{ scale: 0.95, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.95, opacity: 0 }}
+                            initial={{scale: 0.95, opacity: 0}}
+                            animate={{scale: 1, opacity: 1}}
+                            exit={{scale: 0.95, opacity: 0}}
                             className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-80 text-white relative"
                         >
                             <button
                                 onClick={() => setLogoutModalOpen(false)}
                                 className="absolute top-2 right-2 text-gray-400 hover:text-white"
                             >
-                                <X size={20} />
+                                <X size={20}/>
                             </button>
                             <h2 className="text-xl font-semibold mb-4">Confirm Logout</h2>
                             <p className="text-gray-400 mb-6">Are you sure you want to log out?</p>
                             <div className="flex justify-between">
                                 <motion.button
-                                    whileHover={{ scale: 1.05 }}
+                                    whileHover={{scale: 1.05}}
                                     onClick={() => setLogoutModalOpen(false)}
                                     className="bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded-lg transition-all duration-200"
                                 >
                                     Cancel
                                 </motion.button>
                                 <motion.button
-                                    whileHover={{ scale: 1.05 }}
+                                    whileHover={{scale: 1.05}}
                                     onClick={handleLogout}
                                     className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-all duration-200"
                                 >
