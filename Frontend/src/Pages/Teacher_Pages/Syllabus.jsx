@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import React, {useState, useRef} from 'react';
+import {useNavigate} from "react-router-dom";
 import {
     Book, Plus, Edit2, Trash2, X, ChevronDown,
-    CheckCircle, Clock
+    CheckCircle, Clock, Upload
 } from 'lucide-react';
-import { motion, AnimatePresence } from "framer-motion";
+import {motion, AnimatePresence} from "framer-motion";
 import TeacherNavbar from '../../Components/TeacherNavbar';
 import TeacherSidebar from '../../Components/TeacherSidebar';
+import axios from 'axios';
 
 const syllabusData = [
     {
@@ -16,18 +17,18 @@ const syllabusData = [
             {
                 title: "Unit 1: Introduction to Data Structures",
                 topics: [
-                    { name: "Arrays and Linked Lists", completed: true },
-                    { name: "Stacks and Queues", completed: true },
-                    { name: "Trees and Graphs", completed: false }
+                    {name: "Arrays and Linked Lists", completed: true},
+                    {name: "Stacks and Queues", completed: true},
+                    {name: "Trees and Graphs", completed: false}
                 ],
                 progress: 66
             },
             {
                 title: "Unit 2: Advanced Data Structures",
                 topics: [
-                    { name: "Binary Search Trees", completed: false },
-                    { name: "AVL Trees", completed: false },
-                    { name: "Hash Tables", completed: false }
+                    {name: "Binary Search Trees", completed: false},
+                    {name: "AVL Trees", completed: false},
+                    {name: "Hash Tables", completed: false}
                 ],
                 progress: 0
             }
@@ -40,18 +41,18 @@ const syllabusData = [
             {
                 title: "Unit 1: Database Fundamentals",
                 topics: [
-                    { name: "Introduction to DBMS", completed: true },
-                    { name: "ER Diagrams", completed: true },
-                    { name: "Relational Model", completed: true }
+                    {name: "Introduction to DBMS", completed: true},
+                    {name: "ER Diagrams", completed: true},
+                    {name: "Relational Model", completed: true}
                 ],
                 progress: 100
             },
             {
                 title: "Unit 2: SQL and Normalization",
                 topics: [
-                    { name: "Basic SQL", completed: true },
-                    { name: "Advanced Queries", completed: false },
-                    { name: "Normal Forms", completed: false }
+                    {name: "Basic SQL", completed: true},
+                    {name: "Advanced Queries", completed: false},
+                    {name: "Normal Forms", completed: false}
                 ],
                 progress: 33
             }
@@ -63,6 +64,10 @@ const Syllabus = () => {
     const navigate = useNavigate();
     const [logoutModalOpen, setLogoutModalOpen] = useState(false);
     const [addSubjectModalOpen, setAddSubjectModalOpen] = useState(false);
+    const [previewModalOpen, setPreviewModalOpen] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [parsedData, setParsedData] = useState(null);
+    const [loading, setLoading] = useState(false);
     const [addTopicModalOpen, setAddTopicModalOpen] = useState(false);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -70,6 +75,7 @@ const Syllabus = () => {
     const [selectedSubject, setSelectedSubject] = useState(null);
     const [selectedUnit, setSelectedUnit] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const fileInputRef = useRef(null);
 
     const handleLogout = () => {
         localStorage.removeItem("user");
@@ -108,6 +114,45 @@ const Syllabus = () => {
         setDeleteModalOpen(true);
     };
 
+    const handleFileSelect = async (event) => {
+        const file = event.target.files[0];
+        if (!file || file.type !== 'application/pdf') {
+            alert('Please select a valid PDF file');
+            return;
+        }
+
+        setSelectedFile(file);
+        setLoading(true);
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await axios.post('http://localhost:8000/api/syllabus/parse', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            console.log("📜 API Response:", response.data); // ✅ Debugging log
+
+            if (!response.data || !response.data.parsed_data) {
+                console.error("❌ parsed_data is missing in the response.");
+                alert("Failed to parse syllabus. Please try again.");
+                return;
+            }
+
+            setParsedData(response.data.parsed_data);
+            setPreviewModalOpen(true);
+        } catch (error) {
+            console.error('⚠️ Error parsing syllabus:', error);
+            alert("An error occurred while parsing the syllabus.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     const Modal = ({isOpen, onClose, title, children}) => (
         <AnimatePresence>
             {isOpen && (
@@ -137,14 +182,137 @@ const Syllabus = () => {
         </AnimatePresence>
     );
 
+    const PreviewModal = ({isOpen, onClose, data}) => {
+        if (!isOpen || !data || Object.keys(data).length === 0) {
+            return null; // Hide if no data
+        }
+
+        console.log("Preview Modal Data:", data);
+
+        const handleUpload = async () => {
+            if (!data || !data.Subject) {
+                alert("Error: Subject name is missing!");
+                return;
+            }
+
+            const formattedData = {
+                subject_name: data.Subject,
+                modules: data.Syllabus?.map((mod, index) => ({
+                    module_no: index + 1,
+                    module_name: mod.module,   // ✅ Ensure correct key
+                    topics: mod.topic.map(topicName => ({
+                        topic_name: topicName  // ✅ Ensure correct key
+                    }))
+                }))
+            };
+
+            try {
+                console.log("📤 Final Sent Data:", JSON.stringify(formattedData, null, 2)); // Debugging log
+
+                const response = await axios.post(
+                    "http://localhost:8000/api/syllabus/upload",
+                    JSON.stringify(formattedData),  // ✅ Ensure raw JSON format
+                    {
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    }
+                );
+
+                if (response.status === 201) {
+                    alert("Syllabus uploaded successfully!");
+                    onClose(); // Close modal after success
+                } else {
+                    alert("Failed to upload syllabus. Try again.");
+                }
+            } catch (error) {
+                console.error("Upload error:", error.response?.data || error.message);
+                alert(`Error uploading syllabus: ${error.response?.data?.detail || "Unknown error"}`);
+            }
+        };
+
+        return (
+            <motion.div
+                initial={{opacity: 0}}
+                animate={{opacity: 1}}
+                exit={{opacity: 0}}
+                className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+            >
+                <motion.div
+                    initial={{scale: 0.95, opacity: 0}}
+                    animate={{scale: 1, opacity: 1}}
+                    exit={{scale: 0.95, opacity: 0}}
+                    className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-[800px] max-h-[80vh] overflow-y-auto text-white relative"
+                >
+                    <button
+                        onClick={onClose}
+                        className="absolute top-2 right-2 text-gray-400 hover:text-white"
+                    >
+                        <X size={20}/>
+                    </button>
+                    <h2 className="text-xl font-semibold mb-6">Syllabus Preview</h2>
+
+                    <div className="space-y-6">
+                        <div>
+                            <h3 className="text-lg font-semibold text-purple-400">Subject</h3>
+                            <p className="text-white">{data.Subject || "No subject available"}</p>
+                        </div>
+
+                        <div>
+                            <h3 className="text-lg font-semibold text-purple-400 mb-4">Modules</h3>
+                            {data.Syllabus ? (
+                                data.Syllabus.map((module, index) => (
+                                    <div key={index} className="bg-[#2D2B3D] p-4 rounded-lg mb-4">
+                                        <h4 className="font-semibold text-white mb-2">{module.module || "No module name"}</h4>
+                                        <p className="text-gray-400 mb-2">{module.subject || "No subject description"}</p>
+                                        <div className="space-y-2">
+                                            <h5 className="text-sm font-medium text-purple-400">Topics:</h5>
+                                            <ul className="list-disc list-inside text-gray-300">
+                                                {module.topic && module.topic.length > 0 ? (
+                                                    module.topic.map((topic, topicIndex) => (
+                                                        <li key={topicIndex}>{topic}</li>
+                                                    ))
+                                                ) : (
+                                                    <li>No topics available</li>
+                                                )}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-gray-400">No syllabus data available.</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end space-x-4 mt-6">
+                        <button
+                            onClick={onClose}
+                            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleUpload}
+                            className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
+                        >
+                            Upload Syllabus
+                        </button>
+                    </div>
+                </motion.div>
+            </motion.div>
+        );
+    };
+
+
     return (
         <div className="flex h-screen bg-[#2D2B3D]">
             <div className="w-64 bg-[#1E1C2E] text-white p-6 flex flex-col h-screen overflow-hidden">
-                <TeacherSidebar onLogout={() => setLogoutModalOpen(true)} currentPage="Syllabus" />
+                <TeacherSidebar onLogout={() => setLogoutModalOpen(true)} currentPage="Syllabus"/>
             </div>
 
             <div className="flex-1 overflow-auto">
-                <TeacherNavbar />
+                <TeacherNavbar/>
 
                 <div className="p-6">
                     <motion.div
@@ -224,9 +392,10 @@ const Syllabus = () => {
                                                                     <div className="flex items-center space-x-3">
                                                                         {topic.completed ? (
                                                                             <CheckCircle className="text-green-500"
-                                                                                        size={20}/>
+                                                                                         size={20}/>
                                                                         ) : (
-                                                                            <Clock className="text-yellow-500" size={20}/>
+                                                                            <Clock className="text-yellow-500"
+                                                                                   size={20}/>
                                                                         )}
                                                                         <span
                                                                             className="text-white">{topic.name}</span>
@@ -279,44 +448,37 @@ const Syllabus = () => {
             <Modal
                 isOpen={addSubjectModalOpen}
                 onClose={() => setAddSubjectModalOpen(false)}
-                title="Add New Subject"
+                title="Upload Syllabus"
             >
                 <div className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
-                            Subject Name
-                        </label>
-                        <input
-                            type="text"
-                            className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            placeholder="Enter subject name"
-                        />
+                    <div
+                        className="border-2 border-dashed border-gray-400 rounded-lg p-8 text-center cursor-pointer hover:border-purple-500 transition-colors"
+                        onClick={() => fileInputRef.current?.click()}
+                    >
+                        <Upload className="mx-auto mb-4 text-gray-400" size={32}/>
+                        <p className="text-gray-400">Click to upload syllabus PDF</p>
+                        <p className="text-sm text-gray-500 mt-2">Only PDF files are supported</p>
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
-                            Course Code
-                        </label>
-                        <input
-                            type="text"
-                            className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            placeholder="Enter course code"
-                        />
-                    </div>
-                    <div className="flex justify-end space-x-4 mt-6">
-                        <button
-                            onClick={() => setAddSubjectModalOpen(false)}
-                            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
-                        >
-                            Add Subject
-                        </button>
-                    </div>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        accept=".pdf"
+                        onChange={handleFileSelect}
+                    />
+                    {loading && (
+                        <div className="text-center text-gray-400">
+                            <p>Parsing syllabus...</p>
+                        </div>
+                    )}
                 </div>
             </Modal>
+
+            <PreviewModal
+                isOpen={previewModalOpen}
+                onClose={() => setPreviewModalOpen(false)}
+                data={parsedData}
+            />
 
             <Modal
                 isOpen={addTopicModalOpen}
