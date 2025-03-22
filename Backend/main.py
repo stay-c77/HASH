@@ -1,10 +1,16 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from fastapi.middleware.cors import CORSMiddleware
 from configparser import ConfigParser
 from typing import List, Optional
+import uuid
+from gen_ai.deepseek import GenAI
+from model.syllabus_parser import ProcessSyllabus
+from prompts.prompt import Prompt
+import os
+import json
 
 # Load database config
 config = ConfigParser()
@@ -17,6 +23,9 @@ db_config = {
     "password": config.get("database", "PASSWORD"),
     "dbname": config.get("database", "DATABASE"),
 }
+
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 app = FastAPI()
 
@@ -44,6 +53,21 @@ def get_db_connection():
 class LoginRequest(BaseModel):
     email: str
     password: str
+
+
+class Topic(BaseModel):
+    topic_name: str
+
+
+class Module(BaseModel):
+    module_no: int
+    module_name: str
+    topics: List[Topic]
+
+
+class SyllabusUpload(BaseModel):
+    subject_name: str
+    modules: List[Module]
 
 
 @app.post("/login")
@@ -107,7 +131,7 @@ async def get_teacher_subjects(teacher_id: str):  # Ensure it's treated as a str
 
 
 @app.get("/api/modules/{subject_id}")
-async def get_modules_by_subject(subject_id: int):
+async def get_modules_by_subject(subject_id: str):
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)  # Ensure dictionary output
 
@@ -117,7 +141,7 @@ async def get_modules_by_subject(subject_id: int):
         query = """
         SELECT module_id, module_name
         FROM modules
-        WHERE syllabus_id = %s
+        WHERE subject_id = %s
         """
         cursor.execute(query, (subject_id,))
         modules = cursor.fetchall()
@@ -127,11 +151,16 @@ async def get_modules_by_subject(subject_id: int):
         if not modules:
             raise HTTPException(status_code=404, detail="No modules found for this subject")
 
-        # Formatting the module name as "Module X: Name"
+        # Ensure "Module X:" is not duplicated
         return {
             "modules": [
-                {"module_id": m["module_id"], "module_name": f"Module {m['module_id']}: {m['module_name']}"}
-                for m in modules
+                {
+                    "module_id": m["module_id"],
+                    "module_name": m["module_name"]
+                    if m["module_name"].startswith("Module")  # If already formatted, keep it
+                    else f"Module {index + 1}: {m['module_name']}"
+                }
+                for index, m in enumerate(modules)
             ]
         }
 
@@ -145,7 +174,7 @@ async def get_modules_by_subject(subject_id: int):
 
 
 @app.get("/api/topics/{module_id}")
-async def get_module_topics(module_id: int):
+async def get_module_topics(module_id: str):
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
@@ -193,6 +222,172 @@ async def get_student(email: str):
     except Exception as e:
         print("Database query error:", e)
         raise HTTPException(status_code=500, detail="Internal server error")
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.post("/upload-syllabus/")
+async def upload_syllabus(file: UploadFile = File(...)):
+    """
+    Upload a syllabus PDF, extract text, and return structured JSON data.
+    """
+    file_path = os.path.join(UPLOAD_DIR, file.filename)
+
+    try:
+        # Save the uploaded PDF
+        with open(file_path, "wb") as buffer:
+            buffer.write(await file.read())
+
+        # Extract text from the PDF
+        process_syllabus = ProcessSyllabus()
+        syllabus_text = process_syllabus.syllabus_parser(file_path)
+
+        if not syllabus_text:
+            raise HTTPException(status_code=400, detail="Failed to extract syllabus text.")
+
+        # Format the syllabus text into a structured prompt
+        prompt_generator = Prompt()
+        syllabus_prompt = prompt_generator.parse_syllabus()
+        formatted_prompt = syllabus_prompt.format(syllabus_text=syllabus_text)
+
+        # Use GenAI to generate a structured syllabus
+        gen_ai = GenAI()
+        response = gen_ai.gen_ai_model(formatted_prompt)
+
+        if not response:
+            raise HTTPException(status_code=500, detail="AI model did not return a valid response.")
+
+        # Clean and parse JSON response
+        cleaned_response = response.strip()
+        syllabus_json = json.loads(cleaned_response)
+
+        return {"message": "Syllabus processed successfully", "syllabus": syllabus_json}
+
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=500, detail="AI response is not a valid JSON.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing syllabus: {str(e)}")
+
+
+@app.post("/api/syllabus/parse")
+async def parse_syllabus(file: UploadFile = File(...)):
+    try:
+        # Save uploaded file temporarily
+        contents = await file.read()
+        with open("temp_syllabus.pdf", "wb") as f:
+            f.write(contents)
+
+        # Parse syllabus text from PDF
+        process_syllabus = ProcessSyllabus()
+        syllabus_text = process_syllabus.syllabus_parser("temp_syllabus.pdf")
+
+        if not syllabus_text:
+            raise HTTPException(status_code=400, detail="Failed to extract syllabus text.")
+
+        # Generate prompt
+        prompt_generator = Prompt()
+        syllabus_prompt = prompt_generator.parse_syllabus()
+        formatted_syllabus = syllabus_prompt.format(syllabus_text=syllabus_text)
+
+        # ✅ Import GenAI only when needed
+        from gen_ai.deepseek import GenAI
+        gen_ai = GenAI()
+
+        # Send formatted syllabus to AI model
+        response = gen_ai.gen_ai_model(formatted_syllabus)
+
+        # ✅ Check if response is a string
+        if isinstance(response, str):
+            raw_content = response  # Directly assign if it's already a string
+        else:
+            try:
+                raw_content = response.choices[0].message.content
+            except AttributeError:
+                raise HTTPException(status_code=500, detail="Invalid AI response format")
+
+        # ✅ Remove ```json``` markers if they exist
+        cleaned_content = raw_content.strip("```json").strip("```")
+
+        # ✅ Convert JSON string into a dictionary
+        try:
+            parsed_data = json.loads(cleaned_content)
+            return {"parsed_data": parsed_data}  # ✅ Return structured JSON
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=500, detail="AI response is not valid JSON.")
+
+    except Exception as e:
+        print("Error parsing syllabus:", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/syllabus/upload")
+async def upload_syllabus(data: dict):
+    import json
+    print("📥 Received Data:", json.dumps(data, indent=2))
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    print("📥 Received Data:", json.dumps(data, indent=2))  # Debugging log
+
+    if "subject_name" not in data:
+        raise HTTPException(status_code=400, detail="Missing 'subject_name' in request")
+
+    if "modules" not in data:
+        raise HTTPException(status_code=400, detail="Missing 'modules' in request")
+
+    try:
+        # 🔹 Extract subject name
+        subject_name = data["subject_name"]
+
+        # 🔹 Check if subject exists
+        cursor.execute("SELECT subject_id FROM student_subjectslist WHERE subject_name = %s", (subject_name,))
+        subject = cursor.fetchone()
+
+        if subject:
+            subject_id = subject[0]  # Use existing subject_id
+        else:
+            # 🔹 Insert new subject and get subject_id
+            subject_id = str(uuid.uuid4())
+            cursor.execute("""
+                INSERT INTO student_subjectslist (subject_id, subject_name)
+                VALUES (%s, %s)
+                RETURNING subject_id
+            """, (subject_id, subject_name))
+
+        # 🔹 Now insert syllabus
+        syllabus_id = str(uuid.uuid4())
+        cursor.execute("""
+            INSERT INTO syllabus (syllabus_id, subject_id, subject_name, subject_status, progress)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (syllabus_id, subject_id, subject_name, False, 0))
+
+        # 🔹 Insert modules
+        for module in data["modules"]:
+            module_id = str(uuid.uuid4())
+            cursor.execute("""
+                INSERT INTO modules (module_id, subject_id, syllabus_id, module_no, module_name)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (module_id, subject_id, syllabus_id, module["module_no"], module["module_name"]))
+
+            # 🔹 Insert topics
+            for topic in module["topics"]:
+                topic_id = str(uuid.uuid4())
+                cursor.execute("""
+                    INSERT INTO topics (topic_id, module_id, topic_name, topic_status)
+                    VALUES (%s, %s, %s, %s)
+                """, (topic_id, module_id, topic["topic_name"], False))
+
+        # 🔹 Commit transaction
+        conn.commit()
+
+        return {"message": "Syllabus uploaded successfully", "syllabus_id": syllabus_id}
+
+    except Exception as e:
+        conn.rollback()
+        print("Database error:", e)
+        raise HTTPException(status_code=500, detail=str(e))
 
     finally:
         cursor.close()
