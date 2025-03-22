@@ -28,6 +28,7 @@ const AssignQuizzes = () => {
     const [modules, setModules] = useState([]);
     const [topics, setTopics] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [selectedModuleId, setSelectedModuleId] = useState(null);
 
     useEffect(() => {
         const fetchSubjects = async () => {
@@ -68,22 +69,29 @@ const AssignQuizzes = () => {
         fetchModules();
     }, [quizData.subject]);
 
-
     useEffect(() => {
-        // Fetch topics when module changes
-        const fetchTopics = async () => {
-            if (quizData.moduleNo) {
-                try {
-                    const response = await axios.get(`/api/topics/${quizData.moduleNo}`);
-                    setTopics(response.data.topics);
-                } catch (error) {
-                    console.error('Error fetching topics:', error);
-                }
-            }
-        };
+        if (selectedModuleId) {
+            fetchTopics(selectedModuleId);
+        }
+    }, [selectedModuleId]);
 
-        fetchTopics();
-    }, [quizData.moduleNo]);
+    const fetchTopics = async (moduleId) => {
+        try {
+            const response = await axios.get(`http://localhost:8000/api/topics/${moduleId}`);
+            console.log("API Response:", response.data);
+
+            // Ensure topics are correctly extracted
+            if (response.data && response.data.topics) {
+                setTopics(response.data.topics);
+            } else {
+                setTopics([]);  // Set empty array if no topics
+            }
+        } catch (error) {
+            console.error("Error fetching topics:", error);
+            setTopics([]); // Handle errors gracefully
+        }
+    };
+
 
     const handleInputChange = (e) => {
         const {name, value} = e.target;
@@ -288,14 +296,17 @@ const AssignQuizzes = () => {
                                     <select
                                         name="moduleNo"
                                         value={quizData.moduleNo}
-                                        onChange={handleInputChange}
+                                        onChange={(e) => {
+                                            handleInputChange(e);
+                                            setSelectedModuleId(e.target.value); // Update selectedModuleId
+                                        }}
                                         className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                                         disabled={!quizData.subject}
                                     >
                                         <option value="">Select module</option>
                                         {modules.map(module => (
                                             <option key={module.module_id} value={module.module_id}>
-                                                Module {module.module_no}: {module.module_name}
+                                                {module.module_name}
                                             </option>
                                         ))}
                                     </select>
@@ -312,11 +323,15 @@ const AssignQuizzes = () => {
                                         disabled={!quizData.moduleNo}
                                     >
                                         <option value="">Select topic</option>
-                                        {topics.map(topic => (
-                                            <option key={topic.topic_id} value={topic.topic_id}>
-                                                {topic.topic_name}
-                                            </option>
-                                        ))}
+                                        {topics && topics.length > 0 ? (
+                                            topics.map(topic => (
+                                                <option key={topic.topic_id} value={topic.topic_id}>
+                                                    {topic.topic_name}
+                                                </option>
+                                            ))
+                                        ) : (
+                                            <option disabled>No topics available</option>
+                                        )}
                                     </select>
                                 </div>
                                 <div>

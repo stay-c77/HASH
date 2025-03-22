@@ -1,5 +1,6 @@
 import os
 import psycopg2
+from psycopg2.extras import RealDictCursor
 from configparser import ConfigParser
 
 config_path = os.path.join(os.path.dirname(__file__), "config.ini")
@@ -29,5 +30,11 @@ def get_db_connection():
         print(f"❌ Error: {err}")
         return None
 
+def get_db_cursor():
+    """Returns a database connection with RealDictCursor."""
+    conn = get_db_connection()
+    if conn:
+        return conn.cursor(cursor_factory=RealDictCursor), conn
+    return None, None
 
 get_db_connection()
