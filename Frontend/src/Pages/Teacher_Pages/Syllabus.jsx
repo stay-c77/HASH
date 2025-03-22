@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {useNavigate} from "react-router-dom";
 import {
     Book, Plus, Edit2, Trash2, X, ChevronDown,
@@ -76,11 +76,24 @@ const Syllabus = () => {
     const [selectedUnit, setSelectedUnit] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const fileInputRef = useRef(null);
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [currentTeacherId, setCurrentTeacherId] = useState(null);
+
+    useEffect(() => {
+        const storedTeacherId = localStorage.getItem("teacherId");
+        if (storedTeacherId) {
+            setCurrentTeacherId(storedTeacherId);
+        } else {
+            console.error("⚠️ No teacherId found in localStorage!");
+        }
+    }, []);
+
 
     const handleLogout = () => {
         localStorage.removeItem("user");
         navigate("/LoginPage");
     };
+
 
     const toggleSubject = (id) => {
         const newExpanded = new Set(expandedSubjects);
@@ -182,12 +195,12 @@ const Syllabus = () => {
         </AnimatePresence>
     );
 
-    const PreviewModal = ({isOpen, onClose, data}) => {
+    const PreviewModal = ({isOpen, onClose, data, teacherId}) => {
         if (!isOpen || !data || Object.keys(data).length === 0) {
-            return null; // Hide if no data
+            return null;
         }
 
-        console.log("Preview Modal Data:", data);
+        console.log("📌 Received teacherId in PreviewModal:", teacherId); // Debugging
 
         const handleUpload = async () => {
             if (!data || !data.Subject) {
@@ -195,13 +208,19 @@ const Syllabus = () => {
                 return;
             }
 
+            if (!teacherId) {
+                alert("Error: Teacher ID is missing!");
+                return;
+            }
+
             const formattedData = {
                 subject_name: data.Subject,
+                teacher_id: teacherId,  // ✅ Include teacher ID
                 modules: data.Syllabus?.map((mod, index) => ({
                     module_no: index + 1,
-                    module_name: mod.module,   // ✅ Ensure correct key
+                    module_name: mod.module,
                     topics: mod.topic.map(topicName => ({
-                        topic_name: topicName  // ✅ Ensure correct key
+                        topic_name: topicName
                     }))
                 }))
             };
@@ -211,7 +230,7 @@ const Syllabus = () => {
 
                 const response = await axios.post(
                     "http://localhost:8000/api/syllabus/upload",
-                    JSON.stringify(formattedData),  // ✅ Ensure raw JSON format
+                    JSON.stringify(formattedData),
                     {
                         headers: {
                             "Content-Type": "application/json"
@@ -221,9 +240,9 @@ const Syllabus = () => {
 
                 if (response.status === 201) {
                     alert("Syllabus uploaded successfully!");
-                    onClose(); // Close modal after success
+                    onClose();
                 } else {
-                    alert("Failed to upload syllabus. Try again.");
+                    alert("Failed to upload syllabus.");
                 }
             } catch (error) {
                 console.error("Upload error:", error.response?.data || error.message);
@@ -478,6 +497,7 @@ const Syllabus = () => {
                 isOpen={previewModalOpen}
                 onClose={() => setPreviewModalOpen(false)}
                 data={parsedData}
+                teacherId={currentTeacherId}
             />
 
             <Modal

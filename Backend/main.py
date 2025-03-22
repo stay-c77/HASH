@@ -325,11 +325,9 @@ async def parse_syllabus(file: UploadFile = File(...)):
 @app.post("/api/syllabus/upload")
 async def upload_syllabus(data: dict):
     import json
-    print("📥 Received Data:", json.dumps(data, indent=2))
+    print("📥 Received Data:", json.dumps(data, indent=2))  # Debugging log
     conn = get_db_connection()
     cursor = conn.cursor()
-
-    print("📥 Received Data:", json.dumps(data, indent=2))  # Debugging log
 
     if "subject_name" not in data:
         raise HTTPException(status_code=400, detail="Missing 'subject_name' in request")
@@ -337,9 +335,12 @@ async def upload_syllabus(data: dict):
     if "modules" not in data:
         raise HTTPException(status_code=400, detail="Missing 'modules' in request")
 
+    if "teacher_id" not in data:
+        raise HTTPException(status_code=400, detail="Missing 'teacher_id' in request")
+
     try:
-        # 🔹 Extract subject name
         subject_name = data["subject_name"]
+        teacher_id = data["teacher_id"]
 
         # 🔹 Check if subject exists
         cursor.execute("SELECT subject_id FROM student_subjectslist WHERE subject_name = %s", (subject_name,))
@@ -348,15 +349,26 @@ async def upload_syllabus(data: dict):
         if subject:
             subject_id = subject[0]  # Use existing subject_id
         else:
-            # 🔹 Insert new subject and get subject_id
+            # 🔹 Insert new subject
             subject_id = str(uuid.uuid4())
             cursor.execute("""
                 INSERT INTO student_subjectslist (subject_id, subject_name)
                 VALUES (%s, %s)
-                RETURNING subject_id
             """, (subject_id, subject_name))
 
-        # 🔹 Now insert syllabus
+        # 🔹 Check if the teacher is already assigned
+        cursor.execute("SELECT * FROM teacher_subjects WHERE teacher_id = %s AND subject_id = %s",
+                       (teacher_id, subject_id))
+        teacher_subject_exists = cursor.fetchone()
+
+        if not teacher_subject_exists:
+            # 🔹 Assign teacher to subject
+            cursor.execute("""
+                INSERT INTO teacher_subjects (teacher_id, subject_id)
+                VALUES (%s, %s)
+            """, (teacher_id, subject_id))
+
+        # 🔹 Insert syllabus
         syllabus_id = str(uuid.uuid4())
         cursor.execute("""
             INSERT INTO syllabus (syllabus_id, subject_id, subject_name, subject_status, progress)

@@ -58,13 +58,20 @@ function LoginPage() {
             const data = await response.json();
             console.log("🔥 Full API Response:", JSON.stringify(data, null, 2));
 
+            // ✅ Ensure all necessary fields are present before saving
             if (response.ok && data?.role && data?.email) {
+                if (data.role === "teacher" && !data.teacher_id) {
+                    console.error("❌ Missing teacher_id in API response!");
+                    setError("Login failed: teacher_id missing.");
+                    return;
+                }
+
                 console.log("✅ Saving user to localStorage:", JSON.stringify(data));
                 localStorage.setItem("user", JSON.stringify(data));
 
-                // Wait for localStorage to update before navigating
+                // 🔄 Force a page reload after storing user data (to ensure it's available in other components)
                 setTimeout(() => {
-                    navigate(data.role === "student" ? "/studentdashboard" : "/teacherdashboard");
+                    window.location.href = data.role === "student" ? "/studentdashboard" : "/teacherdashboard";
                 }, 100);
             } else {
                 setError("Invalid credentials or user not found.");
