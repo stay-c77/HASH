@@ -1,12 +1,12 @@
 import React, {useState, useEffect} from 'react';
 import {useNavigate} from "react-router-dom";
 import {
-    Bell, Search, Plus, Wand2, X, ChevronDown,
-    CheckCircle, FileText, Book, BookMarked,
-    Trophy, Users, LogOut, Edit2, Eye
+    Plus, Wand2, X
 } from 'lucide-react';
 import {motion, AnimatePresence} from "framer-motion";
 import axios from 'axios';
+import TeacherNavbar from '../../Components/TeacherNavbar';
+import TeacherSidebar from '../../Components/TeacherSidebar';
 
 const AssignQuizzes = () => {
     const navigate = useNavigate();
@@ -19,6 +19,9 @@ const AssignQuizzes = () => {
     const [selectedModuleId, setSelectedModuleId] = useState(null);
     const [generatedQuiz, setGeneratedQuiz] = useState(null);
     const [currentTeacherId, setCurrentTeacherId] = useState(null);
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [isMobile, setIsMobile] = useState(false);
+    const [showDiscardConfirmation, setShowDiscardConfirmation] = useState(false);
 
     // Quiz configuration state
     const [quizConfig, setQuizConfig] = useState({
@@ -29,8 +32,21 @@ const AssignQuizzes = () => {
         questionCount: 10,
         timeLimit: 30,
         dueDate: '',
-        class: ''
+        student_year: ''  // Changed from class to student_year
     });
+
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+            if (window.innerWidth >= 768) {
+                setSidebarOpen(true);
+            }
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem("user"));
@@ -106,21 +122,15 @@ const AssignQuizzes = () => {
             });
 
             let quizData = response.data?.quiz;
-
-            // Debug: Check the raw response
             console.log("Raw Quiz Data:", quizData);
 
-            // If response is a string, clean & parse it
             if (typeof quizData === 'string' && quizData.startsWith("```json")) {
                 quizData = quizData.replace(/```json\n?/, '').replace(/\n?```/, '');
-                quizData = JSON.parse(quizData); // Convert to object
+                quizData = JSON.parse(quizData);
             }
 
-            // If quizData is already an object, no need to parse
             if (typeof quizData === 'object' && quizData !== null) {
-                // ✅ Add Debugging Log Here
                 console.log("Full Quiz Data:", JSON.stringify(quizData, null, 2));
-
                 setGeneratedQuiz(quizData);
                 setPreviewModalOpen(true);
             } else {
@@ -133,7 +143,6 @@ const AssignQuizzes = () => {
         }
     };
 
-
     const handleUploadQuiz = async () => {
         try {
             const quizData = {
@@ -144,7 +153,7 @@ const AssignQuizzes = () => {
                 questions: generatedQuiz.questions,
                 time_limit: quizConfig.timeLimit,
                 due_date: quizConfig.dueDate,
-                class: quizConfig.class
+                student_year: quizConfig.student_year  // Changed from class to student_year
             };
 
             await axios.post('http://localhost:8000/api/upload-quiz', quizData);
@@ -159,193 +168,227 @@ const AssignQuizzes = () => {
         navigate("/LoginPage");
     };
 
+    const handleClosePreview = () => {
+        setShowDiscardConfirmation(true);
+    };
+
     // Preview Modal Component
     const PreviewModal = ({isOpen, onClose}) => {
         if (!isOpen || !generatedQuiz) return null;
 
+        const handleBackdropClick = (e) => {
+            if (e.target === e.currentTarget) {
+                handleClosePreview();
+            }
+        };
+
+        const styles = `
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #1E1C2E;
+        border-radius: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #3A3750;
+        border-radius: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #4A4760;
+    }
+`;
+
         return (
-            <motion.div
-                initial={{opacity: 0}}
-                animate={{opacity: 1}}
-                exit={{opacity: 0}}
-                className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-            >
+            <>
+            <style>{styles}</style>
+            <AnimatePresence>
                 <motion.div
-                    initial={{scale: 0.95, opacity: 0}}
-                    animate={{scale: 1, opacity: 1}}
-                    exit={{scale: 0.95, opacity: 0}}
-                    className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-[800px] max-h-[80vh] overflow-y-auto text-white relative"
+                    initial={{opacity: 0}}
+                    animate={{opacity: 1}}
+                    exit={{opacity: 0}}
+                    className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+                    onClick={handleBackdropClick}
                 >
-                    <button
-                        onClick={onClose}
-                        className="absolute top-2 right-2 text-gray-400 hover:text-white"
+                    <motion.div
+                        initial={{scale: 0.95, opacity: 0}}
+                        animate={{scale: 1, opacity: 1}}
+                        exit={{scale: 0.95, opacity: 0}}
+                        className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-[800px] max-h-[80vh] relative"
                     >
-                        <X size={20}/>
-                    </button>
+                        {/* Header with sticky close button */}
+                        <div
+                            className="sticky top-0 z-10 bg-[#1E1C2E] pt-2 pb-4 mb-4 flex justify-between items-center border-b border-gray-700">
+                            <h2 className="text-2xl font-bold text-white">Quiz Preview</h2>
+                            <button
+                                onClick={handleClosePreview}
+                                className="text-gray-400 hover:text-white hover:scale-110 transition-all"
+                            >
+                                <X size={20}/>
+                            </button>
+                        </div>
 
-                    <h2 className="text-2xl font-bold mb-6">Quiz Preview</h2>
-
-                    <div className="space-y-6">
-                        {generatedQuiz.questions.map((question, index) => (
-                            <div key={index} className="bg-[#2D2B3D] p-6 rounded-lg">
-                                <h3 className="text-lg font-semibold mb-4">
-                                    Question {index + 1}: {question.question}
-                                </h3>
-                                <div className="space-y-3">
-                                    {question.options.map((option, optionIndex) => {
-                                        // Ensure `correct_answer` is compared correctly
-                                        const isCorrect = parseInt(question.correct_answer) === optionIndex;
-
-                                        return (
+                        {/* Scrollable content with custom scrollbar */}
+                        <div className="overflow-y-auto max-h-[calc(80vh-180px)] pr-4 custom-scrollbar">
+                            <div className="space-y-8">
+                                {generatedQuiz.questions.map((question, index) => (
+                                    <motion.div
+                                        key={index}
+                                        initial={{opacity: 0, y: 20}}
+                                        animate={{opacity: 1, y: 0}}
+                                        transition={{delay: index * 0.1}}
+                                        className="bg-[#2D2B3D] p-6 rounded-lg shadow-lg"
+                                    >
+                                        <div className="flex items-start gap-4">
                                             <div
-                                                key={optionIndex}
-                                                className={`p-3 rounded-lg border ${
-                                                    isCorrect
-                                                        ? 'bg-green-500/20 border-green-500 font-bold text-green-400'
-                                                        : 'bg-[#1E1C2E] border-gray-600'
-                                                }`}
-                                            >
-                                                {option}
+                                                className="flex-shrink-0 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                                                {index + 1}
                                             </div>
-                                        );
-                                    })}
-                                </div>
-                                {/* ✅ Add this section to explicitly display the correct answer */}
-                                <p className="mt-2 text-sm text-gray-300">
-                                    <strong>Correct
-                                        Answer:</strong> {question.options[parseInt(question.correct_answer)]}
-                                </p>
-                                <p className="text-sm text-gray-400">
-                                    <strong>Explanation:</strong> {question.explanation}
-                                </p>
+                                            <div className="flex-grow">
+                                                <h3 className="text-lg font-semibold text-white mb-4">
+                                                    {question.question}
+                                                </h3>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                                                    {question.options.map((option, optionIndex) => {
+                                                        const isCorrect = parseInt(question.correct_answer) === optionIndex;
+                                                        return (
+                                                            <motion.div
+                                                                key={optionIndex}
+                                                                whileHover={{scale: 1.02}}
+                                                                className={`p-4 rounded-lg border transition-all ${
+                                                                    isCorrect
+                                                                        ? 'bg-green-500/20 border-green-500 text-green-400'
+                                                                        : 'bg-[#1E1C2E] border-gray-600 text-gray-300'
+                                                                }`}
+                                                            >
+                                                                <div className="flex items-center gap-3">
+                                                                <span
+                                                                    className="w-6 h-6 rounded-full bg-[#2D2B3D] flex items-center justify-center text-sm">
+                                                                    {String.fromCharCode(65 + optionIndex)}
+                                                                </span>
+                                                                    <span>{option}</span>
+                                                                </div>
+                                                            </motion.div>
+                                                        );
+                                                    })}
+                                                </div>
+                                                <div className="bg-[#1E1C2E] p-4 rounded-lg">
+                                                    <p className="text-green-400 font-semibold mb-2">
+                                                        Correct
+                                                        Answer: {question.options[parseInt(question.correct_answer)]}
+                                                    </p>
+                                                    <p className="text-gray-400">
+                                                        <span
+                                                            className="font-semibold text-purple-400">Explanation:</span> {question.explanation}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
+                        </div>
 
-
-                    <div className="flex justify-end space-x-4 mt-6">
-                        <button
-                            onClick={onClose}
-                            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
-                        >
-                            Edit Quiz
-                        </button>
-                        <button
-                            onClick={handleUploadQuiz}
-                            className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
-                        >
-                            Upload Quiz
-                        </button>
-                    </div>
+                        {/* Footer with action buttons */}
+                        <div
+                            className="sticky bottom-0 bg-[#1E1C2E] pt-4 mt-6 border-t border-gray-700 flex justify-end space-x-4">
+                            <motion.button
+                                whileHover={{scale: 1.05}}
+                                onClick={handleClosePreview}
+                                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                            >
+                                Edit Quiz
+                            </motion.button>
+                            <motion.button
+                                whileHover={{scale: 1.05}}
+                                onClick={handleUploadQuiz}
+                                className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
+                            >
+                                Upload Quiz
+                            </motion.button>
+                        </div>
+                    </motion.div>
                 </motion.div>
-            </motion.div>
-        )
-            ;
+
+                {/* Discard Confirmation Modal */}
+                {showDiscardConfirmation && (
+                    <motion.div
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        exit={{opacity: 0}}
+                        className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[60]"
+                    >
+                        <motion.div
+                            initial={{scale: 0.95, opacity: 0}}
+                            animate={{scale: 1, opacity: 1}}
+                            exit={{scale: 0.95, opacity: 0}}
+                            className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-96 text-white"
+                        >
+                            <h3 className="text-xl font-semibold mb-4">Discard Quiz?</h3>
+                            <p className="text-gray-400 mb-6">Are you sure you want to discard this quiz? This action
+                                cannot be undone.</p>
+                            <div className="flex justify-end space-x-4">
+                                <motion.button
+                                    whileHover={{scale: 1.05}}
+                                    onClick={() => setShowDiscardConfirmation(false)}
+                                    className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                                >
+                                    Cancel
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{scale: 1.05}}
+                                    onClick={() => {
+                                        setShowDiscardConfirmation(false);
+                                        setPreviewModalOpen(false);
+                                    }}
+                                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                                >
+                                    Discard
+                                </motion.button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+                </>
+        );
     };
+
 
     return (
         <div className="flex h-screen bg-[#2D2B3D]">
             {/* Sidebar */}
-            <div className="w-64 bg-[#1E1C2E] text-white p-6 flex flex-col">
-                {/* Sidebar content */}
-                <div className="flex-1 flex flex-col min-h-0">
-                    {/* Logo */}
-                    <div className="mb-8">
-                        <img
-                            src="../Images/HashLogoDashboard.png"
-                            alt="Hash Logo"
-                            className="h-12 w-auto"
-                        />
-                    </div>
-
-                    {/* Navigation items */}
-                    <nav className="flex-1 space-y-6">
-                        <div>
-                            <h3 className="text-[#8F8F8F] text-sm mb-3">QUIZZES</h3>
-                            <ul className="space-y-3">
-                                <li className="flex items-center text-white bg-[#3A3750] p-2 rounded-lg">
-                                    <Plus size={18} className="mr-2"/> Assign Quiz
-                                </li>
-                                <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-                                    <CheckCircle size={18} className="mr-2"/> Completed Quizzes
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h3 className="text-[#8F8F8F] text-sm mb-3">RESOURCES</h3>
-                            <ul className="space-y-3">
-                                <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-                                    <Book size={18} className="mr-2"/> Syllabus
-                                </li>
-                                <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-                                    <FileText size={18} className="mr-2"/> PYQs
-                                </li>
-                                <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-                                    <BookMarked size={18} className="mr-2"/> Materials
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h3 className="text-[#8F8F8F] text-sm mb-3">STUDENTS</h3>
-                            <ul className="space-y-3">
-                                <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-                                    <Users size={18} className="mr-2"/> Student Section
-                                </li>
-                                <li className="flex items-center text-gray-300 hover:text-white cursor-pointer">
-                                    <Trophy size={18} className="mr-2"/> Ranks Section
-                                </li>
-                            </ul>
-                        </div>
-                    </nav>
-
-                    {/* Logout button */}
-                    <button
-                        onClick={() => setLogoutModalOpen(true)}
-                        className="flex items-center text-gray-300 hover:text-white hover:bg-[#3A3750] p-2 rounded-lg"
-                    >
-                        <LogOut size={18} className="mr-2"/> Logout
-                    </button>
-                </div>
-            </div>
+            <motion.div
+                initial={false}
+                animate={{
+                    width: sidebarOpen ? "16rem" : isMobile ? "0rem" : "16rem",
+                    padding: sidebarOpen ? "1.5rem" : isMobile ? "0rem" : "1.5rem",
+                    opacity: sidebarOpen ? 1 : isMobile ? 0 : 1
+                }}
+                transition={{duration: 0.3}}
+                className={`bg-[#1E1C2E] text-white h-screen sticky top-0 overflow-hidden ${isMobile ? 'absolute z-30' : ''}`}
+            >
+                <TeacherSidebar onLogout={() => setLogoutModalOpen(true)} currentPage="AssignQuizzes"/>
+            </motion.div>
 
             {/* Main Content */}
             <div className="flex-1 overflow-auto">
-                {/* Navbar */}
-                <div className="bg-[#1E1C2E] p-4 flex justify-between items-center">
-                    <div className="flex items-center space-x-4">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                    size={20}/>
-                            <input
-                                type="text"
-                                placeholder="Search..."
-                                className="pl-10 pr-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="flex items-center space-x-4">
-                        <div className="relative">
-                            <Bell size={24} className="text-gray-300"/>
-                            <span
-                                className="absolute -top-1 -right-1 bg-red-500 rounded-full w-4 h-4 text-xs flex items-center justify-center text-white">3</span>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                            <span className="text-white">Dr. Smith</span>
-                            <img
-                                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop"
-                                alt="Profile"
-                                className="w-10 h-10 rounded-full"
-                            />
-                        </div>
-                    </div>
-                </div>
+                <TeacherNavbar
+                    isMobile={isMobile}
+                    sidebarOpen={sidebarOpen}
+                    setSidebarOpen={setSidebarOpen}
+                />
 
                 {/* Quiz Configuration Form */}
                 <div className="p-6">
-                    <div className="bg-[#1E1C2E] rounded-xl p-6">
+                    <motion.div
+                        initial={{opacity: 0, y: 20}}
+                        animate={{opacity: 1, y: 0}}
+                        className="bg-[#1E1C2E] rounded-xl p-6"
+                    >
                         <h2 className="text-2xl font-bold text-white mb-6">Create New Quiz</h2>
 
                         <div className="space-y-6">
@@ -359,7 +402,7 @@ const AssignQuizzes = () => {
                                         name="subject"
                                         value={quizConfig.subject}
                                         onChange={handleInputChange}
-                                        className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none"
+                                        className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                                     >
                                         <option value="">Select subject</option>
                                         {subjects.map(subject => (
@@ -381,7 +424,7 @@ const AssignQuizzes = () => {
                                             handleInputChange(e);
                                             setSelectedModuleId(e.target.value);
                                         }}
-                                        className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none"
+                                        className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                                         disabled={!quizConfig.subject}
                                     >
                                         <option value="">Select module</option>
@@ -401,7 +444,7 @@ const AssignQuizzes = () => {
                                         name="topicId"
                                         value={quizConfig.topicId}
                                         onChange={handleInputChange}
-                                        className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none"
+                                        className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                                         disabled={!quizConfig.moduleId}
                                     >
                                         <option value="">Select topic</option>
@@ -421,7 +464,7 @@ const AssignQuizzes = () => {
                                         name="difficulty"
                                         value={quizConfig.difficulty}
                                         onChange={handleInputChange}
-                                        className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none"
+                                        className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                                     >
                                         <option value="easy">Easy</option>
                                         <option value="medium">Medium</option>
@@ -442,7 +485,7 @@ const AssignQuizzes = () => {
                                         value={quizConfig.questionCount}
                                         onChange={handleInputChange}
                                         min="1"
-                                        className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none"
+                                        className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                                     />
                                 </div>
 
@@ -456,7 +499,7 @@ const AssignQuizzes = () => {
                                         value={quizConfig.timeLimit}
                                         onChange={handleInputChange}
                                         min="1"
-                                        className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none"
+                                        className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                                     />
                                 </div>
 
@@ -469,26 +512,27 @@ const AssignQuizzes = () => {
                                         name="dueDate"
                                         value={quizConfig.dueDate}
                                         onChange={handleInputChange}
-                                        className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none"
+                                        className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                                     />
                                 </div>
                             </div>
 
-                            {/* Class Selection */}
+                            {/* Student Year Selection */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                                    Select Class
+                                    Select Student Year
                                 </label>
                                 <select
-                                    name="class"
-                                    value={quizConfig.class}
+                                    name="student_year"
+                                    value={quizConfig.student_year}
                                     onChange={handleInputChange}
-                                    className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none"
+                                    className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 >
-                                    <option value="">Select a class</option>
-                                    <option value="CSE-A">CSE-A</option>
-                                    <option value="CSE-B">CSE-B</option>
-                                    <option value="CSE-C">CSE-C</option>
+                                    <option value="">Select a year</option>
+                                    <option value="Year 1">Year 1</option>
+                                    <option value="Year 2">Year 2</option>
+                                    <option value="Year 3">Year 3</option>
+                                    <option value="Year 4">Year 4</option>
                                 </select>
                             </div>
 
@@ -496,16 +540,17 @@ const AssignQuizzes = () => {
                             <div className="flex justify-end">
                                 <motion.button
                                     whileHover={{scale: 1.05}}
+                                    whileTap={{scale: 0.95}}
                                     onClick={handleGenerateQuiz}
                                     disabled={loading}
-                                    className="flex items-center space-x-2 px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:opacity-50"
+                                    className="flex items-center space-x-2 px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <Wand2 size={20}/>
                                     <span>{loading ? 'Generating...' : 'Generate Quiz'}</span>
                                 </motion.button>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
             </div>
 
@@ -542,14 +587,14 @@ const AssignQuizzes = () => {
                                 <motion.button
                                     whileHover={{scale: 1.05}}
                                     onClick={() => setLogoutModalOpen(false)}
-                                    className="bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded-lg"
+                                    className="bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded-lg transition-all duration-200"
                                 >
                                     Cancel
                                 </motion.button>
                                 <motion.button
                                     whileHover={{scale: 1.05}}
                                     onClick={handleLogout}
-                                    className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg"
+                                    className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-all duration-200"
                                 >
                                     Yes, Logout
                                 </motion.button>
