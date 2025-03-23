@@ -74,6 +74,7 @@ class QuizRequest(BaseModel):
     topic_id: str
     difficulty: str
     question_count: int
+    student_year: int
 
 
 class QuizUploadRequest(BaseModel):
@@ -84,7 +85,7 @@ class QuizUploadRequest(BaseModel):
     questions: List[dict]
     time_limit: int
     due_date: str
-    class_name: str
+    student_year: int
 
 
 def extract_json(response_text):
@@ -107,41 +108,51 @@ async def generate_quiz(request: QuizRequest):
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Get topic details
+        print(f"📌 Received topic_id: {request.topic_id}, student_year: {request.student_year}")
+
+        #  Step 1: Retrieve Topic Name
         cursor.execute("""
-            SELECT t.topic_name, m.module_name, s.subject_name 
-            FROM topics t 
-            JOIN modules m ON t.module_id = m.module_id 
-            JOIN student_subjectslist s ON m.subject_id = s.subject_id 
+            SELECT t.topic_id, t.topic_name, m.module_name, s.subject_name 
+            FROM topics t
+            JOIN modules m ON t.module_id = m.module_id
+            JOIN student_subjectslist s ON m.subject_id = s.subject_id
             WHERE t.topic_id = %s
         """, (request.topic_id,))
 
         topic_info = cursor.fetchone()
+        print(f"Topic Query Result: {topic_info}")
+
         if not topic_info:
             raise HTTPException(status_code=404, detail="Topic not found")
 
-        # Initialize AI quiz generator
+        topic_name = topic_info["topic_name"]  #  Ensure it's a string
+
+        #  Step 2: Generate Quiz Using AI
         gen_ai = GenAI()
         prompt_generator = Prompt()
 
-        # Generate quiz prompt
         quiz_prompt = prompt_generator.generate_quiz(
             number_of_questions=request.question_count,
             number_of_options=4,
-            topics=topic_info['topic_name'],
+            topics=topic_name,
             levels=request.difficulty,
             beginner=request.question_count // 3,
             intermediate=request.question_count // 3,
             hard=request.question_count // 3
         )
 
-        # Generate quiz using AI
+        print(f"Generated Quiz Prompt: {quiz_prompt}")  # ✅ Log prompt before sending to AI
+
         response = gen_ai.gen_ai_model(quiz_prompt)
+        print(f"Raw AI Response: {response}")  # ✅ Log AI response
+
         if not response:
             raise HTTPException(status_code=500, detail="Failed to generate quiz")
 
-        # Parse AI response
+        # ✅ Step 3: Parse AI Response
         quiz_data = extract_json(response)
+        print(f"Parsed Quiz Data: {quiz_data}")  # ✅ Log parsed JSON
+
         if not quiz_data:
             raise HTTPException(status_code=500, detail="Invalid quiz format")
 
@@ -166,12 +177,12 @@ async def upload_quiz(request: QuizUploadRequest):
         # Generate quiz ID
         quiz_id = str(uuid.uuid4())
 
-        # Insert quiz details
+        # ✅ Modify INSERT query to include `student_year`
         cursor.execute("""
             INSERT INTO generated_quiz (
                 quiz_id, subject_id, topic_name, no_of_questions, 
-                difficulty, teacher_id, start_date, end_date
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                difficulty, teacher_id, student_year, start_date, end_date, status
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING quiz_id
         """, (
             quiz_id,
@@ -180,8 +191,10 @@ async def upload_quiz(request: QuizUploadRequest):
             len(request.questions),
             request.difficulty,
             request.teacher_id,
+            request.student_year,  # ✅ New column
             datetime.now(),
-            request.due_date
+            request.due_date,
+            "active"  # ✅ Default status
         ))
 
         # Insert questions

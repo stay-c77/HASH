@@ -115,14 +115,19 @@ const AssignQuizzes = () => {
     const handleGenerateQuiz = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:8000/api/generate-quiz', {
+            const payload = {
                 topic_id: quizConfig.topicId,
                 difficulty: quizConfig.difficulty,
-                question_count: quizConfig.questionCount
-            });
+                question_count: quizConfig.questionCount,
+                student_year: quizConfig.student_year
+            };
+
+            console.log("📌 Sending Payload to Backend:", payload);  // ✅ Debugging log
+
+            const response = await axios.post('http://localhost:8000/api/generate-quiz', payload);
 
             let quizData = response.data?.quiz;
-            console.log("Raw Quiz Data:", quizData);
+            console.log("📌 Raw Quiz Data:", quizData);
 
             if (typeof quizData === 'string' && quizData.startsWith("```json")) {
                 quizData = quizData.replace(/```json\n?/, '').replace(/\n?```/, '');
@@ -130,18 +135,22 @@ const AssignQuizzes = () => {
             }
 
             if (typeof quizData === 'object' && quizData !== null) {
-                console.log("Full Quiz Data:", JSON.stringify(quizData, null, 2));
+                console.log("📌 Full Quiz Data:", JSON.stringify(quizData, null, 2));
                 setGeneratedQuiz(quizData);
                 setPreviewModalOpen(true);
             } else {
-                console.error("Unexpected quiz format:", quizData);
+                console.error("❌ Unexpected quiz format:", quizData);
             }
         } catch (error) {
-            console.error("Error generating quiz:", error);
+            console.error("❌ Error generating quiz:", error);
+            if (error.response) {
+                console.error("📌 Response Data:", error.response.data);  // ✅ Log backend error
+            }
         } finally {
             setLoading(false);
         }
     };
+
 
     const handleUploadQuiz = async () => {
         try {
@@ -204,156 +213,157 @@ const AssignQuizzes = () => {
 
         return (
             <>
-            <style>{styles}</style>
-            <AnimatePresence>
-                <motion.div
-                    initial={{opacity: 0}}
-                    animate={{opacity: 1}}
-                    exit={{opacity: 0}}
-                    className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-                    onClick={handleBackdropClick}
-                >
-                    <motion.div
-                        initial={{scale: 0.95, opacity: 0}}
-                        animate={{scale: 1, opacity: 1}}
-                        exit={{scale: 0.95, opacity: 0}}
-                        className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-[800px] max-h-[80vh] relative"
-                    >
-                        {/* Header with sticky close button */}
-                        <div
-                            className="sticky top-0 z-10 bg-[#1E1C2E] pt-2 pb-4 mb-4 flex justify-between items-center border-b border-gray-700">
-                            <h2 className="text-2xl font-bold text-white">Quiz Preview</h2>
-                            <button
-                                onClick={handleClosePreview}
-                                className="text-gray-400 hover:text-white hover:scale-110 transition-all"
-                            >
-                                <X size={20}/>
-                            </button>
-                        </div>
-
-                        {/* Scrollable content with custom scrollbar */}
-                        <div className="overflow-y-auto max-h-[calc(80vh-180px)] pr-4 custom-scrollbar">
-                            <div className="space-y-8">
-                                {generatedQuiz.questions.map((question, index) => (
-                                    <motion.div
-                                        key={index}
-                                        initial={{opacity: 0, y: 20}}
-                                        animate={{opacity: 1, y: 0}}
-                                        transition={{delay: index * 0.1}}
-                                        className="bg-[#2D2B3D] p-6 rounded-lg shadow-lg"
-                                    >
-                                        <div className="flex items-start gap-4">
-                                            <div
-                                                className="flex-shrink-0 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">
-                                                {index + 1}
-                                            </div>
-                                            <div className="flex-grow">
-                                                <h3 className="text-lg font-semibold text-white mb-4">
-                                                    {question.question}
-                                                </h3>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                                                    {question.options.map((option, optionIndex) => {
-                                                        const isCorrect = parseInt(question.correct_answer) === optionIndex;
-                                                        return (
-                                                            <motion.div
-                                                                key={optionIndex}
-                                                                whileHover={{scale: 1.02}}
-                                                                className={`p-4 rounded-lg border transition-all ${
-                                                                    isCorrect
-                                                                        ? 'bg-green-500/20 border-green-500 text-green-400'
-                                                                        : 'bg-[#1E1C2E] border-gray-600 text-gray-300'
-                                                                }`}
-                                                            >
-                                                                <div className="flex items-center gap-3">
-                                                                <span
-                                                                    className="w-6 h-6 rounded-full bg-[#2D2B3D] flex items-center justify-center text-sm">
-                                                                    {String.fromCharCode(65 + optionIndex)}
-                                                                </span>
-                                                                    <span>{option}</span>
-                                                                </div>
-                                                            </motion.div>
-                                                        );
-                                                    })}
-                                                </div>
-                                                <div className="bg-[#1E1C2E] p-4 rounded-lg">
-                                                    <p className="text-green-400 font-semibold mb-2">
-                                                        Correct
-                                                        Answer: {question.options[parseInt(question.correct_answer)]}
-                                                    </p>
-                                                    <p className="text-gray-400">
-                                                        <span
-                                                            className="font-semibold text-purple-400">Explanation:</span> {question.explanation}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Footer with action buttons */}
-                        <div
-                            className="sticky bottom-0 bg-[#1E1C2E] pt-4 mt-6 border-t border-gray-700 flex justify-end space-x-4">
-                            <motion.button
-                                whileHover={{scale: 1.05}}
-                                onClick={handleClosePreview}
-                                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
-                            >
-                                Edit Quiz
-                            </motion.button>
-                            <motion.button
-                                whileHover={{scale: 1.05}}
-                                onClick={handleUploadQuiz}
-                                className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
-                            >
-                                Upload Quiz
-                            </motion.button>
-                        </div>
-                    </motion.div>
-                </motion.div>
-
-                {/* Discard Confirmation Modal */}
-                {showDiscardConfirmation && (
+                <style>{styles}</style>
+                <AnimatePresence>
                     <motion.div
                         initial={{opacity: 0}}
                         animate={{opacity: 1}}
                         exit={{opacity: 0}}
-                        className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[60]"
+                        className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+                        onClick={handleBackdropClick}
                     >
                         <motion.div
                             initial={{scale: 0.95, opacity: 0}}
                             animate={{scale: 1, opacity: 1}}
                             exit={{scale: 0.95, opacity: 0}}
-                            className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-96 text-white"
+                            className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-[800px] max-h-[80vh] relative"
                         >
-                            <h3 className="text-xl font-semibold mb-4">Discard Quiz?</h3>
-                            <p className="text-gray-400 mb-6">Are you sure you want to discard this quiz? This action
-                                cannot be undone.</p>
-                            <div className="flex justify-end space-x-4">
+                            {/* Header with sticky close button */}
+                            <div
+                                className="sticky top-0 z-10 bg-[#1E1C2E] pt-2 pb-4 mb-4 flex justify-between items-center border-b border-gray-700">
+                                <h2 className="text-2xl font-bold text-white">Quiz Preview</h2>
+                                <button
+                                    onClick={handleClosePreview}
+                                    className="text-gray-400 hover:text-white hover:scale-110 transition-all"
+                                >
+                                    <X size={20}/>
+                                </button>
+                            </div>
+
+                            {/* Scrollable content with custom scrollbar */}
+                            <div className="overflow-y-auto max-h-[calc(80vh-180px)] pr-4 custom-scrollbar">
+                                <div className="space-y-8">
+                                    {generatedQuiz.questions.map((question, index) => (
+                                        <motion.div
+                                            key={index}
+                                            initial={{opacity: 0, y: 20}}
+                                            animate={{opacity: 1, y: 0}}
+                                            transition={{delay: index * 0.1}}
+                                            className="bg-[#2D2B3D] p-6 rounded-lg shadow-lg"
+                                        >
+                                            <div className="flex items-start gap-4">
+                                                <div
+                                                    className="flex-shrink-0 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                                                    {index + 1}
+                                                </div>
+                                                <div className="flex-grow">
+                                                    <h3 className="text-lg font-semibold text-white mb-4">
+                                                        {question.question}
+                                                    </h3>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                                                        {question.options.map((option, optionIndex) => {
+                                                            const isCorrect = parseInt(question.correct_answer) === optionIndex;
+                                                            return (
+                                                                <motion.div
+                                                                    key={optionIndex}
+                                                                    whileHover={{scale: 1.02}}
+                                                                    className={`p-4 rounded-lg border transition-all ${
+                                                                        isCorrect
+                                                                            ? 'bg-green-500/20 border-green-500 text-green-400'
+                                                                            : 'bg-[#1E1C2E] border-gray-600 text-gray-300'
+                                                                    }`}
+                                                                >
+                                                                    <div className="flex items-center gap-3">
+                                                                <span
+                                                                    className="w-6 h-6 rounded-full bg-[#2D2B3D] flex items-center justify-center text-sm">
+                                                                    {String.fromCharCode(65 + optionIndex)}
+                                                                </span>
+                                                                        <span>{option}</span>
+                                                                    </div>
+                                                                </motion.div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                    <div className="bg-[#1E1C2E] p-4 rounded-lg">
+                                                        <p className="text-green-400 font-semibold mb-2">
+                                                            Correct
+                                                            Answer: {question.options[parseInt(question.correct_answer)]}
+                                                        </p>
+                                                        <p className="text-gray-400">
+                                                        <span
+                                                            className="font-semibold text-purple-400">Explanation:</span> {question.explanation}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Footer with action buttons */}
+                            <div
+                                className="sticky bottom-0 bg-[#1E1C2E] pt-4 mt-6 border-t border-gray-700 flex justify-end space-x-4">
                                 <motion.button
                                     whileHover={{scale: 1.05}}
-                                    onClick={() => setShowDiscardConfirmation(false)}
+                                    onClick={handleClosePreview}
                                     className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
                                 >
-                                    Cancel
+                                    Edit Quiz
                                 </motion.button>
                                 <motion.button
                                     whileHover={{scale: 1.05}}
-                                    onClick={() => {
-                                        setShowDiscardConfirmation(false);
-                                        setPreviewModalOpen(false);
-                                    }}
-                                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                                    onClick={handleUploadQuiz}
+                                    className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
                                 >
-                                    Discard
+                                    Upload Quiz
                                 </motion.button>
                             </div>
                         </motion.div>
                     </motion.div>
-                )}
-            </AnimatePresence>
-                </>
+
+                    {/* Discard Confirmation Modal */}
+                    {showDiscardConfirmation && (
+                        <motion.div
+                            initial={{opacity: 0}}
+                            animate={{opacity: 1}}
+                            exit={{opacity: 0}}
+                            className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[60]"
+                        >
+                            <motion.div
+                                initial={{scale: 0.95, opacity: 0}}
+                                animate={{scale: 1, opacity: 1}}
+                                exit={{scale: 0.95, opacity: 0}}
+                                className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-96 text-white"
+                            >
+                                <h3 className="text-xl font-semibold mb-4">Discard Quiz?</h3>
+                                <p className="text-gray-400 mb-6">Are you sure you want to discard this quiz? This
+                                    action
+                                    cannot be undone.</p>
+                                <div className="flex justify-end space-x-4">
+                                    <motion.button
+                                        whileHover={{scale: 1.05}}
+                                        onClick={() => setShowDiscardConfirmation(false)}
+                                        className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                                    >
+                                        Cancel
+                                    </motion.button>
+                                    <motion.button
+                                        whileHover={{scale: 1.05}}
+                                        onClick={() => {
+                                            setShowDiscardConfirmation(false);
+                                            setPreviewModalOpen(false);
+                                        }}
+                                        className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                                    >
+                                        Discard
+                                    </motion.button>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </>
         );
     };
 
@@ -529,10 +539,10 @@ const AssignQuizzes = () => {
                                     className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 >
                                     <option value="">Select a year</option>
-                                    <option value="Year 1">Year 1</option>
-                                    <option value="Year 2">Year 2</option>
-                                    <option value="Year 3">Year 3</option>
-                                    <option value="Year 4">Year 4</option>
+                                    <option value="1">Year 1</option>
+                                    <option value="2">Year 2</option>
+                                    <option value="3">Year 3</option>
+                                    <option value="4">Year 4</option>
                                 </select>
                             </div>
 
