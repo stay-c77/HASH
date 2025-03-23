@@ -1,3 +1,4 @@
 Backend/config.ini
-__pycache__/
+*__pycache__/
 *.pyc
+*.idea/
