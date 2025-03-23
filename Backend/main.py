@@ -10,7 +10,7 @@ from gen_ai.deepseek import GenAI
 from model.syllabus_parser import ProcessSyllabus
 from prompts.prompt import Prompt
 import os
-import json
+import json, re
 
 # Load database config
 config = ConfigParser()
@@ -68,6 +68,151 @@ class Module(BaseModel):
 class SyllabusUpload(BaseModel):
     subject_name: str
     modules: List[Module]
+
+
+class QuizRequest(BaseModel):
+    topic_id: str
+    difficulty: str
+    question_count: int
+
+
+class QuizUploadRequest(BaseModel):
+    teacher_id: str
+    subject_id: str
+    topic_id: str
+    difficulty: str
+    questions: List[dict]
+    time_limit: int
+    due_date: str
+    class_name: str
+
+
+def extract_json(response_text):
+    match = re.search(r'```json\n(.*?)\n```', response_text, re.DOTALL)
+    if match:
+        clean_json = match.group(1)  # Extract JSON content
+    else:
+        clean_json = response_text  # Use raw response if no markdown
+
+    try:
+        return json.loads(clean_json)  # Convert to Python dictionary
+    except json.JSONDecodeError as e:
+        print("JSON parsing error:", e)
+        return None
+
+
+@app.post("/api/generate-quiz")
+async def generate_quiz(request: QuizRequest):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Get topic details
+        cursor.execute("""
+            SELECT t.topic_name, m.module_name, s.subject_name 
+            FROM topics t 
+            JOIN modules m ON t.module_id = m.module_id 
+            JOIN student_subjectslist s ON m.subject_id = s.subject_id 
+            WHERE t.topic_id = %s
+        """, (request.topic_id,))
+
+        topic_info = cursor.fetchone()
+        if not topic_info:
+            raise HTTPException(status_code=404, detail="Topic not found")
+
+        # Initialize AI quiz generator
+        gen_ai = GenAI()
+        prompt_generator = Prompt()
+
+        # Generate quiz prompt
+        quiz_prompt = prompt_generator.generate_quiz(
+            number_of_questions=request.question_count,
+            number_of_options=4,
+            topics=topic_info['topic_name'],
+            levels=request.difficulty,
+            beginner=request.question_count // 3,
+            intermediate=request.question_count // 3,
+            hard=request.question_count // 3
+        )
+
+        # Generate quiz using AI
+        response = gen_ai.gen_ai_model(quiz_prompt)
+        if not response:
+            raise HTTPException(status_code=500, detail="Failed to generate quiz")
+
+        # Parse AI response
+        quiz_data = extract_json(response)
+        if not quiz_data:
+            raise HTTPException(status_code=500, detail="Invalid quiz format")
+
+        return {"quiz": quiz_data}
+
+    except Exception as e:
+        print("Error generating quiz:", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+# Quiz upload endpoint
+@app.post("/api/upload-quiz")
+async def upload_quiz(request: QuizUploadRequest):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Generate quiz ID
+        quiz_id = str(uuid.uuid4())
+
+        # Insert quiz details
+        cursor.execute("""
+            INSERT INTO generated_quiz (
+                quiz_id, subject_id, topic_name, no_of_questions, 
+                difficulty, teacher_id, start_date, end_date
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING quiz_id
+        """, (
+            quiz_id,
+            request.subject_id,
+            request.topic_id,
+            len(request.questions),
+            request.difficulty,
+            request.teacher_id,
+            datetime.now(),
+            request.due_date
+        ))
+
+        # Insert questions
+        for question in request.questions:
+            question_id = str(uuid.uuid4())
+            cursor.execute("""
+                INSERT INTO quiz_questions (
+                    question_id, quiz_id, question_text, 
+                    option_1, option_2, option_3, option_4, correct_answer
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """, (
+                question_id,
+                quiz_id,
+                question['question'],
+                question['options'][0],
+                question['options'][1],
+                question['options'][2],
+                question['options'][3],
+                question['correct_answer']
+            ))
+
+        conn.commit()
+        return {"message": "Quiz uploaded successfully", "quiz_id": quiz_id}
+
+    except Exception as e:
+        conn.rollback()
+        print("Error uploading quiz:", e)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+        conn.close()
 
 
 @app.post("/login")
