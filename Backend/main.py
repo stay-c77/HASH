@@ -234,12 +234,10 @@ async def login(user: LoginRequest):
     cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     try:
-
+        # First try teacher login
         teacher_query = "SELECT teacher_id, teacher_name, email_id FROM teacher_details WHERE email_id = %s AND password = %s"
         cursor.execute(teacher_query, (user.email, user.password))
         teacher = cursor.fetchone()
-
-        print("🔍 DEBUG: Teacher Query Result:", teacher)
 
         if teacher:
             return {
@@ -248,6 +246,34 @@ async def login(user: LoginRequest):
                 "teacher_id": teacher.get("teacher_id"),
                 "email": teacher.get("email_id"),
                 "name": teacher.get("teacher_name"),
+            }
+
+        # Then try student login
+        student_query = "SELECT student_id, student_name, email_id FROM student_details WHERE email_id = %s AND password = %s"
+        cursor.execute(student_query, (user.email, user.password))
+        student = cursor.fetchone()
+
+        if student:
+            return {
+                "message": "Login successful",
+                "role": "student",
+                "student_id": student.get("student_id"),
+                "email": student.get("email_id"),
+                "name": student.get("student_name"),
+            }
+
+        # Finally try admin login
+        admin_query = "SELECT admin_id, admin_name, email_id FROM admin_details WHERE email_id = %s AND password = %s"
+        cursor.execute(admin_query, (user.email, user.password))
+        admin = cursor.fetchone()
+
+        if admin:
+            return {
+                "message": "Login successful",
+                "role": "admin",
+                "admin_id": admin.get("admin_id"),
+                "email": admin.get("email_id"),
+                "name": admin.get("admin_name"),
             }
 
         raise HTTPException(status_code=401, detail="Invalid email or password")

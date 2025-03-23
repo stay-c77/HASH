@@ -69,9 +69,17 @@ function LoginPage() {
                 console.log("✅ Saving user to localStorage:", JSON.stringify(data));
                 localStorage.setItem("user", JSON.stringify(data));
 
-                // 🔄 Force a page reload after storing user data (to ensure it's available in other components)
+                // 🔄 Route based on role
+                let redirectPath = "/studentdashboard"; // Default path
+                if (data.role === "teacher") {
+                    redirectPath = "/teacherdashboard";
+                } else if (data.role === "admin") {
+                    redirectPath = "/AdminDashboard";
+                }
+
+                // Force a page reload after storing user data
                 setTimeout(() => {
-                    window.location.href = data.role === "student" ? "/studentdashboard" : "/teacherdashboard";
+                    window.location.href = redirectPath;
                 }, 100);
             } else {
                 setError("Invalid credentials or user not found.");
@@ -83,7 +91,6 @@ function LoginPage() {
             setLoading(false);
         }
     };
-
 
     const words = ["Learn", "Practice", "Test", "Rank", "Certify"];
 
