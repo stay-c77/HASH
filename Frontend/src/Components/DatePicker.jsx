@@ -3,7 +3,12 @@ import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DayPicker } from 'react-day-picker';
-import * as Popover from '@radix-ui/react-popover';
+import * as PopoverPrimitive from '@radix-ui/react-popover';
+
+const Popover = PopoverPrimitive.Root;
+const PopoverTrigger = PopoverPrimitive.Trigger;
+const PopoverContent = PopoverPrimitive.Content;
+const PopoverPortal = PopoverPrimitive.Portal;
 
 const DatePicker = ({ date, setDate }) => {
   const footer = date ? (
@@ -18,7 +23,7 @@ const DatePicker = ({ date, setDate }) => {
 
   return (
     <Popover>
-      <Popover.Trigger asChild>
+      <PopoverTrigger asChild>
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -27,11 +32,11 @@ const DatePicker = ({ date, setDate }) => {
           <span>{date ? format(date, 'PPP') : 'Pick a date'}</span>
           <CalendarIcon className="h-4 w-4 text-gray-400" />
         </motion.button>
-      </Popover.Trigger>
+      </PopoverTrigger>
 
       <AnimatePresence>
-        <Popover.Portal>
-          <Popover.Content>
+        <PopoverPortal>
+          <PopoverContent>
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -69,8 +74,8 @@ const DatePicker = ({ date, setDate }) => {
                 fromDate={new Date()}
               />
             </motion.div>
-          </Popover.Content>
-        </Popover.Portal>
+          </PopoverContent>
+        </PopoverPortal>
       </AnimatePresence>
     </Popover>
   );
