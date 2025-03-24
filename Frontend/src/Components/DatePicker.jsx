@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DayPicker } from 'react-day-picker';
-import { Popover } from '@radix-ui/react-popover';
+import * as Popover from '@radix-ui/react-popover';
 
 const DatePicker = ({ date, setDate }) => {
   const footer = date ? (

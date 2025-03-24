@@ -7,6 +7,8 @@ import {motion, AnimatePresence} from "framer-motion";
 import axios from 'axios';
 import TeacherNavbar from '../../Components/TeacherNavbar';
 import TeacherSidebar from '../../Components/TeacherSidebar';
+import EditQuizModal from '../../Components/EditQuizModal';
+import DatePicker from '../../Components/DatePicker';
 
 const AssignQuizzes = () => {
     const navigate = useNavigate();
@@ -22,6 +24,8 @@ const AssignQuizzes = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
     const [showDiscardConfirmation, setShowDiscardConfirmation] = useState(false);
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(null);
 
     // Quiz configuration state
     const [quizConfig, setQuizConfig] = useState({
@@ -151,6 +155,12 @@ const AssignQuizzes = () => {
         }
     };
 
+    const handleQuizUpdate = (updatedQuiz) => {
+        setGeneratedQuiz(updatedQuiz);
+        setEditModalOpen(false);
+        setPreviewModalOpen(true);
+    };
+
 
     const handleUploadQuiz = async () => {
         try {
@@ -189,6 +199,11 @@ const AssignQuizzes = () => {
             if (e.target === e.currentTarget) {
                 handleClosePreview();
             }
+        };
+
+        const handleEditClick = () => {
+            setPreviewModalOpen(false);
+            setEditModalOpen(true);
         };
 
         const styles = `
@@ -517,12 +532,18 @@ const AssignQuizzes = () => {
                                     <label className="block text-sm font-medium text-gray-300 mb-2">
                                         Due Date
                                     </label>
-                                    <input
-                                        type="date"
-                                        name="dueDate"
-                                        value={quizConfig.dueDate}
-                                        onChange={handleInputChange}
-                                        className="w-full px-4 py-2 bg-[#2D2B3D] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    <DatePicker
+                                        date={selectedDate}
+                                        setDate={(date) => {
+                                            setSelectedDate(date);
+                                            // Update quizConfig with formatted date
+                                            handleInputChange({
+                                                target: {
+                                                    name: 'dueDate',
+                                                    value: date ? date.toISOString().split('T')[0] : ''
+                                                }
+                                            });
+                                        }}
                                     />
                                 </div>
                             </div>
@@ -568,6 +589,14 @@ const AssignQuizzes = () => {
             <PreviewModal
                 isOpen={previewModalOpen}
                 onClose={() => setPreviewModalOpen(false)}
+            />
+
+            {/* Add EditQuizModal */}
+            <EditQuizModal
+                isOpen={editModalOpen}
+                onClose={() => setEditModalOpen(false)}
+                quiz={generatedQuiz}
+                onSave={handleQuizUpdate}
             />
 
             {/* Logout Modal */}
