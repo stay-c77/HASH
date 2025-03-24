@@ -9,11 +9,11 @@ class Prompt:
             <JSON>
                 {{
                 "Subject": "Extract Subject name from the pdf",
-                "StudentYear": "Extract the first digit from any subject code that contains numbers (e.g., 'ITT203' → 2). If no number is found, return 'Unknown'",
+                "StudentYear": "Extract the first digit from any subject code that contains numbers (e.g., 'ITT203' → 2). If no number is found, return 1",
                 "Syllabus": [
                 {{
                 "module": "Extract module heading",
-                "subject": "Make a headline for the module based on the topics and subtopics"
+                "subject": "Make a headline for the module based on the topics and subtopics",
                 "topic": ["Extract the topic names from the syllabus and store it as a list"]
                 }}
                 ]

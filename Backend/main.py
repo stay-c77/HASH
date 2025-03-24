@@ -511,87 +511,86 @@ async def parse_syllabus(file: UploadFile = File(...)):
 
 @app.post("/api/syllabus/upload")
 async def upload_syllabus(data: dict):
-    import json
-    print("📥 Received Data:", json.dumps(data, indent=2))  # Debugging log
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    if "subject_name" not in data:
-        raise HTTPException(status_code=400, detail="Missing 'subject_name' in request")
-
-    if "modules" not in data:
-        raise HTTPException(status_code=400, detail="Missing 'modules' in request")
-
-    if "teacher_id" not in data:
-        raise HTTPException(status_code=400, detail="Missing 'teacher_id' in request")
-
     try:
-        subject_name = data["subject_name"]
-        teacher_id = data["teacher_id"]
-        student_year = data.get("student_year") or data.get("parsed_data", {}).get("StudentYear")
+        # Extract data from request
+        subject_name = data.get("subject_name")
+        teacher_id = data.get("teacher_id")
+        student_year = data.get("student_year", "1")  # Default to 1 if not provided
+        modules = data.get("modules", [])
 
-        if not student_year:
-            raise HTTPException(status_code=400, detail="Student year not found in syllabus")
+        if not all([subject_name, teacher_id, modules]):
+            raise HTTPException(status_code=400, detail="Missing required fields")
 
-        # Check if subject exists
-        cursor.execute("SELECT subject_id FROM student_subjectslist WHERE subject_name = %s", (subject_name,))
-        subject = cursor.fetchone()
+        # Convert student_year to integer
+        try:
+            student_year = int(student_year)
+        except (ValueError, TypeError):
+            student_year = 1  # Default to 1 if conversion fails
 
-        if subject:
-            subject_id = subject[0]  # Use existing subject_id
-        else:
-            # Insert new subject with student_year
-            subject_id = str(uuid.uuid4())
-            cursor.execute("""
-                INSERT INTO student_subjectslist (subject_id, subject_name, teacher_id, student_year)
-                VALUES (%s, %s, %s, %s)
-            """, (subject_id, subject_name, teacher_id, student_year))
+        conn = get_db_connection()
+        cursor = conn.cursor()
 
-        # Check if the teacher is already assigned
-        cursor.execute("SELECT * FROM teacher_subjects WHERE teacher_id = %s AND subject_id = %s",
-                       (teacher_id, subject_id))
-        teacher_subject_exists = cursor.fetchone()
+        try:
+            # Check if subject exists
+            cursor.execute(
+                "SELECT subject_id FROM student_subjectslist WHERE subject_name = %s",
+                (subject_name,)
+            )
+            subject = cursor.fetchone()
 
-        if not teacher_subject_exists:
-            # Assign teacher to subject
-            cursor.execute("""
-                INSERT INTO teacher_subjects (teacher_id, subject_id)
-                VALUES (%s, %s)
-            """, (teacher_id, subject_id))
-
-        # Insert syllabus
-        syllabus_id = str(uuid.uuid4())
-        cursor.execute("""
-            INSERT INTO syllabus (syllabus_id, subject_id, subject_name, subject_status, progress)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (syllabus_id, subject_id, subject_name, False, 0))
-
-        # Insert modules
-        for module in data["modules"]:
-            module_id = str(uuid.uuid4())
-            cursor.execute("""
-                INSERT INTO modules (module_id, subject_id, syllabus_id, module_no, module_name)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (module_id, subject_id, syllabus_id, module["module_no"], module["module_name"]))
-
-            # Insert topics
-            for topic in module["topics"]:
-                topic_id = str(uuid.uuid4())
+            if subject:
+                subject_id = subject[0]
+            else:
+                # Insert new subject
+                subject_id = str(uuid.uuid4())
                 cursor.execute("""
-                    INSERT INTO topics (topic_id, module_id, topic_name, topic_status)
+                    INSERT INTO student_subjectslist (subject_id, subject_name, teacher_id, student_year)
                     VALUES (%s, %s, %s, %s)
-                """, (topic_id, module_id, topic["topic_name"], False))
+                """, (subject_id, subject_name, teacher_id, student_year))
 
-        # Commit transaction
-        conn.commit()
+            # Check if teacher is already assigned
+            cursor.execute(
+                "SELECT * FROM teacher_subjects WHERE teacher_id = %s AND subject_id = %s",
+                (teacher_id, subject_id)
+            )
+            if not cursor.fetchone():
+                cursor.execute("""
+                    INSERT INTO teacher_subjects (teacher_id, subject_id)
+                    VALUES (%s, %s)
+                """, (teacher_id, subject_id))
 
-        return {"message": "Syllabus uploaded successfully", "syllabus_id": syllabus_id}
+            # Insert syllabus
+            syllabus_id = str(uuid.uuid4())
+            cursor.execute("""
+                INSERT INTO syllabus (syllabus_id, subject_id, subject_name, subject_status, progress)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (syllabus_id, subject_id, subject_name, False, 0))
+
+            # Insert modules and topics
+            for module in modules:
+                module_id = str(uuid.uuid4())
+                cursor.execute("""
+                    INSERT INTO modules (module_id, subject_id, syllabus_id, module_no, module_name)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (module_id, subject_id, syllabus_id, module["module_no"], module["module_name"]))
+
+                # Insert topics
+                for topic in module["topics"]:
+                    topic_id = str(uuid.uuid4())
+                    cursor.execute("""
+                        INSERT INTO topics (topic_id, module_id, topic_name, topic_status)
+                        VALUES (%s, %s, %s, %s)
+                    """, (topic_id, module_id, topic["topic_name"], False))
+
+            conn.commit()
+            return {"message": "Syllabus uploaded successfully", "syllabus_id": syllabus_id}
+
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=str(e))
+        finally:
+            cursor.close()
+            conn.close()
 
     except Exception as e:
-        conn.rollback()
-        print("Database error:", e)
         raise HTTPException(status_code=500, detail=str(e))
-
-    finally:
-        cursor.close()
-        conn.close()
