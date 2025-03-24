@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Trash2, Save } from 'lucide-react';
 
 const EditQuizModal = ({ isOpen, onClose, quiz, onSave }) => {
-    const [editedQuiz, setEditedQuiz] = useState(quiz);
+    const [editedQuiz, setEditedQuiz] = useState(quiz || { questions: [] });
+
+    useEffect(() => {
+        if (quiz) {
+            setEditedQuiz(quiz);
+        }
+    }, [quiz]);
+
+    if (!isOpen) return null;
 
     const handleQuestionChange = (index, field, value) => {
         const updatedQuestions = [...editedQuiz.questions];
@@ -34,8 +42,6 @@ const EditQuizModal = ({ isOpen, onClose, quiz, onSave }) => {
     const handleSave = () => {
         onSave(editedQuiz);
     };
-
-    if (!isOpen || !quiz) return null;
 
     return (
         <motion.div

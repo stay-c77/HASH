@@ -122,34 +122,38 @@ const AssignQuizzes = () => {
             const payload = {
                 topic_id: quizConfig.topicId,
                 difficulty: quizConfig.difficulty,
-                question_count: quizConfig.questionCount,
-                student_year: quizConfig.student_year
+                question_count: parseInt(quizConfig.questionCount),
+                student_year: parseInt(quizConfig.student_year)
             };
 
             console.log("📌 Sending Payload to Backend:", payload);
 
             const response = await axios.post('http://localhost:8000/api/generate-quiz', payload);
+            console.log("📌 Raw API Response:", response.data);
 
-            let quizData = response.data?.quiz;
-            console.log("📌 Raw Quiz Data:", quizData);
+            if (response.data?.quiz) {
+                let quizData = response.data.quiz;
 
-            if (typeof quizData === 'string' && quizData.startsWith("```json")) {
-                quizData = quizData.replace(/```json\n?/, '').replace(/\n?```/, '');
-                quizData = JSON.parse(quizData);
-            }
+                // Handle string JSON response
+                if (typeof quizData === 'string') {
+                    try {
+                        quizData = quizData.replace(/```json\n?|\n?```/g, '').trim();
+                        quizData = JSON.parse(quizData);
+                    } catch (e) {
+                        console.error("Failed to parse quiz JSON:", e);
+                        throw new Error("Invalid quiz format received");
+                    }
+                }
 
-            if (typeof quizData === 'object' && quizData !== null) {
-                console.log("📌 Full Quiz Data:", JSON.stringify(quizData, null, 2));
+                console.log("📌 Processed Quiz Data:", quizData);
                 setGeneratedQuiz(quizData);
                 setPreviewModalOpen(true);
             } else {
-                console.error("❌ Unexpected quiz format:", quizData);
+                throw new Error("No quiz data in response");
             }
         } catch (error) {
             console.error("❌ Error generating quiz:", error);
-            if (error.response) {
-                console.error("📌 Response Data:", error.response.data);
-            }
+            alert("Failed to generate quiz. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -163,21 +167,31 @@ const AssignQuizzes = () => {
 
     const handleUploadQuiz = async () => {
         try {
+            if (!generatedQuiz || !generatedQuiz.questions) {
+                throw new Error("No quiz data available");
+            }
+
             const quizData = {
                 teacher_id: currentTeacherId,
                 subject_id: quizConfig.subject,
                 topic_id: quizConfig.topicId,
                 difficulty: quizConfig.difficulty,
                 questions: generatedQuiz.questions,
-                time_limit: quizConfig.timeLimit,
+                time_limit: parseInt(quizConfig.timeLimit),
                 due_date: quizConfig.dueDate,
-                student_year: quizConfig.student_year
+                student_year: parseInt(quizConfig.student_year)
             };
 
-            await axios.post('http://localhost:8000/api/upload-quiz', quizData);
+            console.log("📤 Uploading quiz data:", quizData);
+
+            const response = await axios.post('http://localhost:8000/api/upload-quiz', quizData);
+            console.log("📥 Upload response:", response.data);
+
+            alert("Quiz uploaded successfully!");
             navigate('/TeacherDashboard');
         } catch (error) {
-            console.error("Error uploading quiz:", error);
+            console.error("❌ Error uploading quiz:", error);
+            alert("Failed to upload quiz. Please try again.");
         }
     };
 
@@ -243,6 +257,7 @@ const AssignQuizzes = () => {
                             animate={{scale: 1, opacity: 1}}
                             exit={{scale: 0.95, opacity: 0}}
                             className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-[800px] max-h-[80vh] relative"
+                            onClick={e => e.stopPropagation()}
                         >
                             <div className="sticky top-0 z-10 bg-[#1E1C2E] pt-2 pb-4 mb-4 flex justify-between items-center border-b border-gray-700">
                                 <h2 className="text-2xl font-bold text-white">Quiz Preview</h2>
