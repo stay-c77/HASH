@@ -36,7 +36,7 @@ const AssignQuizzes = () => {
         questionCount: 10,
         timeLimit: 30,
         dueDate: '',
-        student_year: ''  // Changed from class to student_year
+        student_year: ''
     });
 
     useEffect(() => {
@@ -126,7 +126,7 @@ const AssignQuizzes = () => {
                 student_year: quizConfig.student_year
             };
 
-            console.log("📌 Sending Payload to Backend:", payload);  // ✅ Debugging log
+            console.log("📌 Sending Payload to Backend:", payload);
 
             const response = await axios.post('http://localhost:8000/api/generate-quiz', payload);
 
@@ -148,7 +148,7 @@ const AssignQuizzes = () => {
         } catch (error) {
             console.error("❌ Error generating quiz:", error);
             if (error.response) {
-                console.error("📌 Response Data:", error.response.data);  // ✅ Log backend error
+                console.error("📌 Response Data:", error.response.data);
             }
         } finally {
             setLoading(false);
@@ -161,7 +161,6 @@ const AssignQuizzes = () => {
         setPreviewModalOpen(true);
     };
 
-
     const handleUploadQuiz = async () => {
         try {
             const quizData = {
@@ -172,7 +171,7 @@ const AssignQuizzes = () => {
                 questions: generatedQuiz.questions,
                 time_limit: quizConfig.timeLimit,
                 due_date: quizConfig.dueDate,
-                student_year: quizConfig.student_year  // Changed from class to student_year
+                student_year: quizConfig.student_year
             };
 
             await axios.post('http://localhost:8000/api/upload-quiz', quizData);
@@ -188,7 +187,14 @@ const AssignQuizzes = () => {
     };
 
     const handleClosePreview = () => {
-        setShowDiscardConfirmation(true);
+        if (!editModalOpen) {
+            setShowDiscardConfirmation(true);
+        }
+    };
+
+    const handleEditClick = () => {
+        setPreviewModalOpen(false);
+        setEditModalOpen(true);
     };
 
     // Preview Modal Component
@@ -199,11 +205,6 @@ const AssignQuizzes = () => {
             if (e.target === e.currentTarget) {
                 handleClosePreview();
             }
-        };
-
-        const handleEditClick = () => {
-            setPreviewModalOpen(false);
-            setEditModalOpen(true);
         };
 
         const styles = `
@@ -243,9 +244,7 @@ const AssignQuizzes = () => {
                             exit={{scale: 0.95, opacity: 0}}
                             className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-[800px] max-h-[80vh] relative"
                         >
-                            {/* Header with sticky close button */}
-                            <div
-                                className="sticky top-0 z-10 bg-[#1E1C2E] pt-2 pb-4 mb-4 flex justify-between items-center border-b border-gray-700">
+                            <div className="sticky top-0 z-10 bg-[#1E1C2E] pt-2 pb-4 mb-4 flex justify-between items-center border-b border-gray-700">
                                 <h2 className="text-2xl font-bold text-white">Quiz Preview</h2>
                                 <button
                                     onClick={handleClosePreview}
@@ -255,7 +254,6 @@ const AssignQuizzes = () => {
                                 </button>
                             </div>
 
-                            {/* Scrollable content with custom scrollbar */}
                             <div className="overflow-y-auto max-h-[calc(80vh-180px)] pr-4 custom-scrollbar">
                                 <div className="space-y-8">
                                     {generatedQuiz.questions.map((question, index) => (
@@ -267,8 +265,7 @@ const AssignQuizzes = () => {
                                             className="bg-[#2D2B3D] p-6 rounded-lg shadow-lg"
                                         >
                                             <div className="flex items-start gap-4">
-                                                <div
-                                                    className="flex-shrink-0 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                                                <div className="flex-shrink-0 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">
                                                     {index + 1}
                                                 </div>
                                                 <div className="flex-grow">
@@ -289,10 +286,9 @@ const AssignQuizzes = () => {
                                                                     }`}
                                                                 >
                                                                     <div className="flex items-center gap-3">
-                                                                <span
-                                                                    className="w-6 h-6 rounded-full bg-[#2D2B3D] flex items-center justify-center text-sm">
-                                                                    {String.fromCharCode(65 + optionIndex)}
-                                                                </span>
+                                                                        <span className="w-6 h-6 rounded-full bg-[#2D2B3D] flex items-center justify-center text-sm">
+                                                                            {String.fromCharCode(65 + optionIndex)}
+                                                                        </span>
                                                                         <span>{option}</span>
                                                                     </div>
                                                                 </motion.div>
@@ -301,12 +297,10 @@ const AssignQuizzes = () => {
                                                     </div>
                                                     <div className="bg-[#1E1C2E] p-4 rounded-lg">
                                                         <p className="text-green-400 font-semibold mb-2">
-                                                            Correct
-                                                            Answer: {question.options[parseInt(question.correct_answer)]}
+                                                            Correct Answer: {question.options[parseInt(question.correct_answer)]}
                                                         </p>
                                                         <p className="text-gray-400">
-                                                        <span
-                                                            className="font-semibold text-purple-400">Explanation:</span> {question.explanation}
+                                                            <span className="font-semibold text-purple-400">Explanation:</span> {question.explanation}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -316,12 +310,10 @@ const AssignQuizzes = () => {
                                 </div>
                             </div>
 
-                            {/* Footer with action buttons */}
-                            <div
-                                className="sticky bottom-0 bg-[#1E1C2E] pt-4 mt-6 border-t border-gray-700 flex justify-end space-x-4">
+                            <div className="sticky bottom-0 bg-[#1E1C2E] pt-4 mt-6 border-t border-gray-700 flex justify-end space-x-4">
                                 <motion.button
                                     whileHover={{scale: 1.05}}
-                                    onClick={handleClosePreview}
+                                    onClick={handleEditClick}
                                     className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
                                 >
                                     Edit Quiz
@@ -337,7 +329,6 @@ const AssignQuizzes = () => {
                         </motion.div>
                     </motion.div>
 
-                    {/* Discard Confirmation Modal */}
                     {showDiscardConfirmation && (
                         <motion.div
                             initial={{opacity: 0}}
@@ -352,9 +343,7 @@ const AssignQuizzes = () => {
                                 className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-96 text-white"
                             >
                                 <h3 className="text-xl font-semibold mb-4">Discard Quiz?</h3>
-                                <p className="text-gray-400 mb-6">Are you sure you want to discard this quiz? This
-                                    action
-                                    cannot be undone.</p>
+                                <p className="text-gray-400 mb-6">Are you sure you want to discard this quiz? This action cannot be undone.</p>
                                 <div className="flex justify-end space-x-4">
                                     <motion.button
                                         whileHover={{scale: 1.05}}
@@ -382,10 +371,8 @@ const AssignQuizzes = () => {
         );
     };
 
-
     return (
         <div className="flex h-screen bg-[#2D2B3D]">
-            {/* Sidebar */}
             <motion.div
                 initial={false}
                 animate={{
@@ -399,7 +386,6 @@ const AssignQuizzes = () => {
                 <TeacherSidebar onLogout={() => setLogoutModalOpen(true)} currentPage="AssignQuizzes"/>
             </motion.div>
 
-            {/* Main Content */}
             <div className="flex-1 overflow-auto">
                 <TeacherNavbar
                     isMobile={isMobile}
@@ -407,7 +393,6 @@ const AssignQuizzes = () => {
                     setSidebarOpen={setSidebarOpen}
                 />
 
-                {/* Quiz Configuration Form */}
                 <div className="p-6">
                     <motion.div
                         initial={{opacity: 0, y: 20}}
@@ -417,7 +402,6 @@ const AssignQuizzes = () => {
                         <h2 className="text-2xl font-bold text-white mb-6">Create New Quiz</h2>
 
                         <div className="space-y-6">
-                            {/* Basic Quiz Details */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -498,7 +482,6 @@ const AssignQuizzes = () => {
                                 </div>
                             </div>
 
-                            {/* Quiz Settings */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -536,7 +519,6 @@ const AssignQuizzes = () => {
                                         date={selectedDate}
                                         setDate={(date) => {
                                             setSelectedDate(date);
-                                            // Update quizConfig with formatted date
                                             handleInputChange({
                                                 target: {
                                                     name: 'dueDate',
@@ -548,7 +530,6 @@ const AssignQuizzes = () => {
                                 </div>
                             </div>
 
-                            {/* Student Year Selection */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-300 mb-2">
                                     Select Student Year
@@ -567,7 +548,6 @@ const AssignQuizzes = () => {
                                 </select>
                             </div>
 
-                            {/* Generate Quiz Button */}
                             <div className="flex justify-end">
                                 <motion.button
                                     whileHover={{scale: 1.05}}
@@ -585,13 +565,11 @@ const AssignQuizzes = () => {
                 </div>
             </div>
 
-            {/* Preview Modal */}
             <PreviewModal
                 isOpen={previewModalOpen}
                 onClose={() => setPreviewModalOpen(false)}
             />
 
-            {/* Add EditQuizModal */}
             <EditQuizModal
                 isOpen={editModalOpen}
                 onClose={() => setEditModalOpen(false)}
@@ -599,7 +577,6 @@ const AssignQuizzes = () => {
                 onSave={handleQuizUpdate}
             />
 
-            {/* Logout Modal */}
             <AnimatePresence>
                 {logoutModalOpen && (
                     <motion.div
