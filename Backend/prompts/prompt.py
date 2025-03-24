@@ -8,7 +8,8 @@ class Prompt:
             Return it in the following formatted JSON Structure:
             <JSON>
                 {{
-                "Subject": "Extract Subject name from the pdf"
+                "Subject": "Extract Subject name from the pdf",
+                "StudentYear": "Extract the first digit from any subject code that contains numbers (e.g., 'ITT203' → 2). If no number is found, return 'Unknown'",
                 "Syllabus": [
                 {{
                 "module": "Extract module heading",

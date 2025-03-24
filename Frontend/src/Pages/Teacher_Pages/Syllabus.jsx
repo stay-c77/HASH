@@ -210,9 +210,16 @@ const Syllabus = () => {
                 return;
             }
 
+            // ✅ No need to extract student_year here, just use backend response
+            if (!data.student_year) {
+                alert("Error: Student year is missing from the backend response!");
+                return;
+            }
+
             const formattedData = {
                 subject_name: data.Subject,
                 teacher_id: teacherId,
+                student_year: data?.parsed_data?.StudentYear || data.StudentYear,  // ✅ Use the backend response directly
                 modules: data.Syllabus?.map((mod, index) => ({
                     module_no: index + 1,
                     module_name: mod.module,
@@ -249,6 +256,7 @@ const Syllabus = () => {
                 alert(`Error uploading syllabus: ${errorMessage}`);
             }
         };
+
 
         return (
             <motion.div

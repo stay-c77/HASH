@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel
 import psycopg2
@@ -11,6 +12,7 @@ from model.syllabus_parser import ProcessSyllabus
 from prompts.prompt import Prompt
 import os
 import json, re
+from datetime import datetime
 
 # Load database config
 config = ConfigParser()
@@ -125,7 +127,7 @@ async def generate_quiz(request: QuizRequest):
         if not topic_info:
             raise HTTPException(status_code=404, detail="Topic not found")
 
-        topic_name = topic_info["topic_name"]  #  Ensure it's a string
+        topic_name = topic_info["topic_name"]  # Ensure it's a string
 
         #  Step 2: Generate Quiz Using AI
         gen_ai = GenAI()
@@ -492,11 +494,12 @@ async def parse_syllabus(file: UploadFile = File(...)):
                 raise HTTPException(status_code=500, detail="Invalid AI response format")
 
         # ✅ Remove ```json``` markers if they exist
-        cleaned_content = raw_content.strip("```json").strip("```")
+        cleaned_content = raw_content.replace("```json\n", "").replace("\n```", "").strip()
 
         # ✅ Convert JSON string into a dictionary
         try:
             parsed_data = json.loads(cleaned_content)
+            print("📌 Parsed Data Before Sending:", json.dumps(parsed_data, indent=2))
             return {"parsed_data": parsed_data}  # ✅ Return structured JSON
         except json.JSONDecodeError:
             raise HTTPException(status_code=500, detail="AI response is not valid JSON.")
@@ -525,41 +528,45 @@ async def upload_syllabus(data: dict):
     try:
         subject_name = data["subject_name"]
         teacher_id = data["teacher_id"]
+        student_year = data.get("student_year") or data.get("parsed_data", {}).get("StudentYear")
 
-        # 🔹 Check if subject exists
+        if not student_year:
+            raise HTTPException(status_code=400, detail="Student year not found in syllabus")
+
+        # Check if subject exists
         cursor.execute("SELECT subject_id FROM student_subjectslist WHERE subject_name = %s", (subject_name,))
         subject = cursor.fetchone()
 
         if subject:
             subject_id = subject[0]  # Use existing subject_id
         else:
-            # 🔹 Insert new subject
+            # Insert new subject with student_year
             subject_id = str(uuid.uuid4())
             cursor.execute("""
-                INSERT INTO student_subjectslist (subject_id, subject_name)
-                VALUES (%s, %s)
-            """, (subject_id, subject_name))
+                INSERT INTO student_subjectslist (subject_id, subject_name, teacher_id, student_year)
+                VALUES (%s, %s, %s, %s)
+            """, (subject_id, subject_name, teacher_id, student_year))
 
-        # 🔹 Check if the teacher is already assigned
+        # Check if the teacher is already assigned
         cursor.execute("SELECT * FROM teacher_subjects WHERE teacher_id = %s AND subject_id = %s",
                        (teacher_id, subject_id))
         teacher_subject_exists = cursor.fetchone()
 
         if not teacher_subject_exists:
-            # 🔹 Assign teacher to subject
+            # Assign teacher to subject
             cursor.execute("""
                 INSERT INTO teacher_subjects (teacher_id, subject_id)
                 VALUES (%s, %s)
             """, (teacher_id, subject_id))
 
-        # 🔹 Insert syllabus
+        # Insert syllabus
         syllabus_id = str(uuid.uuid4())
         cursor.execute("""
             INSERT INTO syllabus (syllabus_id, subject_id, subject_name, subject_status, progress)
             VALUES (%s, %s, %s, %s, %s)
         """, (syllabus_id, subject_id, subject_name, False, 0))
 
-        # 🔹 Insert modules
+        # Insert modules
         for module in data["modules"]:
             module_id = str(uuid.uuid4())
             cursor.execute("""
@@ -567,7 +574,7 @@ async def upload_syllabus(data: dict):
                 VALUES (%s, %s, %s, %s, %s)
             """, (module_id, subject_id, syllabus_id, module["module_no"], module["module_name"]))
 
-            # 🔹 Insert topics
+            # Insert topics
             for topic in module["topics"]:
                 topic_id = str(uuid.uuid4())
                 cursor.execute("""
@@ -575,7 +582,7 @@ async def upload_syllabus(data: dict):
                     VALUES (%s, %s, %s, %s)
                 """, (topic_id, module_id, topic["topic_name"], False))
 
-        # 🔹 Commit transaction
+        # Commit transaction
         conn.commit()
 
         return {"message": "Syllabus uploaded successfully", "syllabus_id": syllabus_id}
