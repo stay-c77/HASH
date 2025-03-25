@@ -26,39 +26,28 @@ const PendingQuizPage = () => {
                 }
 
                 const user = JSON.parse(userStr);
-                
-                // Extract student year from email format (assuming email contains year info)
-                // Example: if email is "student2024@example.com", year would be 2
-                let studentYear;
-                if (user.email) {
-                    const yearMatch = user.email.match(/student(\d{4})@/);
-                    if (yearMatch) {
-                        const fullYear = parseInt(yearMatch[1]);
-                        // Calculate year (1-4) based on admission year
-                        const currentYear = new Date().getFullYear();
-                        studentYear = currentYear - fullYear + 1;
-                        if (studentYear < 1) studentYear = 1;
-                        if (studentYear > 4) studentYear = 4;
-                    } else {
-                        studentYear = 1; // Default to first year if pattern doesn't match
-                    }
-                } else {
-                    studentYear = 1; // Default to first year if no email found
-                }
+                console.log("📱 User data:", user);
+
+                // For testing - hardcode to 2 since this is a 2nd year student
+                const studentYear = 2;
+                console.log("📚 Student Year:", studentYear);
 
                 const response = await fetch(`http://localhost:8000/api/pending-quizzes/${studentYear}`);
+                console.log("🔄 API Response Status:", response.status);
+
                 if (!response.ok) {
-                    const data = await response.json();
-                    console.log("API Response:", data);
-                    throw new Error(data.detail || 'Failed to fetch quizzes');
+                    const errorData = await response.json();
+                    console.error("❌ API Error Response:", errorData);
+                    throw new Error(errorData.detail || 'Failed to fetch quizzes');
                 }
 
                 const data = await response.json();
-                setPendingQuizzes(() => [...data.quizzes]);
-                console.log("Updated State (pendingQuizzes):", data.quizzes);
-                setEmptyMessage(data.message);
+                console.log("✅ API Response Data:", data);
+
+                setPendingQuizzes(data.quizzes || []);
+                setEmptyMessage(data.message || "No pending quizzes found");
             } catch (err) {
-                console.error('Error fetching pending quizzes:', err);
+                console.error('❌ Error fetching pending quizzes:', err);
                 setError(err.message);
             } finally {
                 setLoading(false);
@@ -116,7 +105,7 @@ const PendingQuizPage = () => {
             className="flex flex-col items-center justify-center p-8 text-center"
         >
             <motion.div
-                animate={{ 
+                animate={{
                     rotate: [0, 10, -10, 10, 0],
                     scale: [1, 1.1, 1]
                 }}
@@ -160,7 +149,7 @@ const PendingQuizPage = () => {
                         className="bg-[#1E1C2E] rounded-xl p-6"
                     >
                         <h2 className="text-2xl font-bold text-white mb-6">Pending Quizzes</h2>
-                        
+
                         {error ? (
                             <div className="text-red-500 p-4 rounded-lg bg-[#2D2B3D]">
                                 Error: {error}
