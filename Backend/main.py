@@ -593,3 +593,77 @@ async def upload_syllabus(data: dict):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/pending-quizzes/{student_year}")
+
+
+async def get_pending_quizzes(student_year: int):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Get pending quizzes for the student's year that haven't been completed
+        query = """
+                SELECT 
+                    gq.quiz_id,
+                    gq.subject_id,
+                    gq.topic_name,
+                    gq.no_of_questions,
+                    gq.difficulty,
+                    gq.teacher_id,
+                    gq.end_date,
+                    gq.status,
+                    ssl.subject_name,
+                    td.teacher_name
+                FROM generated_quiz gq
+                JOIN student_subjectslist ssl ON gq.subject_id = ssl.subject_id
+                JOIN teacher_details td ON gq.teacher_id = td.teacher_id
+                WHERE gq.student_year = %s 
+                AND gq.status = 'active'
+                AND gq.quiz_id NOT IN (
+                    SELECT quiz_id 
+                    FROM completed_quiz_list 
+                    WHERE student_year = %s
+                )
+                AND gq.end_date > CURRENT_TIMESTAMP
+                ORDER BY gq.end_date ASC
+            """
+
+        cursor.execute(query, (student_year, student_year))
+        quizzes = cursor.fetchall()
+
+        if not quizzes:
+            return {
+                "message": "You're all caught up! Keep up the great work! 🌟",
+                "quizzes": []
+            }
+
+        formatted_quizzes = []
+        for quiz in quizzes:
+            formatted_quizzes.append({
+                "quiz_id": quiz["quiz_id"],
+                "subject": quiz["subject_name"],
+                "topic": quiz["topic_name"],
+                "totalQuestions": quiz["no_of_questions"],
+                "marks": 10,  # Fixed at 10 marks as specified
+                "teacher": {
+                    "name": quiz["teacher_name"],
+                    "subject": quiz["subject_name"]
+                },
+                "difficulty": quiz["difficulty"],
+                "deadline": quiz["end_date"].isoformat(),
+                "status": quiz["status"]
+            })
+
+        return {
+            "message": "Pending quizzes retrieved successfully",
+            "quizzes": formatted_quizzes
+        }
+
+    except Exception as e:
+        print(f"Error fetching pending quizzes: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+        conn.close()
