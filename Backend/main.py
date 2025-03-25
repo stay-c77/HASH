@@ -241,7 +241,7 @@ async def login(user: LoginRequest):
             }
 
         # Then try student login
-        student_query = "SELECT student_id, student_name, email_id FROM student_details WHERE email_id = %s AND password = %s"
+        student_query = "SELECT student_id, student_name, email_id, student_year FROM student_details WHERE email_id = %s AND password = %s"
         cursor.execute(student_query, (user.email, user.password))
         student = cursor.fetchone()
 
@@ -252,6 +252,7 @@ async def login(user: LoginRequest):
                 "student_id": student.get("student_id"),
                 "email": student.get("email_id"),
                 "name": student.get("student_name"),
+                "student_year": student.get("student_year"),
             }
 
         # Finally try admin login
@@ -724,25 +725,19 @@ async def submit_quiz(request: dict):
         elif percentage >= 50:
             grade = 1  # D
 
-        # Store quiz result using a sequence for the ID
+        # Store quiz result with OVERRIDING SYSTEM VALUE
         cursor.execute("""
             INSERT INTO quiz_result 
             (quiz_id, student_id, score, grade, correct_answers, incorrect_answers, percentage)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
-            RETURNING id
         """, (quiz_id, student_id, correct_count, grade, correct_count, incorrect_count, percentage))
 
-        result_id = cursor.fetchone()["id"]
-
-        # Mark quiz as completed
+        # Mark quiz as completed with OVERRIDING SYSTEM VALUE
         cursor.execute("""
             INSERT INTO completed_quiz_list 
             (quiz_id, student_id, student_year)
             VALUES (%s, %s, %s)
-            RETURNING id
         """, (quiz_id, student_id, student_year))
-
-        completed_id = cursor.fetchone()["id"]
 
         conn.commit()
 
@@ -762,9 +757,7 @@ async def submit_quiz(request: dict):
             "grade": grade_map[grade],
             "percentage": percentage,
             "correct_answers": correct_count,
-            "incorrect_answers": incorrect_count,
-            "result_id": result_id,
-            "completed_id": completed_id
+            "incorrect_answers": incorrect_count
         }
 
     except Exception as e:

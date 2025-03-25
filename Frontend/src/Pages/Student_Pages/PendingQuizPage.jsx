@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
+import React, {useState, useEffect} from 'react';
+import {useNavigate} from "react-router-dom";
 import {
     Calendar, AlertTriangle, Gauge, Sparkles
 } from 'lucide-react';
-import { motion, AnimatePresence } from "framer-motion";
+import {motion, AnimatePresence} from "framer-motion";
 import StudentNavbar from '../../Components/StudentNavbar';
 import StudentSidebar from '../../Components/StudentSidebar';
 import LogoutModal from '../../Components/LogoutModal';
@@ -19,26 +19,46 @@ const PendingQuizPage = () => {
     useEffect(() => {
         const fetchPendingQuizzes = async () => {
             try {
-                // Get user data from localStorage
                 const userStr = localStorage.getItem('user');
+                console.log("🔍 LocalStorage User Data:", localStorage.getItem('user'));
                 if (!userStr) {
                     throw new Error('User data not found. Please login again.');
                 }
 
                 const user = JSON.parse(userStr);
-                console.log("📱 User data:", user);
+                console.log("📱 User Data:", user);
 
-                // For testing - hardcode to 2 since this is a 2nd year student
-                const studentYear = 2;
-                console.log("📚 Student Year:", studentYear);
+                // Extract student year from email format (assuming email contains year info)
+                let studentYear = user.student_year;
 
-                const response = await fetch(`http://localhost:8000/api/pending-quizzes/${studentYear}`);
+                if (!studentYear) {
+                    console.warn("⚠️ Student year is missing in user data. Attempting to infer it...");
+
+                    // Example: If email is "student2026@it.ajce.in", infer student year
+                    const yearMatch = user.email.match(/(\d{4})/);
+                    if (yearMatch) {
+                        const admissionYear = parseInt(yearMatch[1]);
+                        const currentYear = new Date().getFullYear();
+                        studentYear = currentYear - admissionYear + 1;
+                        if (studentYear < 1) studentYear = 1;
+                        if (studentYear > 4) studentYear = 4;
+                    } else {
+                        throw new Error("Unable to determine student year from user data.");
+                    }
+                }
+
+                console.log("📚 Fetching quizzes for Student Year:", studentYear);
+
+                const apiUrl = `http://localhost:8000/api/pending-quizzes/${studentYear}`;
+                console.log("🌍 Fetching from:", apiUrl);
+
+                const response = await fetch(apiUrl);
                 console.log("🔄 API Response Status:", response.status);
 
                 if (!response.ok) {
                     const errorData = await response.json();
                     console.error("❌ API Error Response:", errorData);
-                    throw new Error(errorData.detail || 'Failed to fetch quizzes');
+                    throw new Error(errorData.detail ? JSON.stringify(errorData.detail) : "Unknown error");
                 }
 
                 const data = await response.json();
@@ -47,7 +67,7 @@ const PendingQuizPage = () => {
                 setPendingQuizzes(data.quizzes || []);
                 setEmptyMessage(data.message || "No pending quizzes found");
             } catch (err) {
-                console.error('❌ Error fetching pending quizzes:', err);
+                console.error("❌ Error fetching pending quizzes:", err);
                 setError(err.message);
             } finally {
                 setLoading(false);
@@ -100,8 +120,8 @@ const PendingQuizPage = () => {
     // Empty state component
     const EmptyState = () => (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{opacity: 0, y: 20}}
+            animate={{opacity: 1, y: 0}}
             className="flex flex-col items-center justify-center p-8 text-center"
         >
             <motion.div
@@ -109,10 +129,10 @@ const PendingQuizPage = () => {
                     rotate: [0, 10, -10, 10, 0],
                     scale: [1, 1.1, 1]
                 }}
-                transition={{ duration: 2, repeat: Infinity }}
+                transition={{duration: 2, repeat: Infinity}}
                 className="mb-6"
             >
-                <Sparkles className="w-16 h-16 text-purple-500" />
+                <Sparkles className="w-16 h-16 text-purple-500"/>
             </motion.div>
             <h3 className="text-2xl font-bold text-white mb-4">{emptyMessage}</h3>
             <p className="text-gray-400 max-w-md">
@@ -124,11 +144,12 @@ const PendingQuizPage = () => {
     if (loading) {
         return (
             <div className="flex h-screen bg-[#2D2B3D]">
-                <StudentSidebar onLogout={() => setLogoutModalOpen(true)} currentPage="PendingQuizPage" />
+                <StudentSidebar onLogout={() => setLogoutModalOpen(true)} currentPage="PendingQuizPage"/>
                 <div className="flex-1 overflow-auto">
-                    <StudentNavbar />
+                    <StudentNavbar/>
                     <div className="flex items-center justify-center h-full">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+                        <div
+                            className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
                     </div>
                 </div>
             </div>
@@ -137,15 +158,15 @@ const PendingQuizPage = () => {
 
     return (
         <div className="flex h-screen bg-[#2D2B3D]">
-            <StudentSidebar onLogout={() => setLogoutModalOpen(true)} currentPage="PendingQuizPage" />
+            <StudentSidebar onLogout={() => setLogoutModalOpen(true)} currentPage="PendingQuizPage"/>
 
             <div className="flex-1 overflow-auto">
-                <StudentNavbar />
+                <StudentNavbar/>
 
                 <div className="p-6">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={{opacity: 0, y: 20}}
+                        animate={{opacity: 1, y: 0}}
                         className="bg-[#1E1C2E] rounded-xl p-6"
                     >
                         <h2 className="text-2xl font-bold text-white mb-6">Pending Quizzes</h2>
@@ -155,15 +176,15 @@ const PendingQuizPage = () => {
                                 Error: {error}
                             </div>
                         ) : pendingQuizzes.length === 0 ? (
-                            <EmptyState />
+                            <EmptyState/>
                         ) : (
                             <div className="space-y-6">
                                 {pendingQuizzes.map((quiz, index) => (
                                     <motion.div
                                         key={quiz.quiz_id}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: index * 0.1 }}
+                                        initial={{opacity: 0, x: -20}}
+                                        animate={{opacity: 1, x: 0}}
+                                        transition={{delay: index * 0.1}}
                                         className="bg-[#2D2B3D] rounded-lg p-6 hover:shadow-lg transition-all duration-300"
                                     >
                                         <div className="flex justify-between items-start">
@@ -206,7 +227,7 @@ const PendingQuizPage = () => {
 
                                             <div className="flex flex-col items-end space-y-4">
                                                 <motion.div
-                                                    whileHover={{ scale: 1.05 }}
+                                                    whileHover={{scale: 1.05}}
                                                     className="bg-[#1E1C2E] px-4 py-2 rounded-lg"
                                                 >
                                                     <p className="text-yellow-400 font-semibold">
@@ -215,7 +236,7 @@ const PendingQuizPage = () => {
                                                 </motion.div>
 
                                                 <motion.button
-                                                    whileHover={{ scale: 1.02 }}
+                                                    whileHover={{scale: 1.02}}
                                                     onClick={() => handleStartQuiz(quiz)}
                                                     className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-6 py-2 rounded-lg transition-colors duration-300"
                                                 >
