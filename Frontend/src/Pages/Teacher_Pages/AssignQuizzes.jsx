@@ -174,7 +174,7 @@ const AssignQuizzes = () => {
             const quizData = {
                 teacher_id: currentTeacherId,
                 subject_id: quizConfig.subject,
-                topic_id: quizConfig.topicId,
+                topic_id: quizConfig.topicId,  // Keep this as topic_id for the backend
                 difficulty: quizConfig.difficulty,
                 questions: generatedQuiz.questions,
                 time_limit: parseInt(quizConfig.timeLimit),
@@ -194,6 +194,7 @@ const AssignQuizzes = () => {
             alert("Failed to upload quiz. Please try again.");
         }
     };
+
 
     const handleLogout = () => {
         localStorage.removeItem("user");
@@ -259,7 +260,8 @@ const AssignQuizzes = () => {
                             className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-[800px] max-h-[80vh] relative"
                             onClick={e => e.stopPropagation()}
                         >
-                            <div className="sticky top-0 z-10 bg-[#1E1C2E] pt-2 pb-4 mb-4 flex justify-between items-center border-b border-gray-700">
+                            <div
+                                className="sticky top-0 z-10 bg-[#1E1C2E] pt-2 pb-4 mb-4 flex justify-between items-center border-b border-gray-700">
                                 <h2 className="text-2xl font-bold text-white">Quiz Preview</h2>
                                 <button
                                     onClick={handleClosePreview}
@@ -280,7 +282,8 @@ const AssignQuizzes = () => {
                                             className="bg-[#2D2B3D] p-6 rounded-lg shadow-lg"
                                         >
                                             <div className="flex items-start gap-4">
-                                                <div className="flex-shrink-0 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                                                <div
+                                                    className="flex-shrink-0 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">
                                                     {index + 1}
                                                 </div>
                                                 <div className="flex-grow">
@@ -301,7 +304,8 @@ const AssignQuizzes = () => {
                                                                     }`}
                                                                 >
                                                                     <div className="flex items-center gap-3">
-                                                                        <span className="w-6 h-6 rounded-full bg-[#2D2B3D] flex items-center justify-center text-sm">
+                                                                        <span
+                                                                            className="w-6 h-6 rounded-full bg-[#2D2B3D] flex items-center justify-center text-sm">
                                                                             {String.fromCharCode(65 + optionIndex)}
                                                                         </span>
                                                                         <span>{option}</span>
@@ -312,10 +316,12 @@ const AssignQuizzes = () => {
                                                     </div>
                                                     <div className="bg-[#1E1C2E] p-4 rounded-lg">
                                                         <p className="text-green-400 font-semibold mb-2">
-                                                            Correct Answer: {question.options[parseInt(question.correct_answer)]}
+                                                            Correct
+                                                            Answer: {question.options[parseInt(question.correct_answer)]}
                                                         </p>
                                                         <p className="text-gray-400">
-                                                            <span className="font-semibold text-purple-400">Explanation:</span> {question.explanation}
+                                                            <span
+                                                                className="font-semibold text-purple-400">Explanation:</span> {question.explanation}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -325,7 +331,8 @@ const AssignQuizzes = () => {
                                 </div>
                             </div>
 
-                            <div className="sticky bottom-0 bg-[#1E1C2E] pt-4 mt-6 border-t border-gray-700 flex justify-end space-x-4">
+                            <div
+                                className="sticky bottom-0 bg-[#1E1C2E] pt-4 mt-6 border-t border-gray-700 flex justify-end space-x-4">
                                 <motion.button
                                     whileHover={{scale: 1.05}}
                                     onClick={handleEditClick}
@@ -358,7 +365,8 @@ const AssignQuizzes = () => {
                                 className="bg-[#1E1C2E] p-6 rounded-lg shadow-lg w-96 text-white"
                             >
                                 <h3 className="text-xl font-semibold mb-4">Discard Quiz?</h3>
-                                <p className="text-gray-400 mb-6">Are you sure you want to discard this quiz? This action cannot be undone.</p>
+                                <p className="text-gray-400 mb-6">Are you sure you want to discard this quiz? This
+                                    action cannot be undone.</p>
                                 <div className="flex justify-end space-x-4">
                                     <motion.button
                                         whileHover={{scale: 1.05}}

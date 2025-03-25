@@ -596,19 +596,17 @@ async def upload_syllabus(data: dict):
 
 
 @app.get("/api/pending-quizzes/{student_year}")
-
-
 async def get_pending_quizzes(student_year: int):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Get pending quizzes for the student's year that haven't been completed
+        # Updated query to include topic name from topics table
         query = """
                 SELECT 
                     gq.quiz_id,
                     gq.subject_id,
-                    gq.topic_name,
+                    t.topic_name,  -- Changed from gq.topic_name to t.topic_name
                     gq.no_of_questions,
                     gq.difficulty,
                     gq.teacher_id,
@@ -619,6 +617,7 @@ async def get_pending_quizzes(student_year: int):
                 FROM generated_quiz gq
                 JOIN student_subjectslist ssl ON gq.subject_id = ssl.subject_id
                 JOIN teacher_details td ON gq.teacher_id = td.teacher_id
+                JOIN topics t ON t.topic_id::text = gq.topic_name  -- Added JOIN with topics table
                 WHERE gq.student_year = %s 
                 AND gq.status = 'active'
                 AND gq.quiz_id NOT IN (
@@ -644,9 +643,9 @@ async def get_pending_quizzes(student_year: int):
             formatted_quizzes.append({
                 "quiz_id": quiz["quiz_id"],
                 "subject": quiz["subject_name"],
-                "topic": quiz["topic_name"],
+                "topic": quiz["topic_name"],  # Now this will be the actual topic name
                 "totalQuestions": quiz["no_of_questions"],
-                "marks": 10,  # Fixed at 10 marks as specified
+                "marks": 10,
                 "teacher": {
                     "name": quiz["teacher_name"],
                     "subject": quiz["subject_name"]
