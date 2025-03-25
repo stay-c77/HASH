@@ -90,14 +90,12 @@ const ResultsPage = () => {
             <div className="flex-1 overflow-auto">
                 <StudentNavbar/>
 
-                {/* Results Content */}
                 <div className="p-8">
                     <motion.div
                         initial={{opacity: 0, y: 20}}
                         animate={{opacity: 1, y: 0}}
                         className="grid grid-cols-1 md:grid-cols-2 gap-8"
                     >
-                        {/* Score Overview */}
                         <motion.div
                             initial={{opacity: 0, x: -20}}
                             animate={{opacity: 1, x: 0}}
@@ -120,9 +118,16 @@ const ResultsPage = () => {
                                                 outerRadius={80}
                                                 paddingAngle={5}
                                                 dataKey="value"
+                                                animationBegin={0}
+                                                animationDuration={1500}
+                                                animationEasing="ease-out"
                                             >
                                                 {pieData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={COLORS[index]}/>
+                                                    <Cell
+                                                        key={`cell-${index}`}
+                                                        fill={COLORS[index]}
+                                                        strokeWidth={2}
+                                                    />
                                                 ))}
                                             </Pie>
                                         </PieChart>
@@ -142,7 +147,6 @@ const ResultsPage = () => {
                             </div>
                         </motion.div>
 
-                        {/* Class Performance */}
                         <motion.div
                             initial={{opacity: 0, x: 20}}
                             animate={{opacity: 1, x: 0}}
@@ -169,7 +173,6 @@ const ResultsPage = () => {
                         </motion.div>
                     </motion.div>
 
-                    {/* Question Analysis */}
                     <motion.div
                         initial={{opacity: 0, y: 20}}
                         animate={{opacity: 1, y: 0}}
@@ -178,78 +181,83 @@ const ResultsPage = () => {
                     >
                         <h2 className="text-2xl font-bold text-white mb-6">Question Analysis</h2>
                         <div className="space-y-4">
-                            {quizResults.questions.map((question, index) => (
-                                <motion.div
-                                    key={question.question_id}
-                                    initial={{opacity: 0, y: 20}}
-                                    animate={{opacity: 1, y: 0}}
-                                    transition={{delay: index * 0.1}}
-                                    className={`bg-[#2D2B3D] rounded-xl p-6 border-l-4 ${
-                                        question.correct_answer === quizResults.student_result[question.question_id]
-                                            ? 'border-green-400'
-                                            : 'border-red-400'
-                                    }`}
-                                >
-                                    {/* Question content */}
-                                    <div className="flex items-start justify-between cursor-pointer"
-                                         onClick={() => setExpandedQuestion(expandedQuestion === question.question_id ? null : question.question_id)}>
-                                        <div className="flex items-start space-x-4">
-                                            <div
-                                                className="flex-shrink-0 w-8 h-8 bg-[#1E1C2E] rounded-full flex items-center justify-center">
-                                                {question.correct_answer === quizResults.student_result[question.question_id] ? (
-                                                    <CheckCircle className="text-green-400" size={20}/>
-                                                ) : (
-                                                    <X className="text-red-400" size={20}/>
-                                                )}
-                                            </div>
-                                            <div>
-                                                <h3 className="text-white text-lg">{question.question_text}</h3>
-                                            </div>
-                                        </div>
-                                        <motion.div
-                                            animate={{rotate: expandedQuestion === question.question_id ? 180 : 0}}
-                                            transition={{duration: 0.3}}
-                                        >
-                                            <ChevronDown className="text-gray-400"/>
-                                        </motion.div>
-                                    </div>
+                            {quizResults.questions.map((question, index) => {
+                                const studentResponse = quizResults.quiz_responses.find(
+                                    response => response.question_id === question.question_id
+                                );
+                                const isCorrect = studentResponse?.is_correct;
 
-                                    <AnimatePresence>
-                                        {expandedQuestion === question.question_id && (
-                                            <motion.div
-                                                initial={{height: 0, opacity: 0}}
-                                                animate={{height: "auto", opacity: 1}}
-                                                exit={{height: 0, opacity: 0}}
-                                                transition={{duration: 0.3}}
-                                                className="mt-4 pt-4 border-t border-gray-700"
-                                            >
-                                                <div className="space-y-2">
-                                                    <p className="text-gray-400">
-                                                        Your Answer:{' '}
-                                                        <span
-                                                            className={
-                                                                question.correct_answer === quizResults.student_result[question.question_id]
-                                                                    ? "text-green-400"
-                                                                    : "text-red-400"
-                                                            }
-                                                        >
-                                                            {question[`option_${parseInt(quizResults.student_result[question.question_id]) + 1}`]}
-                                                        </span>
-                                                    </p>
-                                                    {question.correct_answer !== quizResults.student_result[question.question_id] && (
-                                                        <p className="text-gray-400">
-                                                            Correct Answer:{' '}
-                                                            <span className="text-green-400">
-                                                                {question[`option_${parseInt(question.correct_answer) + 1}`]}
-                                                            </span>
-                                                        </p>
+                                return (
+                                    <motion.div
+                                        key={question.question_id}
+                                        initial={{opacity: 0, y: 20}}
+                                        animate={{opacity: 1, y: 0}}
+                                        transition={{delay: index * 0.1}}
+                                        className={`bg-[#2D2B3D] rounded-xl p-6 border-l-4 ${
+                                            isCorrect ? 'border-green-400' : 'border-red-400'
+                                        }`}
+                                    >
+                                        <div className="flex items-start justify-between cursor-pointer"
+                                             onClick={() => setExpandedQuestion(
+                                                 expandedQuestion === question.question_id ? null : question.question_id
+                                             )}>
+                                            <div className="flex items-start space-x-4">
+                                                <div className="flex-shrink-0 w-8 h-8 bg-[#1E1C2E] rounded-full flex items-center justify-center">
+                                                    {isCorrect ? (
+                                                        <CheckCircle className="text-green-400" size={20}/>
+                                                    ) : (
+                                                        <X className="text-red-400" size={20}/>
                                                     )}
                                                 </div>
+                                                <div>
+                                                    <h3 className="text-white text-lg">{question.question_text}</h3>
+                                                </div>
+                                            </div>
+                                            <motion.div
+                                                animate={{rotate: expandedQuestion === question.question_id ? 180 : 0}}
+                                                transition={{duration: 0.3}}
+                                            >
+                                                <ChevronDown className="text-gray-400"/>
                                             </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </motion.div>
-                            ))}
+                                        </div>
+
+                                        <AnimatePresence>
+                                            {expandedQuestion === question.question_id && (
+                                                <motion.div
+                                                    initial={{height: 0, opacity: 0}}
+                                                    animate={{height: "auto", opacity: 1}}
+                                                    exit={{height: 0, opacity: 0}}
+                                                    transition={{duration: 0.3}}
+                                                    className="mt-4 pt-4 border-t border-gray-700"
+                                                >
+                                                    <div className="space-y-2">
+                                                        <p className="text-gray-400">
+                                                            Your Answer:{' '}
+                                                            <span
+                                                                className={
+                                                                    isCorrect
+                                                                        ? "text-green-400"
+                                                                        : "text-red-400"
+                                                                }
+                                                            >
+                                                                {question[`option_${parseInt(studentResponse?.selected_option) + 1}`]}
+                                                            </span>
+                                                        </p>
+                                                        {!isCorrect && (
+                                                            <p className="text-gray-400">
+                                                                Correct Answer:{' '}
+                                                                <span className="text-green-400">
+                                                                    {question[`option_${parseInt(question.correct_answer) + 1}`]}
+                                                                </span>
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </motion.div>
+                                );
+                            })}
                         </div>
                     </motion.div>
                 </div>

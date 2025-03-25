@@ -17,6 +17,8 @@ student_complaints(*complaint_id(AUTO INCREMENT),*student_id,student_name,studen
 
 generated_quiz (*quiz_id, subject_id, topic_name, no_of_questions, difficulty, teacher_id, end_date, status, student_year)
 
+quiz_responses (*student_id, *quiz_id, *question_id, selected_answer, is_correct)
+
 quiz_questions (*question_id, quiz_id, question_text, option_1, option_2, option_3, option_4, correct_answer)
 
 quiz_result (*student_id, *quiz_id, score, grade, correct_answers, incorrect_answers, percentage)

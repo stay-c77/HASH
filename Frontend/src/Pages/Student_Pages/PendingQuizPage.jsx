@@ -19,37 +19,27 @@ const PendingQuizPage = () => {
     useEffect(() => {
         const fetchPendingQuizzes = async () => {
             try {
-                const userStr = localStorage.getItem('user');
-                console.log("🔍 LocalStorage User Data:", localStorage.getItem('user'));
+                const userStr = localStorage.getItem("user");
+                console.log("🔍 LocalStorage User Data:", localStorage.getItem("user"));
                 if (!userStr) {
-                    throw new Error('User data not found. Please login again.');
+                    throw new Error("User data not found. Please login again.");
                 }
 
                 const user = JSON.parse(userStr);
                 console.log("📱 User Data:", user);
 
-                // Extract student year from email format (assuming email contains year info)
+                // Extract student_year and student_id
                 let studentYear = user.student_year;
+                let studentId = user.student_id; // ✅ Include student_id
 
-                if (!studentYear) {
-                    console.warn("⚠️ Student year is missing in user data. Attempting to infer it...");
-
-                    // Example: If email is "student2026@it.ajce.in", infer student year
-                    const yearMatch = user.email.match(/(\d{4})/);
-                    if (yearMatch) {
-                        const admissionYear = parseInt(yearMatch[1]);
-                        const currentYear = new Date().getFullYear();
-                        studentYear = currentYear - admissionYear + 1;
-                        if (studentYear < 1) studentYear = 1;
-                        if (studentYear > 4) studentYear = 4;
-                    } else {
-                        throw new Error("Unable to determine student year from user data.");
-                    }
+                if (!studentYear || !studentId) {
+                    throw new Error("⚠️ Missing student year or ID from user data!");
                 }
 
-                console.log("📚 Fetching quizzes for Student Year:", studentYear);
+                console.log("📚 Fetching quizzes for Student Year:", studentYear, "Student ID:", studentId);
 
-                const apiUrl = `http://localhost:8000/api/pending-quizzes/${studentYear}`;
+                // ✅ Now, send both `student_year` and `student_id`
+                const apiUrl = `http://localhost:8000/api/pending-quizzes/${studentYear}/${studentId}`;
                 console.log("🌍 Fetching from:", apiUrl);
 
                 const response = await fetch(apiUrl);
@@ -73,7 +63,6 @@ const PendingQuizPage = () => {
                 setLoading(false);
             }
         };
-
         fetchPendingQuizzes();
     }, []);
 
