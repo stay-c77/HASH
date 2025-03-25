@@ -40,7 +40,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # Connect to PostgreSQL
 def get_db_connection():
     try:
@@ -50,34 +49,27 @@ def get_db_connection():
         print("Database connection error:", e)
         raise HTTPException(status_code=500, detail="Database connection error")
 
-
-# Existing login models and endpoints...
 class LoginRequest(BaseModel):
     email: str
     password: str
 
-
 class Topic(BaseModel):
     topic_name: str
-
 
 class Module(BaseModel):
     module_no: int
     module_name: str
     topics: List[Topic]
 
-
 class SyllabusUpload(BaseModel):
     subject_name: str
     modules: List[Module]
-
 
 class QuizRequest(BaseModel):
     topic_id: str
     difficulty: str
     question_count: int
     student_year: int
-
 
 class QuizUploadRequest(BaseModel):
     teacher_id: str
@@ -88,7 +80,6 @@ class QuizUploadRequest(BaseModel):
     time_limit: int
     due_date: str
     student_year: int
-
 
 def extract_json(response_text):
     match = re.search(r'```json\n(.*?)\n```', response_text, re.DOTALL)
@@ -102,7 +93,6 @@ def extract_json(response_text):
     except json.JSONDecodeError as e:
         print("JSON parsing error:", e)
         return None
-
 
 @app.post("/api/generate-quiz")
 async def generate_quiz(request: QuizRequest):
@@ -168,8 +158,6 @@ async def generate_quiz(request: QuizRequest):
         cursor.close()
         conn.close()
 
-
-# Quiz upload endpoint
 @app.post("/api/upload-quiz")
 async def upload_quiz(request: QuizUploadRequest):
     try:
@@ -179,12 +167,15 @@ async def upload_quiz(request: QuizUploadRequest):
         # Generate quiz ID
         quiz_id = str(uuid.uuid4())
 
+        # Parse the due date string to a datetime object
+        due_date = datetime.strptime(request.due_date, "%Y-%m-%d")
+
         # Insert into generated_quiz table
         cursor.execute("""
             INSERT INTO generated_quiz (
                 quiz_id, subject_id, topic_name, no_of_questions, 
-                difficulty, teacher_id, end_date, status, student_year
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                difficulty, teacher_id, end_date, status, student_year, time_limit
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING quiz_id
         """, (
             quiz_id,
@@ -193,9 +184,10 @@ async def upload_quiz(request: QuizUploadRequest):
             len(request.questions),
             request.difficulty,
             request.teacher_id,
-            request.due_date,
+            due_date,
             'active',  # Default status
-            request.student_year
+            request.student_year,
+            request.time_limit
         ))
 
         # Insert questions
@@ -214,7 +206,7 @@ async def upload_quiz(request: QuizUploadRequest):
                 question['options'][1],
                 question['options'][2],
                 question['options'][3],
-                question['correct_answer']
+                question['correct_answer']  # This should now be the correct index
             ))
 
         conn.commit()
@@ -227,7 +219,6 @@ async def upload_quiz(request: QuizUploadRequest):
     finally:
         cursor.close()
         conn.close()
-
 
 @app.post("/login")
 async def login(user: LoginRequest):
@@ -287,10 +278,8 @@ async def login(user: LoginRequest):
         cursor.close()
         conn.close()
 
-
-# New endpoints for quiz assignment
 @app.get("/api/subjects/{teacher_id}")
-async def get_teacher_subjects(teacher_id: str):  # Ensure it's treated as a string
+async def get_teacher_subjects(teacher_id: str):
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -301,7 +290,7 @@ async def get_teacher_subjects(teacher_id: str):  # Ensure it's treated as a str
         JOIN teacher_subjects ts ON s.subject_id = ts.subject_id 
         WHERE ts.teacher_id = %s
         """
-        cursor.execute(query, (teacher_id,))  # Ensure it's passed as a string
+        cursor.execute(query, (teacher_id,))
         subjects = cursor.fetchall()
 
         return {"subjects": subjects}
@@ -314,11 +303,10 @@ async def get_teacher_subjects(teacher_id: str):  # Ensure it's treated as a str
         cursor.close()
         conn.close()
 
-
 @app.get("/api/modules/{subject_id}")
 async def get_modules_by_subject(subject_id: str):
     conn = get_db_connection()
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)  # Ensure dictionary output
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     try:
         print("Received subject_id:", subject_id)
@@ -336,13 +324,12 @@ async def get_modules_by_subject(subject_id: str):
         if not modules:
             raise HTTPException(status_code=404, detail="No modules found for this subject")
 
-        # Ensure "Module X:" is not duplicated
         return {
             "modules": [
                 {
                     "module_id": m["module_id"],
                     "module_name": m["module_name"]
-                    if m["module_name"].startswith("Module")  # If already formatted, keep it
+                    if m["module_name"].startswith("Module")
                     else f"Module {index + 1}: {m['module_name']}"
                 }
                 for index, m in enumerate(modules)
@@ -356,7 +343,6 @@ async def get_modules_by_subject(subject_id: str):
     finally:
         cursor.close()
         conn.close()
-
 
 @app.get("/api/topics/{module_id}")
 async def get_module_topics(module_id: str):
@@ -375,7 +361,6 @@ async def get_module_topics(module_id: str):
             print(f"No topics found for module_id: {module_id}")
             return {"topics": []}
 
-        # Convert RealDictRow to list of dictionaries
         topics_list = [dict(row) for row in topics]
 
         return {"topics": topics_list}
@@ -387,7 +372,6 @@ async def get_module_topics(module_id: str):
     finally:
         cursor.close()
         conn.close()
-
 
 @app.get("/student/{email}")
 async def get_student(email: str):
@@ -412,39 +396,30 @@ async def get_student(email: str):
         cursor.close()
         conn.close()
 
-
 @app.post("/upload-syllabus/")
 async def upload_syllabus(file: UploadFile = File(...)):
-    """
-    Upload a syllabus PDF, extract text, and return structured JSON data.
-    """
     file_path = os.path.join(UPLOAD_DIR, file.filename)
 
     try:
-        # Save the uploaded PDF
         with open(file_path, "wb") as buffer:
             buffer.write(await file.read())
 
-        # Extract text from the PDF
         process_syllabus = ProcessSyllabus()
         syllabus_text = process_syllabus.syllabus_parser(file_path)
 
         if not syllabus_text:
             raise HTTPException(status_code=400, detail="Failed to extract syllabus text.")
 
-        # Format the syllabus text into a structured prompt
         prompt_generator = Prompt()
         syllabus_prompt = prompt_generator.parse_syllabus()
         formatted_prompt = syllabus_prompt.format(syllabus_text=syllabus_text)
 
-        # Use GenAI to generate a structured syllabus
         gen_ai = GenAI()
         response = gen_ai.gen_ai_model(formatted_prompt)
 
         if not response:
             raise HTTPException(status_code=500, detail="AI model did not return a valid response.")
 
-        # Clean and parse JSON response
         cleaned_response = response.strip()
         syllabus_json = json.loads(cleaned_response)
 
@@ -455,51 +430,42 @@ async def upload_syllabus(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing syllabus: {str(e)}")
 
-
 @app.post("/api/syllabus/parse")
 async def parse_syllabus(file: UploadFile = File(...)):
     try:
-        # Save uploaded file temporarily
         contents = await file.read()
         with open("temp_syllabus.pdf", "wb") as f:
             f.write(contents)
 
-        # Parse syllabus text from PDF
         process_syllabus = ProcessSyllabus()
         syllabus_text = process_syllabus.syllabus_parser("temp_syllabus.pdf")
 
         if not syllabus_text:
             raise HTTPException(status_code=400, detail="Failed to extract syllabus text.")
 
-        # Generate prompt
         prompt_generator = Prompt()
         syllabus_prompt = prompt_generator.parse_syllabus()
         formatted_syllabus = syllabus_prompt.format(syllabus_text=syllabus_text)
 
-        # ✅ Import GenAI only when needed
         from gen_ai.deepseek import GenAI
         gen_ai = GenAI()
 
-        # Send formatted syllabus to AI model
         response = gen_ai.gen_ai_model(formatted_syllabus)
 
-        # ✅ Check if response is a string
         if isinstance(response, str):
-            raw_content = response  # Directly assign if it's already a string
+            raw_content = response
         else:
             try:
                 raw_content = response.choices[0].message.content
             except AttributeError:
                 raise HTTPException(status_code=500, detail="Invalid AI response format")
 
-        # ✅ Remove ```json``` markers if they exist
         cleaned_content = raw_content.replace("```json\n", "").replace("\n```", "").strip()
 
-        # ✅ Convert JSON string into a dictionary
         try:
             parsed_data = json.loads(cleaned_content)
             print("📌 Parsed Data Before Sending:", json.dumps(parsed_data, indent=2))
-            return {"parsed_data": parsed_data}  # ✅ Return structured JSON
+            return {"parsed_data": parsed_data}
         except json.JSONDecodeError:
             raise HTTPException(status_code=500, detail="AI response is not valid JSON.")
 
@@ -507,30 +473,26 @@ async def parse_syllabus(file: UploadFile = File(...)):
         print("Error parsing syllabus:", e)
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.post("/api/syllabus/upload")
 async def upload_syllabus(data: dict):
     try:
-        # Extract data from request
         subject_name = data.get("subject_name")
         teacher_id = data.get("teacher_id")
-        student_year = data.get("student_year", "1")  # Default to 1 if not provided
+        student_year = data.get("student_year", "1")
         modules = data.get("modules", [])
 
         if not all([subject_name, teacher_id, modules]):
             raise HTTPException(status_code=400, detail="Missing required fields")
 
-        # Convert student_year to integer
         try:
             student_year = int(student_year)
         except (ValueError, TypeError):
-            student_year = 1  # Default to 1 if conversion fails
+            student_year = 1
 
         conn = get_db_connection()
         cursor = conn.cursor()
 
         try:
-            # Check if subject exists
             cursor.execute(
                 "SELECT subject_id FROM student_subjectslist WHERE subject_name = %s",
                 (subject_name,)
@@ -540,14 +502,12 @@ async def upload_syllabus(data: dict):
             if subject:
                 subject_id = subject[0]
             else:
-                # Insert new subject
                 subject_id = str(uuid.uuid4())
                 cursor.execute("""
                     INSERT INTO student_subjectslist (subject_id, subject_name, teacher_id, student_year)
                     VALUES (%s, %s, %s, %s)
                 """, (subject_id, subject_name, teacher_id, student_year))
 
-            # Check if teacher is already assigned
             cursor.execute(
                 "SELECT * FROM teacher_subjects WHERE teacher_id = %s AND subject_id = %s",
                 (teacher_id, subject_id)
@@ -558,14 +518,12 @@ async def upload_syllabus(data: dict):
                     VALUES (%s, %s)
                 """, (teacher_id, subject_id))
 
-            # Insert syllabus
             syllabus_id = str(uuid.uuid4())
             cursor.execute("""
                 INSERT INTO syllabus (syllabus_id, subject_id, subject_name, subject_status, progress)
                 VALUES (%s, %s, %s, %s, %s)
             """, (syllabus_id, subject_id, subject_name, False, 0))
 
-            # Insert modules and topics
             for module in modules:
                 module_id = str(uuid.uuid4())
                 cursor.execute("""
@@ -573,7 +531,6 @@ async def upload_syllabus(data: dict):
                     VALUES (%s, %s, %s, %s, %s)
                 """, (module_id, subject_id, syllabus_id, module["module_no"], module["module_name"]))
 
-                # Insert topics
                 for topic in module["topics"]:
                     topic_id = str(uuid.uuid4())
                     cursor.execute("""
@@ -594,19 +551,17 @@ async def upload_syllabus(data: dict):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.get("/api/pending-quizzes/{student_year}")
 async def get_pending_quizzes(student_year: int):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Updated query to include topic name from topics table
         query = """
                 SELECT 
                     gq.quiz_id,
                     gq.subject_id,
-                    t.topic_name,  -- Changed from gq.topic_name to t.topic_name
+                    t.topic_name,
                     gq.no_of_questions,
                     gq.difficulty,
                     gq.teacher_id,
@@ -617,7 +572,7 @@ async def get_pending_quizzes(student_year: int):
                 FROM generated_quiz gq
                 JOIN student_subjectslist ssl ON gq.subject_id = ssl.subject_id
                 JOIN teacher_details td ON gq.teacher_id = td.teacher_id
-                JOIN topics t ON t.topic_id::text = gq.topic_name  -- Added JOIN with topics table
+                JOIN topics t ON t.topic_id::text = gq.topic_name
                 WHERE gq.student_year = %s 
                 AND gq.status = 'active'
                 AND gq.quiz_id NOT IN (
@@ -643,7 +598,7 @@ async def get_pending_quizzes(student_year: int):
             formatted_quizzes.append({
                 "quiz_id": quiz["quiz_id"],
                 "subject": quiz["subject_name"],
-                "topic": quiz["topic_name"],  # Now this will be the actual topic name
+                "topic": quiz["topic_name"],
                 "totalQuestions": quiz["no_of_questions"],
                 "marks": 10,
                 "teacher": {

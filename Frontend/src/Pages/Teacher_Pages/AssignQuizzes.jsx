@@ -171,14 +171,20 @@ const AssignQuizzes = () => {
                 throw new Error("No quiz data available");
             }
 
+            // Format the date to YYYY-MM-DD
+            const formattedDate = quizConfig.dueDate;
+
             const quizData = {
                 teacher_id: currentTeacherId,
                 subject_id: quizConfig.subject,
-                topic_id: quizConfig.topicId,  // Keep this as topic_id for the backend
+                topic_id: quizConfig.topicId,
                 difficulty: quizConfig.difficulty,
-                questions: generatedQuiz.questions,
+                questions: generatedQuiz.questions.map(q => ({
+                    ...q,
+                    correct_answer: q.correct_answer.toString() // Ensure correct_answer is a string
+                })),
                 time_limit: parseInt(quizConfig.timeLimit),
-                due_date: quizConfig.dueDate,
+                due_date: formattedDate,
                 student_year: parseInt(quizConfig.student_year)
             };
 
@@ -194,7 +200,6 @@ const AssignQuizzes = () => {
             alert("Failed to upload quiz. Please try again.");
         }
     };
-
 
     const handleLogout = () => {
         localStorage.removeItem("user");
