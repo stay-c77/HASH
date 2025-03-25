@@ -40,6 +40,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Connect to PostgreSQL
 def get_db_connection():
     try:
@@ -49,27 +50,33 @@ def get_db_connection():
         print("Database connection error:", e)
         raise HTTPException(status_code=500, detail="Database connection error")
 
+
 class LoginRequest(BaseModel):
     email: str
     password: str
 
+
 class Topic(BaseModel):
     topic_name: str
+
 
 class Module(BaseModel):
     module_no: int
     module_name: str
     topics: List[Topic]
 
+
 class SyllabusUpload(BaseModel):
     subject_name: str
     modules: List[Module]
+
 
 class QuizRequest(BaseModel):
     topic_id: str
     difficulty: str
     question_count: int
     student_year: int
+
 
 class QuizUploadRequest(BaseModel):
     teacher_id: str
@@ -80,6 +87,7 @@ class QuizUploadRequest(BaseModel):
     time_limit: int
     due_date: str
     student_year: int
+
 
 def extract_json(response_text):
     match = re.search(r'```json\n(.*?)\n```', response_text, re.DOTALL)
@@ -93,6 +101,7 @@ def extract_json(response_text):
     except json.JSONDecodeError as e:
         print("JSON parsing error:", e)
         return None
+
 
 @app.post("/api/generate-quiz")
 async def generate_quiz(request: QuizRequest):
@@ -158,6 +167,7 @@ async def generate_quiz(request: QuizRequest):
         cursor.close()
         conn.close()
 
+
 @app.post("/api/upload-quiz")
 async def upload_quiz(request: QuizUploadRequest):
     try:
@@ -220,6 +230,7 @@ async def upload_quiz(request: QuizUploadRequest):
         cursor.close()
         conn.close()
 
+
 @app.post("/login")
 async def login(user: LoginRequest):
     conn = get_db_connection()
@@ -278,6 +289,7 @@ async def login(user: LoginRequest):
         cursor.close()
         conn.close()
 
+
 @app.get("/api/subjects/{teacher_id}")
 async def get_teacher_subjects(teacher_id: str):
     conn = get_db_connection()
@@ -302,6 +314,7 @@ async def get_teacher_subjects(teacher_id: str):
     finally:
         cursor.close()
         conn.close()
+
 
 @app.get("/api/modules/{subject_id}")
 async def get_modules_by_subject(subject_id: str):
@@ -344,6 +357,7 @@ async def get_modules_by_subject(subject_id: str):
         cursor.close()
         conn.close()
 
+
 @app.get("/api/topics/{module_id}")
 async def get_module_topics(module_id: str):
     conn = get_db_connection()
@@ -373,6 +387,7 @@ async def get_module_topics(module_id: str):
         cursor.close()
         conn.close()
 
+
 @app.get("/student/{email}")
 async def get_student(email: str):
     conn = get_db_connection()
@@ -395,6 +410,7 @@ async def get_student(email: str):
     finally:
         cursor.close()
         conn.close()
+
 
 @app.post("/upload-syllabus/")
 async def upload_syllabus(file: UploadFile = File(...)):
@@ -429,6 +445,7 @@ async def upload_syllabus(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail="AI response is not a valid JSON.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing syllabus: {str(e)}")
+
 
 @app.post("/api/syllabus/parse")
 async def parse_syllabus(file: UploadFile = File(...)):
@@ -472,6 +489,7 @@ async def parse_syllabus(file: UploadFile = File(...)):
     except Exception as e:
         print("Error parsing syllabus:", e)
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/api/syllabus/upload")
 async def upload_syllabus(data: dict):
@@ -551,6 +569,7 @@ async def upload_syllabus(data: dict):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/api/pending-quizzes/{student_year}")
 async def get_pending_quizzes(student_year: int):
     try:
@@ -617,6 +636,207 @@ async def get_pending_quizzes(student_year: int):
 
     except Exception as e:
         print(f"Error fetching pending quizzes: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.get("/api/quiz/{quiz_id}")
+async def get_quiz(quiz_id: str):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Get quiz details
+        cursor.execute("""
+            SELECT 
+                gq.quiz_id,
+                gq.subject_id,
+                gq.topic_name,
+                gq.no_of_questions,
+                gq.difficulty,
+                gq.teacher_id,
+                gq.time_limit,
+                ssl.subject_name,
+                td.teacher_name,
+                t.topic_name as topic_display_name
+            FROM generated_quiz gq
+            JOIN student_subjectslist ssl ON gq.subject_id = ssl.subject_id
+            JOIN teacher_details td ON gq.teacher_id = td.teacher_id
+            JOIN topics t ON t.topic_id::text = gq.topic_name
+            WHERE gq.quiz_id = %s
+        """, (quiz_id,))
+
+        quiz_details = cursor.fetchone()
+
+        if not quiz_details:
+            raise HTTPException(status_code=404, detail="Quiz not found")
+
+        # Get quiz questions
+        cursor.execute("""
+            SELECT 
+                question_id,
+                question_text,
+                option_1,
+                option_2,
+                option_3,
+                option_4,
+                correct_answer
+            FROM quiz_questions 
+            WHERE quiz_id = %s
+        """, (quiz_id,))
+
+        questions = cursor.fetchall()
+
+        return {
+            "quiz_details": quiz_details,
+            "questions": questions
+        }
+
+    except Exception as e:
+        print(f"Error fetching quiz: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.post("/api/quiz/submit")
+async def submit_quiz(request: dict):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        quiz_id = request["quiz_id"]
+        student_id = request["student_id"]
+        answers = request["answers"]
+        student_year = request["student_year"]
+
+        # Calculate results
+        cursor.execute("""
+            SELECT question_id, correct_answer 
+            FROM quiz_questions 
+            WHERE quiz_id = %s
+        """, (quiz_id,))
+        correct_answers_data = cursor.fetchall()
+
+        total_questions = len(correct_answers_data)
+        correct_count = 0
+
+        for q in correct_answers_data:
+            if str(q["question_id"]) in answers and \
+                    str(answers[str(q["question_id"])]) == str(q["correct_answer"]):
+                correct_count += 1
+
+        incorrect_count = total_questions - correct_count
+        percentage = (correct_count / total_questions) * 100
+
+        # Determine grade
+        grade = 0  # Default grade (F)
+        if percentage >= 90:
+            grade = 5  # A+
+        elif percentage >= 80:
+            grade = 4  # A
+        elif percentage >= 70:
+            grade = 3  # B
+        elif percentage >= 60:
+            grade = 2  # C
+        elif percentage >= 50:
+            grade = 1  # D
+
+        # Store quiz result
+        cursor.execute("""
+            INSERT INTO quiz_result 
+            (student_id, quiz_id, score, grade, correct_answers, incorrect_answers, percentage)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (student_id, quiz_id, correct_count, grade, correct_count, incorrect_count, percentage))
+
+        # Mark quiz as completed
+        cursor.execute("""
+            INSERT INTO completed_quiz_list 
+            (student_id, quiz_id, student_year)
+            VALUES (%s, %s, %s)
+        """, (student_id, quiz_id, student_year))
+
+        conn.commit()
+
+        # Convert numeric grade back to letter grade for response
+        grade_map = {
+            5: "A+",
+            4: "A",
+            3: "B",
+            2: "C",
+            1: "D",
+            0: "F"
+        }
+
+        return {
+            "score": correct_count,
+            "total": total_questions,
+            "grade": grade_map[grade],
+            "percentage": percentage,
+            "correct_answers": correct_count,
+            "incorrect_answers": incorrect_count
+        }
+
+    except Exception as e:
+        conn.rollback()
+        print(f"Error submitting quiz: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.get("/api/quiz/results/{quiz_id}/{student_id}")
+async def get_quiz_results(quiz_id: str, student_id: str):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Get student's result
+        cursor.execute("""
+            SELECT * FROM quiz_result 
+            WHERE quiz_id = %s AND student_id = %s
+        """, (quiz_id, student_id))
+        result = cursor.fetchone()
+
+        if not result:
+            raise HTTPException(status_code=404, detail="Quiz result not found")
+
+        # Get class performance
+        cursor.execute("""
+            SELECT grade, COUNT(*) as count 
+            FROM quiz_result 
+            WHERE quiz_id = %s 
+            GROUP BY grade
+        """, (quiz_id,))
+        class_performance = cursor.fetchall()
+
+        # Get question analysis
+        cursor.execute("""
+            SELECT 
+                qq.question_id,
+                qq.question_text,
+                qq.correct_answer,
+                qq.option_1,
+                qq.option_2,
+                qq.option_3,
+                qq.option_4
+            FROM quiz_questions qq
+            WHERE qq.quiz_id = %s
+        """, (quiz_id,))
+        questions = cursor.fetchall()
+
+        return {
+            "student_result": result,
+            "class_performance": class_performance,
+            "questions": questions
+        }
+
+    except Exception as e:
+        print(f"Error fetching quiz results: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         cursor.close()
