@@ -179,24 +179,23 @@ async def upload_quiz(request: QuizUploadRequest):
         # Generate quiz ID
         quiz_id = str(uuid.uuid4())
 
-        # ✅ Modify INSERT query to include `student_year`
+        # Insert into generated_quiz table
         cursor.execute("""
             INSERT INTO generated_quiz (
                 quiz_id, subject_id, topic_name, no_of_questions, 
-                difficulty, teacher_id, student_year, start_date, end_date, status
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                difficulty, teacher_id, end_date, status, student_year
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING quiz_id
         """, (
             quiz_id,
             request.subject_id,
-            request.topic_id,
+            request.topic_id,  # Using topic_id as topic_name for now
             len(request.questions),
             request.difficulty,
             request.teacher_id,
-            request.student_year,  # ✅ New column
-            datetime.now(),
             request.due_date,
-            "active"  # ✅ Default status
+            'active',  # Default status
+            request.student_year
         ))
 
         # Insert questions
