@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, {useState, useEffect} from 'react';
+import {useNavigate, useLocation} from 'react-router-dom';
+import {motion, AnimatePresence} from 'framer-motion';
 import {
     CheckCircle, X, Brain, Zap, Flame,
     ChevronDown, Award, Star
 } from 'lucide-react';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer} from 'recharts';
 import StudentNavbar from '../../Components/StudentNavbar';
 import StudentSidebar from '../../Components/StudentSidebar';
 import LogoutModal from '../../Components/LogoutModal';
@@ -79,8 +79,8 @@ const ResultsPage = () => {
     }
 
     const pieData = [
-        { name: 'Correct', value: quizResults.result.correct_answers },
-        { name: 'Incorrect', value: quizResults.result.incorrect_answers }
+        {name: 'Correct', value: quizResults.result.correct_answers},
+        {name: 'Incorrect', value: quizResults.result.incorrect_answers}
     ];
 
     return (
@@ -182,9 +182,9 @@ const ResultsPage = () => {
                         <h2 className="text-2xl font-bold text-white mb-6">Question Analysis</h2>
                         <div className="space-y-4">
                             {quizResults.questions.map((question, index) => {
-                                const studentResponse = quizResults.quiz_responses.find(
-                                    response => response.question_id === question.question_id
-                                );
+                                const studentResponse = quizResults.quiz_responses
+                                    ? quizResults.quiz_responses.find(response => response.question_id === question.question_id)
+                                    : null;
                                 const isCorrect = studentResponse?.is_correct;
 
                                 return (
@@ -202,7 +202,8 @@ const ResultsPage = () => {
                                                  expandedQuestion === question.question_id ? null : question.question_id
                                              )}>
                                             <div className="flex items-start space-x-4">
-                                                <div className="flex-shrink-0 w-8 h-8 bg-[#1E1C2E] rounded-full flex items-center justify-center">
+                                                <div
+                                                    className="flex-shrink-0 w-8 h-8 bg-[#1E1C2E] rounded-full flex items-center justify-center">
                                                     {isCorrect ? (
                                                         <CheckCircle className="text-green-400" size={20}/>
                                                     ) : (
@@ -232,25 +233,26 @@ const ResultsPage = () => {
                                                 >
                                                     <div className="space-y-2">
                                                         <p className="text-gray-400">
-                                                            Your Answer:{' '}
+                                                            Your Answer:
                                                             <span
-                                                                className={
-                                                                    isCorrect
-                                                                        ? "text-green-400"
-                                                                        : "text-red-400"
-                                                                }
-                                                            >
-                                                                {question[`option_${parseInt(studentResponse?.selected_option) + 1}`]}
-                                                            </span>
+                                                                className={isCorrect ? "text-green-400" : "text-red-400"}>
+        {studentResponse?.selected_answer}
+    </span>
                                                         </p>
                                                         {!isCorrect && (
-                                                            <p className="text-gray-400">
-                                                                Correct Answer:{' '}
-                                                                <span className="text-green-400">
-                                                                    {question[`option_${parseInt(question.correct_answer) + 1}`]}
-                                                                </span>
-                                                            </p>
+                                                            <>
+                                                                <p className="text-gray-400">
+                                                                    Correct Answer:
+                                                                    <span className="text-green-400">
+                {question.correct_answer}
+            </span>
+                                                                </p>
+                                                                <p className="text-gray-400">
+                                                                    Explanation: {question.explanation || "No explanation provided"}
+                                                                </p>
+                                                            </>
                                                         )}
+
                                                     </div>
                                                 </motion.div>
                                             )}

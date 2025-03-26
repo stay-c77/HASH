@@ -796,62 +796,109 @@ async def submit_quiz(request: dict):
         conn.close()
 
 
+def calculate_grade(correct, total):
+    if total == 0:
+        return "N/A"  # No grade if no questions
+
+    percentage = (correct / total) * 100
+
+    if percentage >= 90:
+        return "A"
+    elif percentage >= 75:
+        return "B"
+    elif percentage >= 50:
+        return "C"
+    elif percentage >= 35:
+        return "D"
+    else:
+        return "F"
+
+
 @app.get("/api/quiz/results/{quiz_id}/{student_id}")
 async def get_quiz_results(quiz_id: str, student_id: str):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Get student's result
+        # Fetch student results
         cursor.execute("""
-            SELECT * FROM quiz_result 
+            SELECT 
+                COUNT(*) AS total_questions,
+                SUM(CASE WHEN is_correct THEN 1 ELSE 0 END) AS correct_answers,
+                SUM(CASE WHEN NOT is_correct THEN 1 ELSE 0 END) AS incorrect_answers
+            FROM quiz_responses
             WHERE quiz_id = %s AND student_id = %s
+            GROUP BY student_id, quiz_id;
         """, (quiz_id, student_id))
-        result = cursor.fetchone()
 
-        if not result:
+        student_result = cursor.fetchone()
+        print("Student Result:", student_result)  # Debugging output
+
+        if not student_result:
             raise HTTPException(status_code=404, detail="Quiz result not found")
 
-        # Get class performance
+        # ✅ Convert values to integers
+        total_questions = int(student_result["total_questions"])
+        correct_answers = int(student_result["correct_answers"])
+        incorrect_answers = int(student_result["incorrect_answers"])
+
+        # Fetch class performance
         cursor.execute("""
             SELECT grade, COUNT(*) as count 
             FROM quiz_result 
             WHERE quiz_id = %s 
-            GROUP BY grade
+            GROUP BY grade;
         """, (quiz_id,))
         class_performance = cursor.fetchall()
+        print("Class Performance:", class_performance)  # Debugging output
 
-        # Get questions and responses
+        # Fetch questions & student answers
         cursor.execute("""
             SELECT 
-                qq.*,
-                qr.selected_answer,
+                qq.question_id, 
+                qq.question_text, 
+                qq.option_1, 
+                qq.option_2, 
+                qq.option_3, 
+                qq.option_4, 
+                qq.correct_answer, 
+                qr.selected_answer, 
                 qr.is_correct
             FROM quiz_questions qq
-            LEFT JOIN quiz_responses qr ON qq.question_id = qr.question_id 
+            LEFT JOIN quiz_responses qr 
+                ON qq.question_id = qr.question_id 
                 AND qr.quiz_id = qq.quiz_id 
                 AND qr.student_id = %s
-            WHERE qq.quiz_id = %s
+            WHERE qq.quiz_id = %s;
         """, (student_id, quiz_id))
         questions = cursor.fetchall()
+        print("Questions:", questions)  # Debugging output
 
-        # Get quiz responses
         cursor.execute("""
             SELECT * FROM quiz_responses
             WHERE quiz_id = %s AND student_id = %s
         """, (quiz_id, student_id))
         quiz_responses = cursor.fetchall()
 
-        return {
-            "student_result": result,
+        response_data = {
+            "student_result": {
+                "total": total_questions,
+                "correct_answers": correct_answers,
+                "incorrect_answers": incorrect_answers,
+                "grade": calculate_grade(correct_answers, total_questions)
+            },
             "class_performance": class_performance,
             "questions": questions,
-            "quiz_responses": quiz_responses
+            "quiz_responses": quiz_responses  # ✅ Ensure this is always included
         }
 
+        print("Final API Response:", response_data)  # Debugging output
+        return response_data
+
     except Exception as e:
-        print(f"Error fetching quiz results: {str(e)}")
+        print(f"Error fetching quiz results: {str(e)}")  # Debugging output
         raise HTTPException(status_code=500, detail=str(e))
+
     finally:
         cursor.close()
         conn.close()
