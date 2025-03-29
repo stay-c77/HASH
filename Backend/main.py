@@ -907,3 +907,87 @@ async def get_quiz_results(quiz_id: str, student_id: str):
     finally:
         cursor.close()
         conn.close()
+
+
+@app.get("/api/completed-quizzes/{student_id}")
+async def get_completed_quizzes(student_id: str):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        # Get completed quizzes with detailed information
+        query = """
+            WITH TopPerformers AS (
+                SELECT 
+                    qr.quiz_id,
+                    sd.student_name,
+                    sd.student_pic,
+                    qr.percentage as score,
+                    ROW_NUMBER() OVER (PARTITION BY qr.quiz_id ORDER BY qr.percentage DESC) as rank
+                FROM quiz_result qr
+                JOIN student_details sd ON sd.student_id = qr.student_id
+            )
+            SELECT 
+                gq.quiz_id,
+                gq.subject_id,
+                gq.topic_name,
+                gq.no_of_questions,
+                gq.difficulty,
+                qr.score,
+                qr.grade,
+                qr.correct_answers,
+                qr.incorrect_answers,
+                qr.percentage,
+                ssl.subject_name,
+                td.teacher_id,
+                td.teacher_name,
+                t.topic_name as topic_display_name,
+                json_build_object(
+                    'name', tp.student_name,
+                    'score', tp.score,
+                    'avatar', tp.student_pic
+                ) as top_performer
+            FROM completed_quiz_list cql
+            JOIN generated_quiz gq ON cql.quiz_id = gq.quiz_id
+            JOIN quiz_result qr ON qr.quiz_id = gq.quiz_id AND qr.student_id = cql.student_id
+            JOIN student_subjectslist ssl ON gq.subject_id = ssl.subject_id
+            JOIN teacher_details td ON gq.teacher_id = td.teacher_id
+            JOIN topics t ON t.topic_id::text = gq.topic_name
+            LEFT JOIN TopPerformers tp ON tp.quiz_id = gq.quiz_id AND tp.rank = 1
+            WHERE cql.student_id = %s
+            ORDER BY qr.percentage DESC
+        """
+
+        cursor.execute(query, (student_id,))
+        completed_quizzes = cursor.fetchall()
+
+        if not completed_quizzes:
+            return {
+                "message": "No completed quizzes found",
+                "quizzes": []
+            }
+
+        # Process the results
+        for quiz in completed_quizzes:
+            # Convert numeric values to proper types if needed
+            quiz['no_of_questions'] = int(quiz['no_of_questions'])
+            quiz['correct_answers'] = int(quiz['correct_answers'])
+            quiz['incorrect_answers'] = int(quiz['incorrect_answers'])
+            quiz['percentage'] = float(quiz['percentage'])
+
+            # Ensure top_performer data is properly formatted
+            if quiz['top_performer'] and isinstance(quiz['top_performer'], str):
+                quiz['top_performer'] = json.loads(quiz['top_performer'])
+
+        return {
+            "message": "Completed quizzes retrieved successfully",
+            "quizzes": completed_quizzes
+        }
+
+    except Exception as e:
+        print(f"Error fetching completed quizzes: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+    finally:
+        cursor.close()
+        conn.close()
