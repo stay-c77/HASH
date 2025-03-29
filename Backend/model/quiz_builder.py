@@ -4,10 +4,8 @@ from prompts.prompt import Prompt
 from gen_ai.deepseek import GenAI
 from model.syllabus_parser import ProcessSyllabus
 
-# Define the uploaded PDF path
-pdf_path = "uploads/syllabus.pdf"  # Ensure the path is correct
+pdf_path = "uploads/syllabus.pdf"
 
-# Parse the syllabus from the uploaded PDF
 process_syllabus = ProcessSyllabus()
 syllabus_text = process_syllabus.syllabus_parser(pdf_path)
 
@@ -23,7 +21,6 @@ if syllabus_text:
         try:
             cleaned_response = re.sub(r'```json|```', '', response).strip()
             syllabus_json = json.loads(cleaned_response)
-            print("\n Parsed Syllabus:\n", json.dumps(syllabus_json, indent=4))
 
             topics = []
             if "Syllabus" in syllabus_json:
@@ -36,7 +33,6 @@ if syllabus_text:
                             topics.append(module_topics)
 
             if topics:
-                print("Topics found:", topics)
                 topics_str = str(topics)
 
                 quiz_prompt = prompt_generator.generate_quiz(
@@ -49,19 +45,15 @@ if syllabus_text:
                     hard=3
                 )
 
-                print("\nGenerated Quiz Prompt:\n", quiz_prompt)
-
                 quiz_response = gen_ai.gen_ai_model(quiz_prompt)
                 if not quiz_response:
                     print("No response received. Retrying...")
                     quiz_response = gen_ai.gen_ai_model(quiz_prompt)
 
                 if quiz_response:
-                    print("Raw AI Response for Quiz:\n", quiz_response)
                     try:
                         cleaned_quiz_response = re.sub(r'```json|```', '', quiz_response).strip()
                         quiz_json = json.loads(cleaned_quiz_response)
-                        print("\nGenerated Quiz: \n", json.dumps(quiz_json, indent=4))
                     except json.JSONDecodeError:
                         print("AI Response is NOT valid JSON:\n", quiz_response)
                 else:

@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import {motion, AnimatePresence} from "framer-motion";
 
-// Dummy data for students (20 students as example)
 const initialStudentsData = [
     {
         id: 1,
@@ -58,13 +57,11 @@ const Year1StudentsPage = () => {
     const [studentsData, setStudentsData] = useState(initialStudentsData);
     const [searchQuery, setSearchQuery] = useState('');
 
-    // CRUD Modal States
     const [addModalOpen, setAddModalOpen] = useState(false);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null);
 
-    // Form Data State
     const [formData, setFormData] = useState({
         name: '',
         regNo: '',
@@ -89,7 +86,6 @@ const Year1StudentsPage = () => {
         return (total / Object.keys(grades).length).toFixed(2);
     };
 
-    // CRUD Operations
     const handleAdd = () => {
         setFormData({
             name: '',
@@ -138,13 +134,11 @@ const Year1StudentsPage = () => {
         setDeleteModalOpen(false);
     };
 
-    // Filter students based on search
     const filteredStudents = studentsData.filter(student =>
         student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         student.regNo.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Modal Component
     const Modal = ({isOpen, onClose, title, children}) => (
         <AnimatePresence>
             {isOpen && (

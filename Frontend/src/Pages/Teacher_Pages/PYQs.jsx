@@ -9,7 +9,6 @@ import TeacherNavbar from '../../Components/TeacherNavbar';
 import TeacherSidebar from '../../Components/TeacherSidebar';
 import PopupModal from '../../Components/PopupModal.jsx';
 
-// Dummy data for PYQs
 const initialPYQsData = {
     "Internetworking with TCP/IP": [
         "TCP/KTUS6IT/QNP2019SC/MAR2022",
@@ -141,7 +140,6 @@ const PYQs = () => {
         subject.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Modal Component
     const Modal = ({ isOpen, onClose, title, children }) => (
         <AnimatePresence>
             {isOpen && (

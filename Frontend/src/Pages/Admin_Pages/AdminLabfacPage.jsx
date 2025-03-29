@@ -9,7 +9,6 @@ import {
     GraduationCap, Award, BookOpen, Plus, Edit2, Trash2
 } from 'lucide-react';
 
-// Lab Faculty data
 const initialLabFacultyData = [
     {
         name: "R Harikrishnan",
@@ -44,10 +43,9 @@ const AdminLabfacPage = () => {
     const [selectedTeacher, setSelectedTeacher] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Form state for add/edit
     const [formData, setFormData] = useState({
         name: '',
-        position: 'Lab Instructor', // Default position for lab faculty
+        position: 'Lab Instructor',
         department: '',
         education: '',
         specialization: '',
@@ -119,7 +117,6 @@ const AdminLabfacPage = () => {
         teacher.specialization.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Modal Component
     const Modal = ({isOpen, onClose, title, children}) => (
         <AnimatePresence>
             {isOpen && (

@@ -6,7 +6,6 @@ import {
     Plus, CheckCircle, FileText, Book, BookMarked, Trophy, Users, LogOut, X, Filter, ChevronDown
 } from 'lucide-react';
 
-// Dummy data for students
 const studentsData = {
     "Year 1": [
         {

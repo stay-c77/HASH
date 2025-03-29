@@ -9,7 +9,6 @@ import StudentNavbar from '../../Components/StudentNavbar';
 import StudentSidebar from '../../Components/StudentSidebar';
 import LogoutModal from '../../Components/LogoutModal';
 
-// Dummy data for top ranks
 const topRanks = [
     {
         name: "Mohammed Ziyan",
@@ -31,7 +30,6 @@ const topRanks = [
     }
 ];
 
-// Rank system data
 const rankSystem = [
     {title: "Novice", icon: Brain, description: "Just getting started.", points: 0, color: "text-gray-400"},
     {title: "Apprentice", icon: Brain, description: "Building a foundation.", points: 1000, color: "text-gray-400"},

@@ -8,7 +8,6 @@ import StudentNavbar from '../../Components/StudentNavbar';
 import StudentSidebar from '../../Components/StudentSidebar';
 import LogoutModal from '../../Components/LogoutModal';
 
-// Dummy data for upcoming quizzes
 const upcomingQuizzes = [
     {
         topic: "Advanced Data Structures",

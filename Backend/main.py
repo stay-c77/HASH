@@ -63,12 +63,12 @@ def get_db_connection():
 def extract_json(response_text):
     match = re.search(r'```json\n(.*?)\n```', response_text, re.DOTALL)
     if match:
-        clean_json = match.group(1)  # Extract JSON content
+        clean_json = match.group(1)
     else:
-        clean_json = response_text  # Use raw response if no markdown
+        clean_json = response_text
 
     try:
-        return json.loads(clean_json)  # Convert to Python dictionary
+        return json.loads(clean_json)
     except json.JSONDecodeError as e:
         print("JSON parsing error:", e)
         return None
@@ -118,8 +118,6 @@ async def generate_quiz(request: QuizRequest):
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        print(f"📌 Received topic_id: {request.topic_id}, student_year: {request.student_year}")
-
         cursor.execute("""
             SELECT t.topic_id, t.topic_name, m.module_name, s.subject_name 
             FROM topics t
@@ -129,7 +127,6 @@ async def generate_quiz(request: QuizRequest):
         """, (request.topic_id,))
 
         topic_info = cursor.fetchone()
-        print(f"Topic Query Result: {topic_info}")
 
         if not topic_info:
             raise HTTPException(status_code=404, detail="Topic not found")
@@ -149,26 +146,20 @@ async def generate_quiz(request: QuizRequest):
             hard=request.question_count // 3
         )
 
-        print(f"Generated Quiz Prompt: {quiz_prompt}")
-
         response = gen_ai.gen_ai_model(quiz_prompt)
-        print(f"Raw AI Response: {response}")
 
         if not response:
             raise HTTPException(status_code=500, detail="Failed to generate quiz")
 
         quiz_data = extract_json(response)
-        print(f"Parsed Quiz Data: {quiz_data}")
 
         if not quiz_data:
             raise HTTPException(status_code=500, detail="Invalid quiz format")
 
-        # Add difficulty levels to questions based on AI response
+
         for question in quiz_data["questions"]:
             if "difficulty" not in question:
-                # Assign difficulty based on question complexity
-                question["difficulty"] = "medium"  # Default to medium if not specified
-
+                question["difficulty"] = "medium"
         return {"quiz": quiz_data}
 
     except Exception as e:
@@ -224,7 +215,7 @@ async def upload_quiz(request: QuizUploadRequest):
                 question['options'][2],
                 question['options'][3],
                 question['correct_answer'],
-                question.get('difficulty', 'medium')  # Default to medium if not specified
+                question.get('difficulty', 'medium')
             ))
 
         conn.commit()
@@ -331,8 +322,6 @@ async def get_modules_by_subject(subject_id: str):
     cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     try:
-        print("Received subject_id:", subject_id)
-
         query = """
         SELECT module_id, module_name
         FROM modules
@@ -340,8 +329,6 @@ async def get_modules_by_subject(subject_id: str):
         """
         cursor.execute(query, (subject_id,))
         modules = cursor.fetchall()
-
-        print("Modules fetched:", modules)
 
         if not modules:
             raise HTTPException(status_code=404, detail="No modules found for this subject")
@@ -373,12 +360,10 @@ async def get_module_topics(module_id: str):
     cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     try:
-        print(f"Fetching topics for module_id: {module_id}")
         query = "SELECT topic_id, topic_name FROM topics WHERE module_id = %s"
         cursor.execute(query, (module_id,))
 
         topics = cursor.fetchall()
-        print(f"Raw fetched topics: {topics}")
 
         if not topics:
             print(f"No topics found for module_id: {module_id}")
@@ -490,7 +475,6 @@ async def parse_syllabus(file: UploadFile = File(...)):
 
         try:
             parsed_data = json.loads(cleaned_content)
-            print("📌 Parsed Data Before Sending:", json.dumps(parsed_data, indent=2))
             return {"parsed_data": parsed_data}
         except json.JSONDecodeError:
             raise HTTPException(status_code=500, detail="AI response is not valid JSON.")
@@ -583,7 +567,7 @@ async def upload_syllabus(data: dict):
 async def get_pending_quizzes(student_year: int, student_id: int):
     try:
         conn = get_db_connection()
-        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)  # ✅ Use DictCursor
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
         query = """
             SELECT 
@@ -613,9 +597,7 @@ async def get_pending_quizzes(student_year: int, student_id: int):
         """
 
         cursor.execute(query, (student_year, student_id))
-        quizzes = cursor.fetchall()  # ✅ This now returns a list of dictionaries
-
-        print("✅ Retrieved Quizzes from DB:", quizzes)  # 🔍 Debugging output
+        quizzes = cursor.fetchall()
 
         if not quizzes:
             return {
@@ -641,14 +623,13 @@ async def get_pending_quizzes(student_year: int, student_id: int):
             for quiz in quizzes
         ]
 
-        print("✅ Final API Response:", formatted_quizzes)  # 🔍 Debugging output
         return {
             "message": "Pending quizzes retrieved successfully",
             "quizzes": formatted_quizzes
         }
 
     except Exception as e:
-        print(f"❌ Error fetching pending quizzes: {str(e)}")  # 🔍 Debugging output
+        print(f"Error fetching pending quizzes: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
@@ -662,7 +643,6 @@ async def get_quiz(quiz_id: str):
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Get quiz details
         cursor.execute("""
             SELECT 
                 gq.quiz_id,
@@ -687,7 +667,6 @@ async def get_quiz(quiz_id: str):
         if not quiz_details:
             raise HTTPException(status_code=404, detail="Quiz not found")
 
-        # Get quiz questions
         cursor.execute("""
             SELECT 
                 question_id,
@@ -727,7 +706,6 @@ async def submit_quiz(request: dict):
         answers = request["answers"]
         student_year = request["student_year"]
 
-        # Get correct answers
         cursor.execute("""
             SELECT question_id, correct_answer 
             FROM quiz_questions 
@@ -738,7 +716,6 @@ async def submit_quiz(request: dict):
         total_questions = len(correct_answers_data)
         correct_count = 0
 
-        # Store individual question responses
         for q in correct_answers_data:
             question_id = str(q["question_id"])
             selected_answer = answers.get(question_id)
@@ -756,7 +733,6 @@ async def submit_quiz(request: dict):
         incorrect_count = total_questions - correct_count
         percentage = (correct_count / total_questions) * 100
 
-        # Determine grade
         grade = 0  # Default grade (F)
         if percentage >= 90:
             grade = 5  # A+
@@ -812,7 +788,7 @@ async def submit_quiz(request: dict):
 
 def calculate_grade(correct, total):
     if total == 0:
-        return "N/A"  # No grade if no questions
+        return "N/A"
 
     percentage = (correct / total) * 100
 
@@ -834,7 +810,6 @@ async def get_quiz_results(quiz_id: str, student_id: str):
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Fetch student results
         cursor.execute("""
             SELECT 
                 COUNT(*) AS total_questions,
@@ -846,17 +821,14 @@ async def get_quiz_results(quiz_id: str, student_id: str):
         """, (quiz_id, student_id))
 
         student_result = cursor.fetchone()
-        print("Student Result:", student_result)  # Debugging output
 
         if not student_result:
             raise HTTPException(status_code=404, detail="Quiz result not found")
 
-        # ✅ Convert values to integers
         total_questions = int(student_result["total_questions"])
         correct_answers = int(student_result["correct_answers"])
         incorrect_answers = int(student_result["incorrect_answers"])
 
-        # Fetch class performance
         cursor.execute("""
             SELECT grade, COUNT(*) as count 
             FROM quiz_result 
@@ -864,9 +836,7 @@ async def get_quiz_results(quiz_id: str, student_id: str):
             GROUP BY grade;
         """, (quiz_id,))
         class_performance = cursor.fetchall()
-        print("Class Performance:", class_performance)  # Debugging output
 
-        # Fetch questions & student answers
         cursor.execute("""
             SELECT 
                 qq.question_id, 
@@ -886,7 +856,6 @@ async def get_quiz_results(quiz_id: str, student_id: str):
             WHERE qq.quiz_id = %s;
         """, (student_id, quiz_id))
         questions = cursor.fetchall()
-        print("Questions:", questions)  # Debugging output
 
         cursor.execute("""
             SELECT * FROM quiz_responses
@@ -903,14 +872,13 @@ async def get_quiz_results(quiz_id: str, student_id: str):
             },
             "class_performance": class_performance,
             "questions": questions,
-            "quiz_responses": quiz_responses  # ✅ Ensure this is always included
+            "quiz_responses": quiz_responses
         }
 
-        print("Final API Response:", response_data)  # Debugging output
         return response_data
 
     except Exception as e:
-        print(f"Error fetching quiz results: {str(e)}")  # Debugging output
+        print(f"Error fetching quiz results: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
@@ -924,7 +892,6 @@ async def get_completed_quizzes(student_id: str):
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-        # Get completed quizzes with detailed information
         query = """
             WITH TopPerformers AS (
                 SELECT 
@@ -976,15 +943,12 @@ async def get_completed_quizzes(student_id: str):
                 "quizzes": []
             }
 
-        # Process the results
         for quiz in completed_quizzes:
-            # Convert numeric values to proper types if needed
             quiz['no_of_questions'] = int(quiz['no_of_questions'])
             quiz['correct_answers'] = int(quiz['correct_answers'])
             quiz['incorrect_answers'] = int(quiz['incorrect_answers'])
             quiz['percentage'] = float(quiz['percentage'])
 
-            # Ensure top_performer data is properly formatted
             if quiz['top_performer'] and isinstance(quiz['top_performer'], str):
                 quiz['top_performer'] = json.loads(quiz['top_performer'])
 
@@ -1008,7 +972,6 @@ async def get_teacher_completed_quizzes(teacher_id: str):
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-        # Get all completed quizzes for the teacher
         query = """
             WITH StudentCounts AS (
                 SELECT student_year, COUNT(*) as total_students
@@ -1065,7 +1028,6 @@ async def get_quiz_details(quiz_id: str):
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-        # Get quiz details with student performance
         query = """
             SELECT 
                 sd.student_id,
@@ -1090,7 +1052,6 @@ async def get_quiz_details(quiz_id: str):
         cursor.execute(query, (quiz_id,))
         student_results = cursor.fetchall()
 
-        # Get quiz information
         quiz_query = """
             SELECT 
                 gq.quiz_id,
@@ -1138,7 +1099,6 @@ async def export_quiz_results(quiz_id: str):
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-        # Fetch quiz and student data
         query = """
             WITH QuizInfo AS (
                 SELECT 
@@ -1174,26 +1134,23 @@ async def export_quiz_results(quiz_id: str):
         if not results:
             raise HTTPException(status_code=404, detail="Quiz results not found")
 
-        # Prepare PDF
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
             pdf_path = temp_file.name
             doc = SimpleDocTemplate(pdf_path, pagesize=letter)
             elements = []
             styles = getSampleStyleSheet()
 
-            # Title (Centered)
             title_style = ParagraphStyle(
                 "Title",
                 parent=styles["Title"],
                 fontSize=16,
-                alignment=1,  # Center align
+                alignment=1,
                 spaceAfter=10
             )
             elements.append(Paragraph(f"Quiz Results - {results[0]['subject_name']}", title_style))
 
-            # Quiz Info (Topic, Difficulty, Date)
             topic_text = f"Topic: {results[0]['topic_name']}"
-            wrapped_topic = Paragraph(topic_text, styles["BodyText"])  # Wrap long topic names
+            wrapped_topic = Paragraph(topic_text, styles["BodyText"])
 
             quiz_info_table = Table([
                 [wrapped_topic],
@@ -1207,7 +1164,6 @@ async def export_quiz_results(quiz_id: str):
 
             elements.append(Paragraph("<br/><br/>", styles["BodyText"]))  # Add spacing
 
-            # Table Data
             table_data = [["Student Name", "Correct Answers", "Score", "Grade", "Percentage"]]
             for row in results:
                 letter_grade = GRADE_MAP.get(row["grade"], "F")  # Convert numeric grade to letter
@@ -1215,7 +1171,6 @@ async def export_quiz_results(quiz_id: str):
                     row["student_name"], row["correct_answers"], row["score"], letter_grade, f"{row['percentage']}%"
                 ])
 
-            # Student Results Table
             result_table = Table(table_data, colWidths=[150, 100, 80, 80, 100])
             result_table.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
@@ -1227,7 +1182,6 @@ async def export_quiz_results(quiz_id: str):
             ]))
             elements.append(result_table)
 
-            # Build PDF
             doc.build(elements)
 
             return FileResponse(pdf_path, media_type='application/pdf', filename=f'quiz_results_{quiz_id}.pdf')

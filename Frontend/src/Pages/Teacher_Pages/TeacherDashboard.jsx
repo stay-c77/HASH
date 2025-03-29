@@ -8,7 +8,6 @@ import {motion, AnimatePresence} from "framer-motion";
 import TeacherNavbar from '../../Components/TeacherNavbar';
 import TeacherSidebar from '../../Components/TeacherSidebar';
 
-// Dummy data for recent activities
 const recentActivities = [
     {
         type: "quiz_completed",
@@ -32,7 +31,6 @@ const recentActivities = [
     }
 ];
 
-// Dummy data for announcements
 const announcements = [
     {
         id: 1,
@@ -64,7 +62,6 @@ const TeacherDashboard = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [selectedYear, setSelectedYear] = useState('Year 2');
 
-    // Class statistics based on selected year
     const classStats = {
         'Year 1': {
             students: 45,

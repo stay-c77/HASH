@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import {HoverBorderGradient} from "../../../ui/hover-border-gradient";
 
-// Rank system data
 const rankSystem = [
     {title: "Novice", icon: Brain, description: "Just getting started.", points: 0, color: "text-gray-400"},
     {title: "Apprentice", icon: Lightbulb, description: "Building a foundation.", points: 1000, color: "text-gray-400"},
@@ -67,7 +66,6 @@ const rankSystem = [
     }
 ];
 
-// Dummy data for top performers by year
 const topPerformersByYear = {
     "Year 1": [
         {

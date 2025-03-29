@@ -27,7 +27,6 @@ const AssignQuizzes = () => {
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState(null);
 
-    // Quiz configuration state
     const [quizConfig, setQuizConfig] = useState({
         subject: '',
         moduleId: '',
@@ -126,15 +125,11 @@ const AssignQuizzes = () => {
                 student_year: parseInt(quizConfig.student_year)
             };
 
-            console.log("📌 Sending Payload to Backend:", payload);
-
             const response = await axios.post('http://localhost:8000/api/generate-quiz', payload);
-            console.log("📌 Raw API Response:", response.data);
 
             if (response.data?.quiz) {
                 let quizData = response.data.quiz;
 
-                // Handle string JSON response
                 if (typeof quizData === 'string') {
                     try {
                         quizData = quizData.replace(/```json\n?|\n?```/g, '').trim();
@@ -145,14 +140,12 @@ const AssignQuizzes = () => {
                     }
                 }
 
-                console.log("📌 Processed Quiz Data:", quizData);
                 setGeneratedQuiz(quizData);
                 setPreviewModalOpen(true);
             } else {
                 throw new Error("No quiz data in response");
             }
         } catch (error) {
-            console.error("❌ Error generating quiz:", error);
             alert("Failed to generate quiz. Please try again.");
         } finally {
             setLoading(false);
@@ -171,7 +164,6 @@ const AssignQuizzes = () => {
                 throw new Error("No quiz data available");
             }
 
-            // Format the date to YYYY-MM-DD
             const formattedDate = quizConfig.dueDate;
 
             const quizData = {
@@ -181,22 +173,18 @@ const AssignQuizzes = () => {
                 difficulty: quizConfig.difficulty,
                 questions: generatedQuiz.questions.map(q => ({
                     ...q,
-                    correct_answer: q.correct_answer.toString() // Ensure correct_answer is a string
+                    correct_answer: q.correct_answer.toString()
                 })),
                 time_limit: parseInt(quizConfig.timeLimit),
                 due_date: formattedDate,
                 student_year: parseInt(quizConfig.student_year)
             };
 
-            console.log("📤 Uploading quiz data:", quizData);
-
             const response = await axios.post('http://localhost:8000/api/upload-quiz', quizData);
-            console.log("📥 Upload response:", response.data);
 
             alert("Quiz uploaded successfully!");
             navigate('/TeacherDashboard');
         } catch (error) {
-            console.error("❌ Error uploading quiz:", error);
             alert("Failed to upload quiz. Please try again.");
         }
     };
@@ -217,7 +205,6 @@ const AssignQuizzes = () => {
         setEditModalOpen(true);
     };
 
-    // Preview Modal Component
     const PreviewModal = ({isOpen, onClose}) => {
         if (!isOpen || !generatedQuiz) return null;
 

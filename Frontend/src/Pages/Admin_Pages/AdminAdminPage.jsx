@@ -31,7 +31,6 @@ import {
     Trash2
 } from 'lucide-react';
 
-// Initial admin data
 const initialAdminData = [
     {
         name: "Tojin Xavier",
@@ -56,7 +55,6 @@ const AdminAdminPage = () => {
     const [selectedAdmin, setSelectedAdmin] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Form state for add/edit
     const [formData, setFormData] = useState({
         name: '',
         position: 'System Administrator',
@@ -131,7 +129,6 @@ const AdminAdminPage = () => {
         admin.position.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Modal Component
     const Modal = ({isOpen, onClose, title, children}) => (
         <AnimatePresence>
             {isOpen && (

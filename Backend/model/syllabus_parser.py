@@ -1,4 +1,4 @@
-import fitz  # PyMuPDF
+import fitz
 import os
 
 
@@ -15,10 +15,8 @@ class ProcessSyllabus:
                 print(f"Error: File '{pdf_path}' not found.")
                 return None
 
-            print(f"Extracting text from: {pdf_path}")
             syllabus_text = ""
 
-            # Open the PDF file
             with fitz.open(pdf_path) as doc:
                 for page in doc:
                     syllabus_text += page.get_text("text") + "\n"

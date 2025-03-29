@@ -23,7 +23,6 @@ import {
     Eye
 } from 'lucide-react';
 
-// Dummy data for quizzes
 const quizzesData = [
     {
         id: 1,
@@ -71,7 +70,6 @@ const quizzesData = [
     }
 ];
 
-// List of teachers
 const teachers = [
     "Dr. Emily Wilson",
     "Prof. John Davis",

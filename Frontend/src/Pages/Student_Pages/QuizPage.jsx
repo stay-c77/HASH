@@ -96,7 +96,6 @@ const QuizPage = () => {
 
     const handleSubmit = async () => {
         const unanswered = getUnansweredQuestions();
-        console.log("📌 Final Student Info Before Submission:", studentInfo);
         if (unanswered.length > 0) {
             setErrorMessage(`Please answer all questions. ${unanswered.length} questions remaining.`);
             setShowError(true);

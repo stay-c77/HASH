@@ -24,10 +24,10 @@ db_config = {
 def get_db_connection():
     try:
         conn = psycopg2.connect(**db_config)
-        print("✅ Connected to PostgreSQL database!")
+        print("Connected to PostgreSQL database!")
         return conn
     except psycopg2.Error as err:
-        print(f"❌ Error: {err}")
+        print(f"Error: {err}")
         return None
 
 def get_db_cursor():

@@ -24,7 +24,6 @@ const CompletedQuizzes = () => {
             try {
                 const user = JSON.parse(localStorage.getItem('user'));
                 if (!user?.teacher_id) {
-                    console.error('No teacher ID found');
                     return;
                 }
 
@@ -84,7 +83,6 @@ const CompletedQuizzes = () => {
         return matchesSearch;
     });
 
-    // Details Modal Component
     const DetailsModal = ({ isOpen, onClose, details }) => {
         if (!isOpen || !details) return null;
 

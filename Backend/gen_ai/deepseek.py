@@ -4,7 +4,6 @@ from config.config_parser import Config
 from prompts.prompt import Prompt
 from model.syllabus_parser import ProcessSyllabus
 
-# Load API Configuration
 config = Config()
 api_data = config.load_config()
 
@@ -12,7 +11,7 @@ api_key = api_data["API_CONFIG"]["API_KEY"]
 base_url = api_data["API_CONFIG"]["BASE_URL"]
 model = api_data["API_CONFIG"]["MODEL"]
 
-print("Starting the script...")  # Checking if the script is running
+print("Starting the script...")
 
 
 class GenAI:
@@ -24,7 +23,7 @@ class GenAI:
         """Send the prompt to the AI model and return the response."""
         print("Inside gen_ai_model function")  # Debugging
         try:
-            print("Making API request...")  # Debugging API request
+            print("Making API request...")
             response = self.client.chat.completions.create(
                 model=model,
                 messages=[
@@ -34,8 +33,7 @@ class GenAI:
                 ],
                 stream=False
             )
-            print("API request successful!")  # API verification
-            print("Raw API Response:", response)  # Debugging API response
+            print("API request successful!")
 
             return response.choices[0].message.content
         except Exception as e:
@@ -43,32 +41,28 @@ class GenAI:
             return None
 
 
-# Create GenAI instance
 print("Creating GenAI instance...")
 gen_ai = GenAI()
 
-# Initialize Prompt Generator
 prompt_generator = Prompt()
 syllabus_prompt = prompt_generator.parse_syllabus()
 
-# Define the syllabus PDF file path
-pdf_path = "uploads/syllabus.pdf"  # Ensure the uploaded file exists
+pdf_path = "uploads/syllabus.pdf"
 
-print("Fetching syllabus from ProcessSyllabus...")  # Debugging
+print("Fetching syllabus from ProcessSyllabus...")
 process_syllabus = ProcessSyllabus()
 syllabus_text = process_syllabus.syllabus_parser(pdf_path)
 
 if syllabus_text:
     prompt_text = syllabus_prompt.format(syllabus_text=syllabus_text)
 
-    print("Calling gen_ai_model function with syllabus...")  # Debugging
+    print("Calling gen_ai_model function with syllabus...")
     response = gen_ai.gen_ai_model(prompt_text)
 
     if response:
         try:
             cleaned_response = response.strip()
-            syllabus_json = json.loads(cleaned_response)  # Convert response to JSON
-            print("Formatted Syllabus (JSON):\n", json.dumps(syllabus_json, indent=4))
+            syllabus_json = json.loads(cleaned_response)
         except json.JSONDecodeError:
             print("AI Response is NOT valid JSON:\n", response)
     else:

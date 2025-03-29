@@ -55,16 +55,13 @@ function LoginPage() {
             });
 
             const data = await response.json();
-            console.log("🔥 Full API Response:", JSON.stringify(data, null, 2));
 
             if (response.ok && data?.role && data?.email) {
                 if (data.role === "teacher" && !data.teacher_id) {
-                    console.error("❌ Missing teacher_id in API response!");
                     setError("Login failed: teacher_id missing.");
                     return;
                 }
 
-                console.log("✅ Saving user to localStorage:", JSON.stringify(data));
                 localStorage.setItem("user", JSON.stringify(data));
 
                 let redirectPath = "/studentdashboard";

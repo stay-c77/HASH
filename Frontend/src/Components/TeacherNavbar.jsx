@@ -11,12 +11,12 @@ const TeacherNavbar = ({isMobile, sidebarOpen, setSidebarOpen}) => {
         if (storedUser) {
             const parsedUser = JSON.parse(storedUser);
             if (parsedUser.name) {
-                setTeacherName(parsedUser.name); // ✅ Correctly extract the name
+                setTeacherName(parsedUser.name);
             } else {
-                console.error("❌ No name found in user object:", parsedUser);
+                console.error("No name found in user object:", parsedUser);
             }
         } else {
-            console.error("❌ No user found in localStorage!");
+            console.error("No user found in localStorage!");
         }
     }, []);
 

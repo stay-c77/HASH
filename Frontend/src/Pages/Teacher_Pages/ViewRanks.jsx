@@ -11,7 +11,6 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { HoverBorderGradient } from "../../../ui/hover-border-gradient";
 
-// Rank system data
 const rankSystem = [
     { title: "Novice", icon: Brain, description: "Just getting started.", points: 0, color: "text-gray-400" },
     { title: "Apprentice", icon: Brain, description: "Building a foundation.", points: 1000, color: "text-gray-400" },
@@ -25,7 +24,6 @@ const rankSystem = [
     { title: "Grandmaster", icon: Star, description: "The pinnacle of knowledge.", points: 10000, color: "text-yellow-500" }
 ];
 
-// Dummy data for student rankings
 const studentRankings = {
     "Year 1": {
         "Data Structures": [

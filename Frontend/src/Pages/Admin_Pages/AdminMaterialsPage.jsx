@@ -150,7 +150,6 @@ const AdminMaterialsPage = () => {
         subject.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Modal Component
     const Modal = ({isOpen, onClose, title, children}) => (
         <AnimatePresence>
             {isOpen && (

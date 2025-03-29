@@ -9,7 +9,6 @@ import StudentNavbar from '../../Components/StudentNavbar';
 import StudentSidebar from '../../Components/StudentSidebar';
 import LogoutModal from '../../Components/LogoutModal';
 
-// Faculty data
 const facultyData = [
     {
         name: "Dr. Manoj T Joy",

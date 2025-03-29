@@ -20,44 +20,31 @@ const PendingQuizPage = () => {
         const fetchPendingQuizzes = async () => {
             try {
                 const userStr = localStorage.getItem("user");
-                console.log("🔍 LocalStorage User Data:", localStorage.getItem("user"));
                 if (!userStr) {
                     throw new Error("User data not found. Please login again.");
                 }
 
                 const user = JSON.parse(userStr);
-                console.log("📱 User Data:", user);
-
-                // Extract student_year and student_id
                 let studentYear = user.student_year;
-                let studentId = user.student_id; // ✅ Include student_id
+                let studentId = user.student_id;
 
                 if (!studentYear || !studentId) {
-                    throw new Error("⚠️ Missing student year or ID from user data!");
+                    throw new Error("Missing student year or ID from user data!");
                 }
 
-                console.log("📚 Fetching quizzes for Student Year:", studentYear, "Student ID:", studentId);
-
-                // ✅ Now, send both `student_year` and `student_id`
                 const apiUrl = `http://localhost:8000/api/pending-quizzes/${studentYear}/${studentId}`;
-                console.log("🌍 Fetching from:", apiUrl);
-
                 const response = await fetch(apiUrl);
-                console.log("🔄 API Response Status:", response.status);
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    console.error("❌ API Error Response:", errorData);
                     throw new Error(errorData.detail ? JSON.stringify(errorData.detail) : "Unknown error");
                 }
 
                 const data = await response.json();
-                console.log("✅ API Response Data:", data);
 
                 setPendingQuizzes(data.quizzes || []);
                 setEmptyMessage(data.message || "No pending quizzes found");
             } catch (err) {
-                console.error("❌ Error fetching pending quizzes:", err);
                 setError(err.message);
             } finally {
                 setLoading(false);
@@ -106,7 +93,6 @@ const PendingQuizPage = () => {
         return `Due soon`;
     };
 
-    // Empty state component
     const EmptyState = () => (
         <motion.div
             initial={{opacity: 0, y: 20}}

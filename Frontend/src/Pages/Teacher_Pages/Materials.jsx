@@ -12,7 +12,6 @@ import PopupModal from '../../Components/PopupModal.jsx';
 import TeacherSidebar from "../../components/TeacherSidebar.jsx";
 import TeacherNavbar from "../../components/TeacherNavbar.jsx";
 
-// Dummy data for materials
 const initialMaterialsData = {
     "Internetworking with TCP/IP": [
         "Lecture Notes",
@@ -144,7 +143,6 @@ const Materials = () => {
         subject.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Modal Component
     const Modal = ({isOpen, onClose, title, children}) => (
         <AnimatePresence>
             {isOpen && (

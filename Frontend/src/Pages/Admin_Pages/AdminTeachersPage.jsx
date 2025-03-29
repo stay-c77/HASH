@@ -9,7 +9,6 @@ import {
     GraduationCap, Award, BookOpen, Plus, Edit2, Trash2
 } from 'lucide-react';
 
-// Faculty data
 const initialFacultyData = [
     {
         name: "Dr. Manoj T Joy",
@@ -204,7 +203,6 @@ const AdminTeachersPage = () => {
     const [selectedTeacher, setSelectedTeacher] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Form state for add/edit
     const [formData, setFormData] = useState({
         name: '',
         position: '',
@@ -279,7 +277,6 @@ const AdminTeachersPage = () => {
         teacher.position.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Modal Component
     const Modal = ({isOpen, onClose, title, children}) => (
         <AnimatePresence>
             {isOpen && (

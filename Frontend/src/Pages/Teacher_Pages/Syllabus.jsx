@@ -84,7 +84,7 @@ const Syllabus = () => {
         if (storedTeacherId) {
             setCurrentTeacherId(storedTeacherId);
         } else {
-            console.error("⚠️ No teacherId found in localStorage!");
+            console.error("No teacherId found in localStorage!");
         }
     }, []);
 
@@ -145,10 +145,8 @@ const Syllabus = () => {
                 }
             });
 
-            console.log("📜 API Response:", response.data);
 
             if (!response.data || !response.data.parsed_data) {
-                console.error("❌ parsed_data is missing in the response.");
                 alert("Failed to parse syllabus. Please try again.");
                 return;
             }
@@ -156,7 +154,6 @@ const Syllabus = () => {
             setParsedData(response.data.parsed_data);
             setPreviewModalOpen(true);
         } catch (error) {
-            console.error('⚠️ Error parsing syllabus:', error);
             alert("An error occurred while parsing the syllabus.");
         } finally {
             setLoading(false);
@@ -224,7 +221,6 @@ const Syllabus = () => {
             };
 
             try {
-                console.log("📤 Sending data to server:", formattedData);
 
                 const response = await axios.post(
                     "http://localhost:8000/api/syllabus/upload",

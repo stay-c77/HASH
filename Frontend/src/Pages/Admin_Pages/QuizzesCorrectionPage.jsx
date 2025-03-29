@@ -26,7 +26,6 @@ import {
     CheckCircle2
 } from 'lucide-react';
 
-// Dummy data for student complaints
 const complaintData = [
     {
         id: "COMP" + Math.floor(Math.random() * 10000),

@@ -3,7 +3,6 @@ import {motion, AnimatePresence} from 'framer-motion';
 import {Bell, Search, AlertTriangle, X} from 'lucide-react';
 import axios from 'axios';
 
-// Dummy data for recent quizzes
 const recentQuizzes = [
     {
         id: 1,
@@ -47,21 +46,18 @@ const StudentNavbar = () => {
             const storedUser = localStorage.getItem("user");
 
             if (!storedUser) {
-                console.error("⚠️ User data not found in localStorage!");
                 return;
             }
 
             try {
                 const parsedUser = JSON.parse(storedUser);
                 if (!parsedUser?.email) {
-                    console.error("⚠️ User email not found in localStorage!");
                     return;
                 }
 
-                console.log("✅ User found in localStorage:", parsedUser);
                 setUserName(parsedUser.name || "Unknown"); // Corrected from setStudentName
             } catch (error) {
-                console.error("⚠️ Error parsing user data:", error);
+                console.error("Error parsing user data:", error);
             }
         };
 
@@ -69,8 +65,6 @@ const StudentNavbar = () => {
     }, []);
 
     const handleSubmitComplaint = () => {
-        // Here you would handle the complaint submission
-        // For now, we'll just log it and close the modal
         console.log({
             studentInfo,
             complaintType,
@@ -79,7 +73,6 @@ const StudentNavbar = () => {
             remarks
         });
 
-        // Reset form
         setComplaintType('');
         setSelectedQuiz('');
         setSelectedQuestions([]);

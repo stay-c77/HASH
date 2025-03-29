@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import {motion, AnimatePresence} from "framer-motion";
 
-// Dummy data for class progress
 const classProgress = [
     {
         year: "Year 1 Students",
@@ -42,7 +41,6 @@ const classProgress = [
     }
 ];
 
-// Dummy data for teacher progress
 const teacherProgress = [
     {
         name: "Dr. Emily Wilson",
@@ -73,7 +71,6 @@ const teacherProgress = [
     }
 ];
 
-// Dummy data for top performers by year
 const topPerformersByYear = {
     "Year 1": [
         {
@@ -145,7 +142,6 @@ const topPerformersByYear = {
     ]
 };
 
-// Dummy data for complaints
 const complaintsData = [
     {
         id: 1,

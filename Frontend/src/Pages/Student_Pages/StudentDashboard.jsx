@@ -9,7 +9,6 @@ import StudentNavbar from '../../Components/StudentNavbar';
 import StudentSidebar from '../../Components/StudentSidebar';
 import LogoutModal from '../../Components/LogoutModal';
 
-// Dummy data for recent activities
 const leaderboardData = [
     {
         name: "Alex Thompson",
@@ -31,7 +30,6 @@ const leaderboardData = [
     },
 ];
 
-// Dummy data for teachers
 const teachersData = [
     {
         name: "Dr. Emily Wilson",
