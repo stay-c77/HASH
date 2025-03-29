@@ -13,6 +13,15 @@ from prompts.prompt import Prompt
 import os
 import json, re
 from datetime import datetime
+import pandas as pd
+from fastapi.responses import FileResponse
+from io import BytesIO
+import tempfile
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 
 # Load database config
 config = ConfigParser()
@@ -988,6 +997,244 @@ async def get_completed_quizzes(student_id: str):
         print(f"Error fetching completed quizzes: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.get("/api/teacher/completed-quizzes/{teacher_id}")
+async def get_teacher_completed_quizzes(teacher_id: str):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+        # Get all completed quizzes for the teacher
+        query = """
+            WITH StudentCounts AS (
+                SELECT student_year, COUNT(*) as total_students
+                FROM student_details
+                GROUP BY student_year
+            ),
+            QuizStats AS (
+                SELECT 
+                    gq.quiz_id,
+                    COUNT(DISTINCT cql.student_id) as students_completed,
+                    AVG(qr.percentage) as average_score
+                FROM generated_quiz gq
+                LEFT JOIN completed_quiz_list cql ON gq.quiz_id = cql.quiz_id
+                LEFT JOIN quiz_result qr ON gq.quiz_id = qr.quiz_id
+                GROUP BY gq.quiz_id
+            )
+            SELECT 
+                gq.quiz_id,
+                gq.subject_id,
+                ssl.subject_name,
+                t.topic_name as topic_name,
+                gq.no_of_questions,
+                gq.difficulty,
+                gq.end_date,
+                gq.student_year,
+                qs.students_completed,
+                sc.total_students,
+                ROUND(qs.average_score::numeric, 2) as average_score
+            FROM generated_quiz gq
+            JOIN student_subjectslist ssl ON gq.subject_id = ssl.subject_id
+            JOIN topics t ON t.topic_id::text = gq.topic_name
+            JOIN StudentCounts sc ON gq.student_year = sc.student_year
+            LEFT JOIN QuizStats qs ON gq.quiz_id = qs.quiz_id
+            WHERE gq.teacher_id = %s
+            ORDER BY gq.end_date DESC
+        """
+
+        cursor.execute(query, (teacher_id,))
+        quizzes = cursor.fetchall()
+
+        return {"quizzes": quizzes}
+
+    except Exception as e:
+        print(f"Error fetching completed quizzes: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.get("/api/quiz/details/{quiz_id}")
+async def get_quiz_details(quiz_id: str):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+        # Get quiz details with student performance
+        query = """
+            SELECT 
+                sd.student_id,
+                sd.student_name,
+                sd.student_pic,
+                qr.score,
+                qr.grade,
+                qr.correct_answers,
+                qr.incorrect_answers,
+                qr.percentage,
+                COUNT(qres.question_id) as total_questions,
+                SUM(CASE WHEN qres.is_correct THEN 1 ELSE 0 END) as correct_count
+            FROM quiz_result qr
+            JOIN student_details sd ON qr.student_id = sd.student_id
+            JOIN quiz_responses qres ON qr.quiz_id = qres.quiz_id AND qr.student_id = qres.student_id
+            WHERE qr.quiz_id = %s
+            GROUP BY sd.student_id, sd.student_name, sd.student_pic, qr.score, qr.grade, 
+                     qr.correct_answers, qr.incorrect_answers, qr.percentage
+            ORDER BY qr.percentage DESC
+        """
+
+        cursor.execute(query, (quiz_id,))
+        student_results = cursor.fetchall()
+
+        # Get quiz information
+        quiz_query = """
+            SELECT 
+                gq.quiz_id,
+                gq.subject_id,
+                ssl.subject_name,
+                t.topic_name,
+                gq.difficulty,
+                gq.no_of_questions,
+                gq.end_date
+            FROM generated_quiz gq
+            JOIN student_subjectslist ssl ON gq.subject_id = ssl.subject_id
+            JOIN topics t ON t.topic_id::text = gq.topic_name
+            WHERE gq.quiz_id = %s
+        """
+
+        cursor.execute(quiz_query, (quiz_id,))
+        quiz_info = cursor.fetchone()
+
+        return {
+            "quiz_info": quiz_info,
+            "student_results": student_results
+        }
+
+    except Exception as e:
+        print(f"Error fetching quiz details: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+        conn.close()
+
+
+GRADE_MAP = {
+    5: 'A+',
+    4: 'A',
+    3: 'B',
+    2: 'C',
+    1: 'D',
+    0: 'F'
+}
+
+
+@app.get("/api/quiz/export/{quiz_id}")
+async def export_quiz_results(quiz_id: str):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+        # Fetch quiz and student data
+        query = """
+            WITH QuizInfo AS (
+                SELECT 
+                    gq.quiz_id,
+                    ssl.subject_name,
+                    t.topic_name,
+                    gq.difficulty,
+                    gq.end_date
+                FROM generated_quiz gq
+                JOIN student_subjectslist ssl ON gq.subject_id = ssl.subject_id
+                JOIN topics t ON t.topic_id::text = gq.topic_name
+                WHERE gq.quiz_id = %s
+            )
+            SELECT 
+                sd.student_name,
+                qr.correct_answers,
+                qr.score,
+                qr.grade,
+                qr.percentage,
+                qi.subject_name,
+                qi.topic_name,
+                qi.difficulty,
+                qi.end_date
+            FROM quiz_result qr
+            JOIN student_details sd ON qr.student_id = sd.student_id
+            CROSS JOIN QuizInfo qi
+            WHERE qr.quiz_id = %s
+            ORDER BY qr.percentage DESC
+        """
+
+        cursor.execute(query, (quiz_id, quiz_id))
+        results = cursor.fetchall()
+        if not results:
+            raise HTTPException(status_code=404, detail="Quiz results not found")
+
+        # Prepare PDF
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+            pdf_path = temp_file.name
+            doc = SimpleDocTemplate(pdf_path, pagesize=letter)
+            elements = []
+            styles = getSampleStyleSheet()
+
+            # Title (Centered)
+            title_style = ParagraphStyle(
+                "Title",
+                parent=styles["Title"],
+                fontSize=16,
+                alignment=1,  # Center align
+                spaceAfter=10
+            )
+            elements.append(Paragraph(f"Quiz Results - {results[0]['subject_name']}", title_style))
+
+            # Quiz Info (Topic, Difficulty, Date)
+            topic_text = f"Topic: {results[0]['topic_name']}"
+            wrapped_topic = Paragraph(topic_text, styles["BodyText"])  # Wrap long topic names
+
+            quiz_info_table = Table([
+                [wrapped_topic],
+                [f"Difficulty: {results[0]['difficulty']}", f"Date: {results[0]['end_date'].strftime('%Y-%m-%d')}"]
+            ])
+            quiz_info_table.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold')
+            ]))
+            elements.append(quiz_info_table)
+
+            elements.append(Paragraph("<br/><br/>", styles["BodyText"]))  # Add spacing
+
+            # Table Data
+            table_data = [["Student Name", "Correct Answers", "Score", "Grade", "Percentage"]]
+            for row in results:
+                letter_grade = GRADE_MAP.get(row["grade"], "F")  # Convert numeric grade to letter
+                table_data.append([
+                    row["student_name"], row["correct_answers"], row["score"], letter_grade, f"{row['percentage']}%"
+                ])
+
+            # Student Results Table
+            result_table = Table(table_data, colWidths=[150, 100, 80, 80, 100])
+            result_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ]))
+            elements.append(result_table)
+
+            # Build PDF
+            doc.build(elements)
+
+            return FileResponse(pdf_path, media_type='application/pdf', filename=f'quiz_results_{quiz_id}.pdf')
+
+    except Exception as e:
+        print(f"Error exporting quiz results: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
     finally:
         cursor.close()
         conn.close()
