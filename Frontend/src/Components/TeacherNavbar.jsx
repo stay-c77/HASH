@@ -1,8 +1,25 @@
 import React from 'react';
-import { Bell, Search } from 'lucide-react';
-import { motion } from 'framer-motion';
+import {Bell, Search} from 'lucide-react';
+import {motion} from 'framer-motion';
+import {useState, useEffect} from 'react';
 
-const TeacherNavbar = ({ isMobile, sidebarOpen, setSidebarOpen }) => {
+const TeacherNavbar = ({isMobile, sidebarOpen, setSidebarOpen}) => {
+    const [teacherName, setTeacherName] = useState("Teacher");
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            const parsedUser = JSON.parse(storedUser);
+            if (parsedUser.name) {
+                setTeacherName(parsedUser.name); // ✅ Correctly extract the name
+            } else {
+                console.error("❌ No name found in user object:", parsedUser);
+            }
+        } else {
+            console.error("❌ No user found in localStorage!");
+        }
+    }, []);
+
     return (
         <div className="bg-[#1E1C2E] p-4 flex justify-between items-center sticky top-0 z-10">
             <div className="flex items-center space-x-4">
@@ -28,12 +45,13 @@ const TeacherNavbar = ({ isMobile, sidebarOpen, setSidebarOpen }) => {
             <div className="flex items-center space-x-4">
                 <motion.button whileHover={{scale: 1.1}} className="relative">
                     <Bell size={24} className="text-gray-300 hover:text-white"/>
-                    <span className="absolute -top-1 -right-1 bg-red-500 rounded-full w-4 h-4 text-xs flex items-center justify-center text-white">
+                    <span
+                        className="absolute -top-1 -right-1 bg-red-500 rounded-full w-4 h-4 text-xs flex items-center justify-center text-white">
                         3
                     </span>
                 </motion.button>
                 <div className="flex items-center space-x-3">
-                    <span className="text-white hidden sm:inline">Dr. Smith</span>
+                    <span className="text-white hidden sm:inline">Welcome, {teacherName}</span> {/* ✅ Display Teacher Name */}
                     <motion.img
                         whileHover={{scale: 1.1}}
                         src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop"

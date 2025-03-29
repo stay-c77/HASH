@@ -574,37 +574,39 @@ async def upload_syllabus(data: dict):
 async def get_pending_quizzes(student_year: int, student_id: int):
     try:
         conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)  # ✅ Use DictCursor
 
         query = """
-                SELECT 
-                    gq.quiz_id,
-                    gq.subject_id,
-                    t.topic_name,
-                    gq.no_of_questions,
-                    gq.difficulty,
-                    gq.teacher_id,
-                    gq.end_date,
-                    gq.status,
-                    ssl.subject_name,
-                    td.teacher_name
-                FROM generated_quiz gq
-                JOIN student_subjectslist ssl ON gq.subject_id = ssl.subject_id
-                JOIN teacher_details td ON gq.teacher_id = td.teacher_id
-                JOIN topics t ON t.topic_id::text = gq.topic_name
-                WHERE gq.student_year = %s 
-                AND gq.status = 'active'
-                AND gq.quiz_id NOT IN (
-                    SELECT quiz_id 
-                    FROM completed_quiz_list 
-                    WHERE student_id = %s
-                )
-                AND gq.end_date > CURRENT_TIMESTAMP
-                ORDER BY gq.end_date ASC
-            """
+            SELECT 
+                gq.quiz_id,
+                gq.subject_id,
+                t.topic_name,
+                gq.no_of_questions,
+                gq.difficulty,
+                gq.teacher_id,
+                gq.end_date,
+                gq.status,
+                ssl.subject_name,
+                td.teacher_name
+            FROM generated_quiz gq
+            JOIN student_subjectslist ssl ON gq.subject_id = ssl.subject_id
+            JOIN teacher_details td ON gq.teacher_id = td.teacher_id
+            JOIN topics t ON t.topic_id::text = gq.topic_name
+            WHERE gq.student_year = %s 
+            AND gq.status = 'active'
+            AND gq.quiz_id NOT IN (
+                SELECT quiz_id 
+                FROM completed_quiz_list 
+                WHERE student_id = %s
+            )
+            AND gq.end_date > CURRENT_TIMESTAMP
+            ORDER BY gq.end_date ASC;
+        """
 
         cursor.execute(query, (student_year, student_id))
-        quizzes = cursor.fetchall()
+        quizzes = cursor.fetchall()  # ✅ This now returns a list of dictionaries
+
+        print("✅ Retrieved Quizzes from DB:", quizzes)  # 🔍 Debugging output
 
         if not quizzes:
             return {
@@ -612,9 +614,8 @@ async def get_pending_quizzes(student_year: int, student_id: int):
                 "quizzes": []
             }
 
-        formatted_quizzes = []
-        for quiz in quizzes:
-            formatted_quizzes.append({
+        formatted_quizzes = [
+            {
                 "quiz_id": quiz["quiz_id"],
                 "subject": quiz["subject_name"],
                 "topic": quiz["topic_name"],
@@ -627,16 +628,20 @@ async def get_pending_quizzes(student_year: int, student_id: int):
                 "difficulty": quiz["difficulty"],
                 "deadline": quiz["end_date"].isoformat(),
                 "status": quiz["status"]
-            })
+            }
+            for quiz in quizzes
+        ]
 
+        print("✅ Final API Response:", formatted_quizzes)  # 🔍 Debugging output
         return {
             "message": "Pending quizzes retrieved successfully",
             "quizzes": formatted_quizzes
         }
 
     except Exception as e:
-        print(f"Error fetching pending quizzes: {str(e)}")
+        print(f"❌ Error fetching pending quizzes: {str(e)}")  # 🔍 Debugging output
         raise HTTPException(status_code=500, detail=str(e))
+
     finally:
         cursor.close()
         conn.close()
@@ -762,9 +767,9 @@ async def submit_quiz(request: dict):
         """, (quiz_id, student_id, correct_count, grade, correct_count, incorrect_count, percentage))
 
         cursor.execute("""
-            INSERT INTO completed_quiz_list 
-            (quiz_id, student_id, student_year)
+            INSERT INTO completed_quiz_list (quiz_id, student_id, student_year)
             VALUES (%s, %s, %s)
+            ON CONFLICT (quiz_id, student_id) DO NOTHING;  -- Prevent duplicate entries
         """, (quiz_id, student_id, student_year))
 
         conn.commit()
