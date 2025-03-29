@@ -50,18 +50,27 @@ const CompletedQuizPage = () => {
     };
 
     const getGradeColor = (grade) => {
-        switch (grade) {
-            case 'A+':
-                return 'text-green-400';
-            case 'A':
-                return 'text-green-500';
-            case 'B':
-                return 'text-blue-400';
-            case 'C':
-                return 'text-yellow-500';
-            default:
-                return 'text-red-500';
-        }
+        const gradeMap = {
+            5: 'text-green-400', // A+
+            4: 'text-green-500', // A
+            3: 'text-blue-400',  // B
+            2: 'text-yellow-500', // C
+            1: 'text-orange-500', // D
+            0: 'text-red-500'     // F
+        };
+        return gradeMap[grade] || 'text-gray-400';
+    };
+
+    const getGradeLetter = (grade) => {
+        const gradeMap = {
+            5: 'A+',
+            4: 'A',
+            3: 'B',
+            2: 'C',
+            1: 'D',
+            0: 'F'
+        };
+        return gradeMap[grade] || 'N/A';
     };
 
     const getScoreBackground = (score) => {
@@ -140,7 +149,7 @@ const CompletedQuizPage = () => {
                                                     <div>
                                                         <p className="text-gray-400 text-sm">Grade</p>
                                                         <p className={`font-bold text-xl ${getGradeColor(quiz.grade)}`}>
-                                                            {quiz.grade}
+                                                            {getGradeLetter(quiz.grade)}
                                                         </p>
                                                     </div>
                                                 </div>
