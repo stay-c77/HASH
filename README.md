@@ -35,7 +35,7 @@ HASH is an AI-powered web-based learning platform designed to assist teachers by
 ## Our Target: SDG 4 – Quality Education
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/cf916483-a7b6-4df8-bb78-fc5926875385" alt="SDG 4 – Quality Education" width="300"/>
+  <img src="https://github.com/user-attachments/assets/cf916483-a7b6-4df8-bb78-fc5926875385" alt="SDG 4 – Quality Education" width="250"/>
 </p>
 
 HASH aligns with UN Sustainable Development Goal 4 by promoting inclusive and quality education through AI-powered, personalized assessments. It aims to reduce the burden on teachers while ensuring every student receives support tailored to their learning needs.
