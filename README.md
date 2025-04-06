@@ -22,7 +22,7 @@ HASH is an AI-powered web-based learning platform designed to assist teachers by
 ![System Architecture](https://github.com/user-attachments/assets/4ddb6157-df32-4cc8-a98b-2a642d7b5223)
 
 
-## 🔍 How It Works
+## How It Works
 
 1. Teacher uploads syllabus (PDF)
 2. Backend parses PDF and extracts structured topics
